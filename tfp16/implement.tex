@@ -1,0 +1,157 @@
+\section{Implementation} \label{sec:impl}
+
+This section describes how the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
+machine can be mapped directly to x64 insructions. Specifically, we re-define
+the three instructions given by the TIM~\cite{TIM}: \texttt{TAKE},
+\texttt{ENTER}, and \texttt{PUSH}, and implement them with x64 assembly. We
+also describe several design decisions, as well as some optimizations. All
+implementation and benchmark code is available at
+\texttt{http://cs.unm.edu/\textasciitilde stelleg/cem-tfp2016.tar.gz}.
+
+Each closure is represented as a $\langle$code pointer, environment pointer> tuple. The
+Context is implemented as a stack, with updates represented as a <null pointer,
+environment pointer> tuple to differentiate them from closure arguments. The
+Heap, or cactus environment, is implemented as a heap containing <closure,
+environment pointer> structs. As a result, each cell in the heap takes 3
+machine words.
+
+\subsection{Compilation}
+The three instructions are given below, with descriptions of their behavior. 
+
+\begin{itemize}
+\item \texttt{TAKE}: Pops a context item off the stack. If the item is an
+update $u$, the instruction updates the location $u$ with the current closure.
+If it is an argument $c$, the instruction binds the closure $c$ to the fresh
+location in the cactus environment.
+\item \texttt{ENTER i}: Enters the closure defined by variable index \texttt{i},
+the current environment pointer, and the current cactus environment.  \item
+\texttt{PUSH m}: Pushes the code location \texttt{m} along with the
+current environment pointer. 
+\end{itemize}
+
+Each of these instructions corresponds directly to a corresponding lambda term:
+abstraction compiles to \texttt{TAKE}, application to \texttt{PUSH}, and
+variables to \texttt{ENTER}. Each is compiled using a direct implementation of
+the transition functions of the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
+machine. The mapping from lambda terms can be seen in
+Figure~\ref{fig:cemcompile}, which defines the compiler. Unlike the TIM, our
+version of \texttt{TAKE} doesn't have an arity; we compile a sequence of
+lambdas as a sequence of \texttt{TAKE} instructions.  While we have not
+compared performance of the two approaches directly, we suspect that \texttt{n}
+inlined \texttt{TAKE} instructions should be roughly as fast as a \texttt{TAKE
+n} instruction.  Similarly, the \texttt{ENTER i} instruction can be implemented
+either as a loop or unrolled, depending on \texttt{i}, and more performance
+comparisons are needed to determine the trade-off between code size and speed.
+
+\begin{figure}
+\begin{align*} C[\![t \; t']\!] &= \texttt{PUSH}\;label_{C[\![t']\!]}:C[\![t]\!] \concat C[\![t']\!] \\
+C[\![\lambda t]\!] &= \texttt{TAKE}:C[\![t]\!] \\
+C[\![i]\!] &= \texttt{ENTER} \; i
+\end{align*}
+\caption{$\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine compilation scheme. $C$ compiles a sequence of
+instructions from a term. The $label$ represents a code label: each instruction
+is given a unique label. The $:$ operator denotes prepending an item to a
+sequence and $\concat$ denotes concatenating two sequences.}
+\label{fig:cemcompile}
+\end{figure}
+
+We compile to x64 assembly. Each of the three instructions is mapped onto
+x64 instructions with a macro. The \texttt{PUSH} instruction is particularly
+simple, consisting of only two x64 instructions (two \texttt{push}es, one for
+the code pointer and one for the environment pointer). This is actually an
+important point: \emph{thunk creation is only two hardware instructions,
+regardless of environment size}.  
+
+\subsection{Machine Literals and Primitive Operations}
+
+Following Sestoft~\cite{sestoft}, we extend the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine to
+include machine literals and primitive operations. Figure~\ref{fig:extsyntax}
+shows the parts of syntax and semantics that are new or modified. 
+
+\begin{figure}
+\textbf{Syntax}
+\begin{align*}
+\tag{Term}    t &::= i \; | \; \lambda t \; | \; t \; t | \; n \; | \; op \\
+\tag{Integer} n &\in \mathbb{I} \\
+\tag{PrimOp} op &::= + \; | \; - \; | \; * \; | \; \; / \;\; | \; = \; | \; > \; | \; < \\
+\tag{Value} v &::= \lambda t[l] \; | \; n[l] \\
+\end{align*}
+\textbf{Integer and Primop Semantics}
+\begin{align*}
+\tag{Int}
+\langle n[l], \sigma \; c, \mu, k \rangle
+  &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}
+\langle c, \sigma \; n[l], \mu, k \rangle \\
+\tag{Op} 
+\langle op[l], \sigma \; n' \; n, \mu, k \rangle
+  &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}
+\langle op(n',n)[l], \sigma, \mu, k \rangle
+\end{align*}
+\caption{Extensions to the syntax and semantics of the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine.}
+\label{fig:extsyntax}
+\end{figure}
+
+\subsection{Omitted Extensions}
+
+Our implementation omits a few other standard extensions. Here we address some
+of these omissions.
+
+Data types are a common extension that we omit ~\cite{jonesstg,boquist1997grin}.
+We take the approach of Sestoft ~\cite{sestoft} that these can be efficiently
+implemented with pure lambda terms. For example, consider a list data type (in
+Haskell syntax): \texttt{data List a = Cons a (List a) | Nil}. This can be
+represented in pure lambda terms with $\mathit{Cons} = \lambda h.\lambda t.\lambda
+c.\lambda n.c \; h \; t$ and $\mathit{Nil} = \lambda c.\lambda n.n$. 
+
+Let bindings are another term commonly included in functional language
+compilers, even in the internal representation ~\cite{boquist1997grin,jonesstg}.
+Non-recursive let is syntactic sugar for a lambda binding and application, and
+we treat it as such. This approach helps ensure that we can of
+compile arbitrary lambda terms, while some approaches require pre-processing
+~\cite{sestoft,TIM}.
+
+Recursive let bindings are a third omission. Here we follow Rozas
+~\cite{rozas1992taming}: If it can be represented in pure lambda terms, it should
+be. Thus, we implement recursion using the standard Y combinator. In the case of
+mutual recursion, we use the Y combinator in conjunction with a church tuple of
+the mutually recursive functions. Without the appropriate optimizations
+~\cite{rozas1992taming}, this approach has high overhead, as we discuss in
+Section~\ref{sec:res}.
+
+\subsection{Optimizations}
+
+The $\mathcal{C} \mskip -4mu \mathcal{E}$ implementation described in the previous section is 
+completely unoptimized. For example, no effort is expended to
+discover global functions to avoid costly jumps to pointers in the heap
+~\cite{jonesstg}. Indeed, every variable reference will look up the code pointer
+in the shared environment and jump to it. There is also no implementation of 
+control flow analysis as used by Rozas to optimize away the Y combinator.  Thus,
+every recursive call exhibits the large overhead involved in re-calculating the
+fixed point of the function.  
+
+We do, however, implement two basic optimizations, primarily to reduce the load
+on the heap:
+
+\begin{itemize}
+\item \texttt{POP}: A \texttt{TAKE} instruction can be converted to a \texttt{POP}
+instruction that throws away the operand on the top of the stack if there are no
+variables bound to the $\lambda$ term in question. For example, the function
+$\lambda x.\lambda y.x$ can be implemented with \texttt{TAKE}, \texttt{POP},
+\texttt{ENTER 0}.  
+\item \texttt{ENTERVAL}: An \texttt{ENTER} instruction, when entering a
+closure that is already a value, should not push an update marker onto the
+stack. This shortcut prevents unnecessary writes to the stack and heap
+~\cite{jonesstg,lkm,sestoft}.  
+\end{itemize}
+
+\subsection{Garbage Collection}
+
+We have implemented a simple mark and sweep garbage collector with the property
+that it does not require two spaces because constant-sized closures in the
+heap allow a linked-list representation for the free cells. Indeed,
+while the abstract machine from Section~\ref{sec:mach} increments a free heap
+counter, the actual implementation uses the next free cell in the linked list.
+
+Because the focus of this paper is not on the performance of garbage collection,
+we ensure the benchmarks in Section~\ref{sec:eval} are not dominated by GC time.
+

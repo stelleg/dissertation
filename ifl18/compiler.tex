@@ -1,0 +1,85 @@
+\section{Compiler} \label{sec:compiler}
+
+In this section we describe the compiler, which compiles lambda terms with
+de Bruijn indices to programs. The compiler proceeds by recursion on lambda
+terms, keeping a current index into the program to ensure correct linking
+without a separate pass. For variables, when we get to zero we push the current
+environment pointer and a null instruction pointer to denote the update marker
+to the location of the closure being entered. Then we \textit{mov} the closure
+at that location into \textit{r1} and \textit{ep}, and \textit{jump} to
+\textit{r1}, recalling that the \textit{jump} sets the \textit{ip}. For 
+nonzero variables, we replicate traversing the environment pointer \textit{i}
+times before loading the closure.  For applications, we calculate the program
+location of the argument basic block, and push that and the current environment
+pointer onto the stack, effectively pushing an argument closure on top of the
+stack. We then \textit{jump} to the left hand side of the application, as is
+standard for push-enter evaluation. For abstractions, we use a conditional jump
+depending on whether the top of the stack is a null pointer (and therefore an
+update marker) or a valid instruction pointer (and therefore an argument). If it
+is an update marker, we update the heap location defined by the update marker
+with the current value instruction pointer and the current environment pointer.
+We must point to the first of the three abstractions basic blocks, as this value
+could later update another heap location as well. In the case that the top of
+the stack was a valid instruction pointer, we allocate a new chunk of 3 word of
+memory, and \textit{mov} the argument closure into it, with the current
+environment pointer as the environment continuation. We then set our current
+environment pointer to this fresh location. This is the process by which we
+extend our shared environment structure in the instruction machine. Finally, we
+perform an unconditional jump to the next basic block, which is the first basic
+block of the compiled body of the lambda. As this is an unconditional jump to
+the next basic block, for real machine code this jump can be omitted. 
+
+\begin{figure}
+\begin{align*}
+var \; 0 :=  \;
+  &push \; ep : \\
+  &push \; 0 : \\
+  &mov \; \left(ep\%0\right) \; r1 : \\
+  &mov \; \left(ep\%1\right) \; ep : \\
+  &jump \; r1 \\
+var \; \left(i+1\right) := \;
+  &mov \; \left(ep\%2\right) \; ep : \\
+  &var \; i \\
+compile \; i \; k := \; & \left[var \; i\right] \\
+compile \; \left( m \; n \right) \; k := \;
+  &let \; ms = compile \; m \; \left(k+1\right) \; in \\
+  &let \; nk = 1+k+length \; ms \; in \\
+  &push \; ep :  \\
+  &push \; nk : \\
+  &jump \; \left(k+1\right) :: \\
+  &ms \concat compile \; n \; nk \\
+compile \; \left(\lambda b\right) \; k := \;
+  &pop \; r1 : \\
+  &jump \; \left(r1, k+1 \right) \; \left(k+2\right) :: \\
+  &pop \; r1 : \\
+  &mov \; k \; r1\%0 : \\
+  &mov \; ep \; r1\%1 : \\
+  &jump \; k :: \\
+  &new \; 3 \; r2 : \\
+  &mov \; r1 \; \left(r2\%0\right) : \\
+  &pop \; \left(r2\%1\right) : \\
+  &mov \; ep \; \left(r2\%2\right) : \\
+  &mov \; r2 \; ep : \\
+  &jump \; \left(k+3\right) :: \\
+  &compile \; b \; \left(k+3\right)
+\end{align*}
+\caption{Compiler Definition}
+\label{fig:compiler}
+\end{figure}
+
+Being able to define the full compiler this simply is crucial to this
+verification project. Other, more sophisticated implementations of call-by-need,
+such as the STG machine, are much harder to implement and reason about. It is
+worth noting that despite this simplicity, initial tests suggest that performance
+is not as horrible as one might suspect, and is often competitive with state of
+the art \cite{cem}.
+
+As with the relation discussed in Section~\ref{sec:cem_big}, note that even when
+compiling, we do not require that a term is closed to compile it. Indeed, we
+will happily generate code that if entered, will attempt to dereference the null
+pointer, leaving the machine stuck. Because we are only concerned with proving
+that we implement the source semantics in the case that it evaluates to a value,
+this is not a problem. If we wanted to strengthen our proof further, we would
+try to show that if the source semantics gets stuck trying to dereference a free
+variable, the implementation would get stuck in the same way, both failing to
+dereference a null pointer.    

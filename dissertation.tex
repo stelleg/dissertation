@@ -1,0 +1,154 @@
+% Example template for using the unmeethesis style
+% This example is for a Master's candidate in Mathematics
+% It contains examples of front matter and most sections that the
+% typical graduate student would need to include
+% By: N. Doren 02/10/00
+%     Minor mods by N. Doren 08/26/11
+
+% Use the following specification for BOTTOM page numbering:
+\documentclass[botnum, fleqn]{unmeethesis}
+\usepackage{tabularx}
+\usepackage{makeidx}  % allows for indexgeneration
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{mathtools}
+\usetikzlibrary{chains,fit,shapes,calc}
+\usepackage{verbatim}
+\usepackage{semantic}
+\usepackage{tabu}
+\usepackage{mathptmx}
+\usepackage{todonotes}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{hyperref}
+
+\def\drawplusplus#1#2#3{\hbox to 0pt{\hbox to #1{\hfill\vrule height #3 depth
+      0pt width #2\hfill\vrule height #3 depth 0pt width #2\hfill
+      }}\vbox to #3{\vfill\hrule height #2 depth 0pt width
+      #1 \vfill}}
+      %Poor man's typography
+\def\concat{\mathrel{\drawplusplus {8pt}{0.4pt}{5pt}}}
+\newtheorem{thm}{Theorem}
+\newtheorem{cor}{Corollary}
+\newtheorem{lem}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newenvironment{proofoutline}
+ {\renewcommand\qedsymbol{}\proof[Proof outline]}
+ {\endproof}
+\def\ce{$\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}} \mskip 4mu$}
+
+\begin{document}
+
+\frontmatter
+
+% Uncomment the next command if you see weird paragraph spacing:
+% That is, if you see paragraphs float with lots of white space
+% in between them:
+
+% \setlength{\parskip}{0.30cm}
+
+\title{Shared Environment Call-by-Need}
+
+\author{George Widgery Stelle}
+
+\degreesubject{Ph.D., Computer Science}
+
+\degree{Doctor of Philosophy \\ Computer Science}
+
+\documenttype{Dissertation}
+
+\previousdegrees{B.S., University of British Columbia, 2008 \\
+                 M.S., Computer Science, University of New Mexico, 2013}
+
+\date{April, \thisyear}
+
+\maketitle
+
+%\makecopyright
+
+\begin{dedication}
+For Beth 
+\end{dedication}
+
+\begin{acknowledgments}
+  \vspace{1.1in}
+  Starting at the beginning, I'd like to thank my parents and brothers, who gave
+  me a childhood rich in love and fun. In many ways, my decision to pursue a PhD
+  was driven by the need to continue having fun.  
+
+  I absolutely need to thank my advisor, Darko Stefanovic, for his support
+  and advice through my unconventional final years of the program. Without his
+  help there is no question this dissertation would not exist. Stephanie Forrest
+  deserves a great deal of credit as well, as she supported and advised me
+  selflessly through the challenging task of finding a topic I love. 
+
+\end{acknowledgments}
+
+\maketitleabstract %(required even though there's no abstract title anymore)
+
+\begin{abstract}
+Call-by-need semantics implement the wisdom that work should be done at most
+once. It is the basis of the popular programming language Haskell, and is often
+credited with Haskell's success in its ability to create high-level, composable,
+easy to reason about abstractions with good performance. Unfortunately, while
+correctness of Haskell code is famously easy to reason about, the correctness of
+the de-facto standard Haskell compiler, GHC, is not. This prevents programmers
+from knowing their formal reasoning about Haskell is preserved through
+compilation. This thesis presents a new way to compile call-by-need semantics,
+that doesn't have this issue. The thesis is broken into two parts. First, we
+show that the abstract machine can be implemented as a native code compiler that
+has good performance. This compiler extends lambda calculus with literals,
+primitive operations, and side effects. Second, we present a verified compiler
+in Coq, showing how the simplicity of the abstract machine enables formal
+verification. 
+\clearpage %(required for 1-page abstract)
+\end{abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter
+
+\chapter{Introduction}
+\input{intro}
+
+\chapter{Native Code Compiler}
+\input{tfp16/intro}
+\input{tfp16/background}
+\input{tfp16/env}
+\input{tfp16/calc}
+\input{tfp16/mach}
+\input{tfp16/implement}
+\input{tfp16/evaluation}
+\input{tfp16/results}
+\input{tfp16/discussion}
+\input{tfp16/conclusion}
+
+\chapter{Verified Compiler}
+\input{ifl18/intro}
+\input{ifl18/background}
+\input{ifl18/cem}
+\input{ifl18/cesm}
+\input{ifl18/im}
+\input{ifl18/compiler}
+\input{ifl18/correctness}
+\input{ifl18/discussion}
+\input{ifl18/conclusion}
+
+\chapter{Future Work}
+
+\chapter*{Appendices}
+
+\appendix
+\chapter{Example Programs and Prelude}
+
+\chapter{Heap Relation} 
+
+\bibliographystyle{amsplain}
+\bibliography{annotated}
+
+\end{document}

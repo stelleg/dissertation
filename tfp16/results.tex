@@ -1,0 +1,107 @@
+\subsection{Results} \label{sec:res}
+
+Figure~\ref{fig:res} gives the benchmark results.  In general, we are
+outperformed by GHC, sometimes significantly, and we outperform UHC. We
+spend the remainder of the section analyzing these performance differences.
+
+\begin{figure*}
+\centering
+\begin{tabularx}{\textwidth}{l | X | X | X | X | X}
+& $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ & GHC -O0 & UHC -O0 & GHC -O3 & UHC -O3 \\
+\hline
+\texttt{exp3 8} & 1.530 & 1.176 & 3.318 & 1.038 & 2.286 \\
+\texttt{tak 16 8 0} & 0.366 & 0.146 & 1.510 & 0.006 & 1.416 \\
+\texttt{primes 1500} & 0.256 & 0.272 & 1.518 & 0.230 & 1.532 \\
+\texttt{queens 9} & 0.206 & 0.050 & 0.600 & 0.012 & 0.598 \\
+\texttt{fib 35} & 2.234 & 0.872 & 10.000 & 0.110 & 8.342 \\
+\texttt{digits-of-e1 1000} & 3.576 & 1.274 & 21.938 & 0.118 & 22.010 \\
+\texttt{digits-of-e2 1000} & 0.404 & 0.792 & 3.430 & 0.372 & 3.278 \\
+\texttt{fannkuch 8} & 0.560 & 0.084 & 2.184 & 0.048 & 2.196 \\
+\end{tabularx}
+\caption{Machine Literals Benchmark Results. Measurement is wall clock time,
+units are seconds. Times averaged over 5 runs.}
+\label{fig:res}
+\end{figure*}
+
+There are many optimizations built into the abstract machine underlying GHC,
+but profiling indicates that three in particular lead to much of the performance
+disparity: 
+
+\begin{itemize}
+\item \textbf{Register allocation:} The $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine has no register
+allocator. In contrast, by passing arguments to functions in registers, GHC
+avoids much heap thrashing.
+\item \textbf{Unpacked literals:} This allows GHC to keep machine literals
+without tags in registers for tight loops. In contrast, the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
+machine operates entirely on the stack, and has a code pointer associated with
+every machine literal. 
+\item \textbf{Y combinator:} Because recursion in the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine is
+implemented with a Y combinator, it performs poorly. This could be alleviated
+with CFA-based techniques, similar to those used in ~\cite{rozas1992taming}. 
+\end{itemize}
+
+Lack of register allocation is the primary current limitation of the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
+machine. The STG machine pulls the free variables into registers, allowing tight
+loops with everything kept in registers. However, it is less clear how to
+effectively allocate registers in a fully shared environment setting.
+That said, we believe being lazier about register allocation, e.g., not loading
+values into registers that may not be used, could have some performance benefits.
+
+To isolate the effect of register allocation and unpacked machine
+literals, we replace machine integers with Church numerals in a compatible
+subset of the evaluation programs. Figure~\ref{fig:res-church}
+shows the performance results with this modification, which are much improved,
+with the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine occasionally even outperforming optimized GHC.
+
+\begin{figure*}
+\centering
+\begin{tabularx}{\textwidth}{l | X | X | X | X | X}
+& $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ & GHC -O0 & UHC -O0 & GHC -O3 & UHC -O3 \\
+\hline
+\texttt{tak 14 7 0} & 1.610 & 2.428 & 7.936 & 1.016 & 7.782 \\
+\texttt{primes 32} & 0.846 & 1.494 & 4.778 & 0.666 & 5.290 \\
+\texttt{queens 8} & 0.242 & 0.374 & 1.510 & 0.154 & 1.508 \\
+\texttt{fib 23} & 0.626 & 0.940 & 5.026 & 0.468 & 5.336 \\
+\texttt{digits-of-e2 6} & 0.138 & 1.478 & 5.056 & 0.670 & 5.534 \\
+\texttt{fannkuch 7} & 0.142 & 0.124 & 0.796 & 0.040 & 0.808 \\
+\end{tabularx}
+\caption{Church Numeral Benchmark Results. Measurement is wall clock time, 
+units are seconds. Times averaged over 5 runs.}
+\label{fig:res-church}
+\end{figure*}
+
+Next, we consider the disparity due to the Y-combinator, by running a simple
+exponentiation example with Church numerals, calculating $3^8 - 3^8 = 0$. In
+this case, the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine significantly outperform both GHC and UHC,
+as seen in Figure~\ref{fig:res-church-exp} .
+
+\begin{figure*}
+\begin{tabularx}{\textwidth}{l | X | X | X | X | X}
+& $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ & GHC -O0 & UHC -O0 & GHC -O3 & UHC -O3 \\
+\hline
+\texttt{pow 3 8} & 0.564 & 1.994 & 4.912 & 0.906 & 4.932 \\
+\end{tabularx}
+\caption{Church Numeral Exponentiation Benchmark Results. Measurement is wall clock time, 
+units are seconds. Times averaged over 5 runs.}
+\label{fig:res-church-exp}
+\end{figure*}
+
+These results give us confidence that by adding the optimizations mentioned
+above, among others, the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine has the potential to be the
+basis of a real-world compiler. We discuss how some of these optimizations can
+be applied to the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine in Section~\ref{sec:disc}.
+
+\subsection{The Cost of the Cactus}
+
+Recall that variable lookup is linear in the index of the variable, following
+pointers until the index is zero. As one might guess, the lookup cost is high.
+For example, for the queens benchmark without any optimizations, variable lookup
+took roughly $80-90\%$ of the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine runtime, as measured
+by profiling. Much of that cost was for lookups of known combinators, however,
+so for the benchmarks above we added the inlining mentioned in the previous
+section. Still, even with this simple optimization, variable lookup takes
+roughly $50\%$ of execution time. There is some variation across benchmarks, but
+this is a rough approximation for the average cost. We discuss how this cost
+could be addressed in future work in Section~\ref{sec:disc}.
+
+

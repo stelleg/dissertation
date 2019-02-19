@@ -1,0 +1,81 @@
+\documentclass{llncs}
+
+\usepackage{tabularx}
+\usepackage{makeidx}  % allows for indexgeneration
+\usepackage{amsfonts}
+\usepackage{amsmath}
+%\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{mathtools}
+\usetikzlibrary{chains,fit,shapes,calc}
+\usepackage{verbatim}
+\usepackage{semantic}
+\usepackage{tabu}
+\usepackage{mathptmx}
+\usepackage{todonotes}
+\newcommand{\concat}{\ensuremath{+\!\!\!\!+\,}}  
+
+%\newtheorem{prop}{Proposition}
+%\newtheorem{lemma}{Lemma}
+%\newtheorem{defin}{Definition}
+
+\begin{document}
+
+\title{Cactus Environment Machine}
+\subtitle{Shared Environment Call-by-Need}
+
+\author{George Stelle\inst{1,2} \and Darko Stefanovic\inst{1} 
+        \and Stephen L. Olivier\inst{2} 
+        \and Stephanie Forrest\inst{1}
+        }
+      
+\institute{University of New Mexico  \\
+\email{\{stelleg, darko, forrest\}@cs.unm.edu}
+\and Sandia National Laboratories \\
+\email{slolivi@sandia.gov}}
+
+\maketitle
+\setcounter{footnote}{0}
+
+\begin{abstract}
+Existing machines for lazy evaluation use a \emph{flat} representation of
+environments, storing the terms associated with free variables in an array.
+Combined with a heap, this structure supports the shared intermediate results
+required by lazy evaluation.  We propose and describe an alternative
+approach that uses a \emph{shared} environment to minimize the overhead of
+delayed computations. We show how a shared environment can act as both an
+environment and a mechanism for sharing results. To formalize this approach, we
+introduce a calculus that makes the shared environment explicit, as well as
+a machine to implement the calculus, the \emph{Cactus Environment Machine}. A
+simple compiler implements the machine and is used to run experiments for
+assessing performance. The results show reasonable performance and suggest that
+incorporating this approach into real-world compilers could yield performance
+benefits in some scenarios.
+\end{abstract}
+
+\input{intro}
+\input{background}
+\input{env}
+\input{calc}
+\input{mach}
+\input{implement}
+\input{evaluation}
+\input{results}
+\input{discussion}
+\input{conclusion}
+
+\section{Acknowledgments}
+This material is based upon work supported by the National Science Foundation
+under grant CCF-1422840, NSF (1518878,1444871), DARPA (FA8750-15-C-0118), AFRL
+(FA8750-15-2-0075), the Sandia National Laboratories Academic Alliance, and the
+Santa Fe Institute. Sandia National Laboratories is a multi-program laboratory
+managed and operated by Sandia Corporation, a wholly owned subsidiary of
+Lockheed Martin Corporation, for the U.S. Department of Energy’s National
+Nuclear Security Administration under contract DE-AC04-94AL85000.
+% We recommend abbrvnat bibliography style.
+\bibliographystyle{splncs03}
+\bibliography{annotated}
+
+% \input{appendix}
+\end{document}

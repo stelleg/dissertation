@@ -1,0 +1,119 @@
+\section{$\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ Machine} \label{sec:mach}
+
+Using the calculus of cactus environments defined in the previous section, we
+derive an abstract machine: the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine. The syntax
+and semantics are defined in Figure~\ref{fig:CEM}. 
+
+\begin{figure*}
+\textbf{Syntax}
+\begin{align*}
+\tag{State} s &::= \langle c, \sigma, \mu \rangle \\
+\tag{Term} t &::= i \; | \; \lambda t \; | \; t \; t  \\
+\tag{Variable} i &\in \mathbb{N}  \\
+\tag{Closure} c &::= t [l] \\
+\tag{Value} v &::= \lambda t[l] \\
+\tag{Heap} \mu &::= \epsilon \; | \; \mu [ l \mapsto \rho ] \\
+\tag{Environment} \rho &::= \bullet \; | \; c \cdot l \\
+\tag{Context} \sigma &::= \square \; | \; \sigma \; c \;  | \; \sigma \; u \\
+\tag{Location} l,u,f &\in \mathbb{N}
+\end{align*}
+\textbf{Semantics}
+\begin{align*}
+\tag{Upd}
+\langle v,  \sigma \; u , \mu \rangle 
+  &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}
+\langle v, \sigma, \mu(u \mapsto v \cdot l) \rangle  
+\; \textnormal{where} \; c \cdot l = \mu(u) \\
+\tag{Lam}
+\langle \lambda t[l], \sigma \; c, \mu \rangle 
+  &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}
+\langle t[f], \sigma, \mu[f \mapsto c \cdot l]\rangle f \not \in \textnormal{dom}(\mu)  \\
+\tag{App}
+\langle t \; t'[l], \sigma, \mu \rangle
+  &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}
+\langle t[l], \sigma \; t'[l], \mu \rangle \\
+\tag{Var1}
+\langle 0[l], \sigma, \mu \rangle
+  &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}
+\langle c, \sigma \; l , \mu \rangle 
+\; \textnormal{where} \; c \cdot l' = \mu(l)\\
+\tag{Var2}
+\langle i[l], \sigma, \mu \rangle
+  &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}
+\langle (i-1)[l'], \sigma, \mu \rangle
+\; \textnormal{where} \; c \cdot l' = \mu(l)
+\end{align*}
+\caption{Syntax and semantics of the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine.}
+\label{fig:CEM}
+\end{figure*}
+
+The machine operates as a small-step implementation of the calculus, extended
+only with a context to implement the updates from the NVar subderivation
+($\sigma \; u$) and the operands from the NEval subderivation ($\sigma \; c$).
+Much like the calculus, a term $t$ is inserted into an initial state $\langle
+t[0], \sigma, \epsilon[0\mapsto\bullet]$. On the update rule, the current
+closure is a value, and there is an update marker as the outermost context.
+This implies that a variable was entered and that the current closure
+represents the corresponding value for that variable. Thus, we update the
+location $u$ that the variable entered, replacing whatever term was entered
+with the current closure. The Lam rule takes an argument off the context and
+binds it to a variable, allocating a fresh heap location for the bound
+variable. This ensures that every instance of the variable will point to this
+location, and thus the bound term will be evaluated at most once. The App rule
+simply pushes an argument term in the current environment. The Var1 rule enters
+the closure pointed to by the environment location, while the Var2 rule
+traverses the cactus environment to locate the correct closure.  
+
+To get some intuition for the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
+machine and how it works, consider Figure~\ref{fig:state}, evaluation of the
+term $(\lambda a.(\lambda b.b \; a) \lambda c.c \; a) \; ((\lambda i.i)
+\lambda j.j)$, which is $(\lambda(\lambda0\;1)\;\lambda0\;1)\;((\lambda0)\;
+\lambda0)$ with deBruijn indices.
+
+\begin{figure}
+\begin{align*}
+&\langle (\lambda(\lambda0\;1)\;\lambda0\;1)\;((\lambda0)\;\lambda0)[0],\square,\epsilon[0\mapsto\bullet]\rangle\\
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda(\lambda0\;1)\;\lambda0\;1[0],\square (\lambda0)\;\lambda0[0],\epsilon[0\mapsto\bullet]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle (\lambda0\;1)\;\lambda0\;1[1],\square,\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0\;1[1],\square \lambda0\;1[1],\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle 0\;1[2],\square,\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle 0[2],\square 1[2],\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0\;1[1],\square 1[2] 2,\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0\;1[1],\square 1[2],\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle 0\;1[3],\square,\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto1[2]\cdot1]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle 0[3],\square 1[3],\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto1[2]\cdot1]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle 1[2],\square 1[3] 3,\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto1[2]\cdot1]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle 0[1],\square 1[3] 3,\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto1[2]\cdot1]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle (\lambda0)\;\lambda0[0],\square 1[3] 3 1,\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto1[2]\cdot1]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0[0],\square 1[3] 3 1 \lambda0[0],\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto1[2]\cdot1]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle 0[4],\square 1[3] 3 1,\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto1[2]\cdot1][4\mapsto\lambda0[0]\cdot0]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0[0],\square 1[3] 3 1 4,\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto1[2]\cdot1][4\mapsto\lambda0[0]\cdot0]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0[0],\square 1[3] 3 1,\epsilon[0\mapsto\bullet][1\mapsto(\lambda0)\;\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto1[2]\cdot1][4\mapsto\lambda0[0]\cdot0]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0[0],\square 1[3] 3,\epsilon[0\mapsto\bullet][1\mapsto\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto1[2]\cdot1][4\mapsto\lambda0[0]\cdot0]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0[0],\square 1[3],\epsilon[0\mapsto\bullet][1\mapsto\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto\lambda0[0]\cdot1][4\mapsto\lambda0[0]\cdot0]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle 0[5],\square,\epsilon[0\mapsto\bullet][1\mapsto\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto\lambda0[0]\cdot1][4\mapsto\lambda0[0]\cdot0][5\mapsto1[3]\cdot0]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle 1[3],\square 5,\epsilon[0\mapsto\bullet][1\mapsto\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto\lambda0[0]\cdot1][4\mapsto\lambda0[0]\cdot0][5\mapsto1[3]\cdot0]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle 0[1],\square 5,\epsilon[0\mapsto\bullet][1\mapsto\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto\lambda0[0]\cdot1][4\mapsto\lambda0[0]\cdot0][5\mapsto1[3]\cdot0]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0[0],\square 5 1,\epsilon[0\mapsto\bullet][1\mapsto\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto\lambda0[0]\cdot1][4\mapsto\lambda0[0]\cdot0][5\mapsto1[3]\cdot0]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0[0],\square 5,\epsilon[0\mapsto\bullet][1\mapsto\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto\lambda0[0]\cdot1][4\mapsto\lambda0[0]\cdot0][5\mapsto1[3]\cdot0]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0[0],\square,\epsilon[0\mapsto\bullet][1\mapsto\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto\lambda0[0]\cdot1][4\mapsto\lambda0[0]\cdot0][5\mapsto\lambda0[0]\cdot0]\rangle\\ 
+\end{align*}
+\caption{$\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine example.
+Evaluation of $(\lambda(\lambda0\;1)\;\lambda0\;1)\;((\lambda0)\;\lambda0)$}
+\label{fig:state}
+\end{figure}
+
+\subsection{Correctness}
+We prove that the reflexive transitive closure of the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine
+step relation evaluates to a value and heap and empty context iff
+$\xrightarrow{}_{N}$ evaluates to the same value and heap.
+
+{\thm \textnormal{(Equivalence)} $$(c, \mu) \rightarrow_{N} (v, \mu') \;
+\leftrightarrow \; \langle c, \square, \mu \rangle \xrightarrow{*
+}_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}} \langle v, \square, \mu' \rangle $$} 
+
+By induction on the $\rightarrow_{N}$ step relation for one direction, and
+induction on the reflexive transitive closure of the
+$\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}$ step relation for
+the other.
+

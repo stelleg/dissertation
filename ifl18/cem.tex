@@ -1,0 +1,246 @@
+\section{\ce Big-Step Semantics} \label{sec:cem_big}
+
+In this section we define our big-step source semantics. A big-step semantics
+has the advantage of powerful, easy-to-use induction properties. This eases
+reasoning about many program properties. We shall also define a small-step
+semantics and prove that it implements the big-step semantics, but by showing
+that our implementation preserves the big-step semantics, we prove preservation
+of any inductive reasoning on the structure of evaluation tree.  
+
+As discussed in Section~\ref{sec:introduction}, our source syntax is the lambda
+calculus with de Bruijn indices. De Bruijn indices count the number of
+intermediate lambdas between the occurrence of the variable and its binding
+lambda.  
+
+\begin{align*}
+ t &::= t \; t \; | \; x \; | \;  \lambda \; t \\
+ x &\in \mathbb{N}
+\end{align*}
+
+The essence of the \ce semantics (Figure~\ref{fig:bigstep}) is that we implement a shared
+environment, and use its structure to share results of computations. This makes
+possible a simple abstract machine that operates on the lambda calculus directly,
+which is uncommon among call-by-need abstract machines
+\cite{jonesstg,launchburynatural,TIM,johnsson1984efficient}. This simplifies
+formalization, as we do not need to prove that intermediate transformations,
+e.g. lambda lifting, are semantics-preserving. Another advantage to the \ce
+machine is that it has constant-sized closures, obviating the need to reason
+about re-allocating the results of computation and adding indirections due to
+closure size changes from thunk to value \cite{jonesstg}. We operate on
+closures, which combine terms with pointers into the shared environment, which
+is implemented as a heap. Every heap location contains a cell, which consists of
+a closure and a pointer to the next environment location, which we will refer to
+as the environment continuation.  Variable dereferences index into this shared
+environment structure, and if/when a dereferenced location evaluates to a value,
+the original closure (potentially a thunk or closure not evaluated to WHNF) will
+be replaced with that value. The binding of a new variable extends the shared
+environment structure with a new
+cell. This occurs during application, which evaluates the left hand side to an
+abstraction, then extends the environment with the argument term closed under the
+environment pointer of the application. The App rule ensures that two
+variables bound to the same argument closure will point to the same location in
+the shared environment. Because they point to the same location by construction
+of the shared environment, we can update that location with the value computed
+at the first variable dereference, and then each subsequent dereference will
+point to this value. The variable rule applies the update by indexing into the
+shared environment structure and replacing the closure at that location with the
+resulting value. It is worth noting that while the closures in the heap cells
+are mutable, the shared environment structure is never mutated. This property is
+crucial when reasoning about variable dereferences. The $\mu\left(l, i\right)$
+function looks up a variable index in the shared environment structure by
+following environment continuation pointers, returning the location and cell
+pointed to by the final step. See the Coq source
+for a formal treatment. Note that we require that fresh heap locations are
+greater than zero. This is required for reasoning about compilation to the
+instruction machine, which we will return to in Section~\ref{sec:im_semantics}.
+While here we constrain fresh heap locations to not be fresh with respect to the
+entire heap domain, for a real implementation, this is far too strong a
+constraint, as it doesn't allow any sort of heap re-use. We return to this issue
+in Section~\ref{sec:discussion}, and discuss how this could be relaxed to either
+allow reasoning about garbage collection or direct heap reuse.
+
+\begin{figure}
+\textbf{Syntax}
+\begin{align*}
+\tag{Term} t &::= i \; | \; \lambda t \; | \; t \; t  \\
+\tag{Variable} i &\in \mathbb{N}  \\
+\tag{Closure} c &::= t \left[l\right] \\
+\tag{Value} v &::= \lambda t \left[l\right] \\
+\tag{Heap} \mu &::= \epsilon \; | \; \mu \left[ l \mapsto \rho \right] \\
+\tag{Environment} \rho &::= \bullet \; | \; c \cdot l \\
+\tag{Location} l,f &\in \mathbb{N}  \\
+\tag{Configuration} s &::= \left(c, \mu \right)
+\end{align*}
+\textbf{Semantics}
+\begin{align*}
+\tag{Id} \inference
+{\mu \left( l, i \right) = l' \mapsto c \cdot l'' \quad 
+ \left(c, \mu\right) \Downarrow \left(v, \mu'\right)}
+{\left(i\left[l\right],\mu\right) \Downarrow \left(v, \mu'\left[l' \mapsto v \cdot l''\right]\right)}
+\end{align*}
+\begin{align*}
+\tag{App} \inference
+{\left(t\left[l\right], \mu\right) \Downarrow \left(\lambda t_2\left[l'\right], \mu'\right) 
+   \quad f \not \in \textnormal{dom}\left(\mu'\right)
+   \\ \left(t_2\left[f\right], \mu'\left[f \mapsto t_3\left[l\right] \cdot l'\right]\right)
+         \Downarrow 
+      \left(v, \mu'' \right) 
+   }
+{\left(t \; t_3\left[l\right], \mu\right) \Downarrow \left(v, \mu'' \right)}  
+\end{align*}
+\begin{align*}
+\tag{Abs} \inference {} {\left(\lambda t\left[l\right], \mu\right) \Downarrow \left(\lambda t\left[l\right], \mu\right)}
+\end{align*}
+\caption{Big step \ce syntax and semantics (call-by-need)}
+\label{fig:bigstep}
+\end{figure}
+
+The fact that our natural semantics is defined on the lambda calculus with de Bruijn
+indices differs from most existing definitions of call-by-need, such as
+Ariola's call-by-need \cite{ariola1995call} or Launchbury's lazy semantics
+\cite{launchburynatural}. These semantics are defined on the lambda calculus with named
+variables. While it should be possible to relate our semantics to these
+\footnote{Both of these well known existing semantics have known problems that
+arise during formalization, as discussed in Section~\ref{sec:discussion}.}, the
+comparison is certainly made more difficult by this disparity. A more fruitful
+relation to semantics operating on the lambda calculus with named variables would
+likely be relating Curien's calculus of closures to call-by-name semantics
+implemented with substitution. We return to this discussion in
+Section~\ref{sec:discussion}.
+
+As mentioned in Section~\ref{sec:introduction}, these big-step semantics do not
+explicitly include a notion of nontermination. Instead, nontermination would be
+implied by the negation of the existence of an evaluation relation. This
+prevents reasoning directly about nontermination in an inductive way, but for
+the purpose of our primary theorem this is acceptable. 
+
+One interesting property of defining an inductive evaluation relation in a
+language such as Coq is that we can do computation on the evaluation tree. In other
+words, the evaluation relation given above defines a data type, one that we can
+do computation on in standard ways. For example, we could potentially compute
+properties such as size and depth, which would be related to operational properties
+of compiled code. We hope in future work to explore this approach further.
+
+Finally, given a term $t$, we define the initial configuration as
+$\left(t\left[0\right], \epsilon\right)$. As discussed, the choice of the null
+pointer for the environment pointer is not completely arbitrary, but chosen
+across our semantics uniformly to represent failed environment lookup. 
+
+\subsection{Call-By-Name}
+
+In this section we define a call-by-name variant of our big-step semantics and
+prove that it is an implementation of Curien's call-by-name calculus of
+closures \cite{curien1991abstract}. 
+
+See Figure~\ref{fig:bigstepname} for the definition of our call-by-name
+semantics. Note that the only change from our call-by-need semantics is that we
+do not update the heap location with the result of the dereferenced computation.
+This is the essence of the difference between call-by-name and call-by-need.
+
+A well known existing call-by-name semantics is Curien's calculus of closures
+\cite{curien1991abstract}. Refer to Figure~\ref{fig:curien} for a formalization of this
+semantics. This semantics defines closures as a term, environment pair, where an
+environment is a list of closures. Abstractions are in weak head normal form,
+variables index into the environment, and applications evaluate the left hand
+side to a value, then extend the environment of the value with the closure of
+the argument. 
+
+We define a heterogeneous equivalence relation between our shared environment
+and Curien's environment. Effectively, this relation is the proposition that
+the shared environment structure is a linked list implementation of the
+environment list in Curien's semantics. This is defined inductively, and we
+require that every closure reachable in the environment is also equivalent.  We
+say two closures are equivalent if their terms are identical and their
+environments are equivalent. 
+
+Given these definitions, we can prove that our call-by-name semantics implement
+Curien's call by name semantics: 
+
+\begin{thm}
+If a closure $c$ in Curien's call-by-name semantics is equivalent to a
+configuration $c'$, and $c$ steps to $v$, then there exists a $v'$ that our
+call-by-name semantics steps to from $c'$ that is equivalent to $v$.
+\end{thm}
+\begin{proofoutline}
+The proof proceeds by induction on Curien's step relation. The abstraction rule
+is a trivial base case. The variable lookup rule uses a helper lemma that proves
+by induction on the variable that if the two environments are equivalent and the
+variable indexes to a closure, then the $\mu$ function will look up an
+equivalent closure. The application rule uses a helper lemma which proves that a
+fresh allocation will keep any equivalent environments equivalent, and that the
+new environment defined by the fresh allocation will be equivalent to the
+extended environment of Curien's semantics.
+\end{proofoutline}
+
+\begin{figure}
+\textbf{Syntax}
+\begin{align*}
+\tag{Term} t &::= i \; | \; \lambda t \; | \; t \; t  \\
+\tag{Variable} i &\in \mathbb{N}  \\
+\tag{Closure} c &::= t \left[\rho\right] \\
+\tag{Value} v &::= \lambda t \left[\rho\right] \\
+\tag{Environment} \rho &::= \bullet \; | \; c \cdot \rho \\
+\end{align*}
+\textbf{Semantics}
+\begin{align*}
+\tag{LEval}\inference
+{t_1\left[\rho\right] {\Downarrow} \lambda t_2\left[\rho'\right] \\ 
+ t_2\left[t_3\left[\rho\right] \cdot \rho'\right] \Downarrow v}
+{t_1 t_3\left[\rho\right] \Downarrow v } 
+\end{align*}
+\begin{align*}
+\inference
+{c_i \Downarrow v}
+{\tag{LVar} i \left[c_0 \cdot c_1 \cdot ... c_i \cdot \rho\right] \Downarrow v}
+\end{align*}
+\caption{Curien's call-by-name calculus of closures}
+\label{fig:curien}
+\end{figure}
+
+\begin{figure}
+\textbf{Syntax}
+\begin{align*}
+\tag{Term} t &::= i \; | \; \lambda t \; | \; t \; t  \\
+\tag{Variable} i &\in \mathbb{N}  \\
+\tag{Closure} c &::= t \left[l\right] \\
+\tag{Value} v &::= \lambda t \left[l\right] \\
+\tag{Heap} \mu &::= \epsilon \; | \; \mu \left[ l \mapsto \rho \right] \\
+\tag{Environment} \rho &::= \bullet \; | \; c \cdot l \\
+\tag{Location} l,f &\in \mathbb{N}  \\
+\tag{Configuration} s &::= \left(c, \mu \right)
+\end{align*}
+\textbf{Semantics}
+\begin{align*}
+\tag{Id} \inference
+{\mu \left( l, i \right) = l' \mapsto c \cdot l'' \quad 
+ \left(c, \mu\right) \Downarrow \left(v, \mu'\right)}
+{\left(i\left[l\right],\mu\right) \Downarrow \left(v, \mu'\right)}
+\end{align*}
+\begin{align*}
+\tag{App} \inference
+{\left(t\left[l\right], \mu\right) \Downarrow \left(\lambda t_2\left[l'\right], \mu'\right) 
+   \quad f \not \in \textnormal{dom}\left(\mu'\right)
+   \\ \left(t_2\left[f\right], \mu'\left[f \mapsto t_3\left[l\right] \cdot l'\right]\right)
+         \Downarrow 
+      \left(v, \mu'' \right) 
+   }
+{\left(t \; t_3\left[l\right], \mu\right) \Downarrow \left(v, \mu'' \right)}  
+\end{align*}
+\begin{align*}
+\tag{Abs} \inference {} {\left(\lambda t\left[l\right], \mu\right) \Downarrow \left(\lambda t\left[l\right], \mu\right)}
+\end{align*}
+\caption{Big step call-by-name \ce syntax and semantics}
+\label{fig:bigstepname}
+\end{figure}
+
+By proving that Curien's semantics is implemented by the call-by-name variant of
+our semantics, we provide further evidence that our call-by-need is a
+meaningful semantics. While eventually we would like to prove that the
+call-by-need semantics implements an optimization of the call-by-name, we leave
+that for future work.
+
+One important note is that nowhere do we require that a term being evaluated is
+closed under its environment. Indeed, it's possible that a term with free variables
+can be evaluated by both semantics to a value as long as a free variable is
+never dereferenced. This theme will recur through the rest of the paper, so it
+is worth keeping in mind.  

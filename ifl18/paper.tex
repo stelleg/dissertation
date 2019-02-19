@@ -1,0 +1,112 @@
+\documentclass[sigconf]{acmart}
+
+\usepackage{tabularx}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{mathtools}
+\usetikzlibrary{chains,fit,shapes,calc}
+\usepackage{verbatim}
+\usepackage{semantic}
+%\usepackage[utf8]{inputenc}
+%\usepackage[T1]{fontenc}
+\usepackage{tabu}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{mathptmx}
+%\usepackage{todonotes}
+\usepackage{listings}
+%\usepackage{inconsolata}
+%\usepackage{ucs}
+%\lstset{language=Coq}
+
+\newcommand{\concat}{\ensuremath{+\!\!\!\!+\,}}  
+\acmConference[IFL'18]{International Symposium on Implementation and Application
+of Functional Languages}{September 2018}{Lowell, MA, USA}
+\acmYear{2019}
+\copyrightyear{2019}
+\def\drawplusplus#1#2#3{\hbox to 0pt{\hbox to #1{\hfill\vrule height #3 depth
+      0pt width #2\hfill\vrule height #3 depth 0pt width #2\hfill
+      }}\vbox to #3{\vfill\hrule height #2 depth 0pt width
+      #1 \vfill}}
+      %Poor man's typography
+\def\concat{\mathrel{\drawplusplus {8pt}{0.4pt}{5pt}}}
+\newtheorem{thm}{Theorem}
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newenvironment{proofoutline}
+ {\renewcommand\qedsymbol{}\proof[Proof outline]}
+ {\endproof}
+\def\ce{$\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}} \mskip 4mu$}
+
+\begin{abstract}
+Call-by-need semantics underlies the widely used programming language Haskell.
+Unfortunately, unlike call-by-value counterparts, there are no verified
+compilers for call-by-need. In this paper we present the first verified compiler
+for call-by-need semantics. We use recent work on a simple call-by-need abstract
+machine as a way of reducing the formalization burden. We discuss some of the
+difficulties in verifying call-by-need, and show how we overcome them. 
+\end{abstract}
+
+\begin{document}
+
+%\titlebanner{Preprint}        % These are ignored unless
+
+\title{Verifiably Lazy}
+\subtitle{Verified Compilation of Call-by-Need}
+
+\author{George Stelle}
+\affiliation{
+%  \position{Scientist}
+%  \department{CCS-7}              %% \department is recommended
+  \institution{Los Alamos National Laboratory}            %% \institution is required
+  \streetaddress{Bikini Atoll Rd., SM 30}
+  \city{Los Alamos}
+  \state{New Mexico}
+  \postcode{87545}
+  \country{United States}                    %% \country is recommended
+}
+\affiliation{
+%  \position{Graduate Student}
+%  \department{Computer Science}              %% \department is recommended
+  \institution{University of New Mexico}            %% \institution is required
+  \streetaddress{1 University of New Mexico}
+  \city{Albuquerque}
+  \state{New Mexico}
+  \postcode{87131}
+  \country{United States}                    %% \country is recommended
+}
+\email{stelleg@lanl.gov}          %% \email is recommended
+
+\author{Darko Stefanovic}
+\affiliation{
+%  \position{Professor and Chair}
+  \department{Department of Computer Science}              %% \department is recommended
+  \institution{University of New Mexico}            %% \institution is required
+  \streetaddress{1 University of New Mexico}
+  \city{Albuquerque}
+  \state{New Mexico}
+  \postcode{87131}
+  \country{United States}                    %% \country is recommended
+}
+\email{darko@cs.unm.edu}          %% \email is recommended
+
+\maketitle
+
+\input{intro}
+\input{background}
+\input{cem}
+\input{cesm}
+\input{im}
+\input{compiler}
+\input{correctness}
+\input{discussion}
+\input{conclusion}
+
+% We recommend abbrvnat bibliography style.
+\bibliographystyle{abbrvnat}
+\bibliography{annotated}
+
+\end{document}

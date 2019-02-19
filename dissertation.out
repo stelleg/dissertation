@@ -1,50 +1,54 @@
 \BOOKMARK [0][-]{chapter*.2}{List of Figures}{}% 1
-\BOOKMARK [0][-]{chapter*.3}{List of Tables}{}% 2
-\BOOKMARK [0][-]{chapter.1}{Introduction}{}% 3
-\BOOKMARK [0][-]{chapter.2}{Native Code Compiler}{}% 4
-\BOOKMARK [1][-]{section.2.1}{Introduction}{chapter.2}% 5
-\BOOKMARK [1][-]{section.2.2}{Background and Motivation}{chapter.2}% 6
-\BOOKMARK [2][-]{subsection.2.2.1}{Preliminaries}{section.2.2}% 7
-\BOOKMARK [2][-]{subsection.2.2.2}{Evaluation Strategies}{section.2.2}% 8
-\BOOKMARK [2][-]{subsection.2.2.3}{Existing Call-by-Need Machines}{section.2.2}% 9
-\BOOKMARK [1][-]{section.2.3}{Environment Representations}{chapter.2}% 10
-\BOOKMARK [2][-]{subsection.2.3.1}{Existing Call-by-Need Environments}{section.2.3}% 11
-\BOOKMARK [1][-]{section.2.4}{Cactus Environment Calculus}{chapter.2}% 12
-\BOOKMARK [2][-]{subsection.2.4.1}{Correctness}{section.2.4}% 13
-\BOOKMARK [1][-]{section.2.5}{C -4mu E Machine}{chapter.2}% 14
-\BOOKMARK [2][-]{subsection.2.5.1}{Correctness}{section.2.5}% 15
-\BOOKMARK [1][-]{section.2.6}{Implementation}{chapter.2}% 16
-\BOOKMARK [2][-]{subsection.2.6.1}{Compilation}{section.2.6}% 17
-\BOOKMARK [2][-]{subsection.2.6.2}{Machine Literals and Primitive Operations}{section.2.6}% 18
-\BOOKMARK [2][-]{subsection.2.6.3}{Omitted Extensions}{section.2.6}% 19
-\BOOKMARK [2][-]{subsection.2.6.4}{Optimizations}{section.2.6}% 20
-\BOOKMARK [2][-]{subsection.2.6.5}{Garbage Collection}{section.2.6}% 21
-\BOOKMARK [1][-]{section.2.7}{Performance Evaluation}{chapter.2}% 22
-\BOOKMARK [2][-]{subsection.2.7.1}{Results}{section.2.7}% 23
-\BOOKMARK [2][-]{subsection.2.7.2}{The Cost of the Cactus}{section.2.7}% 24
-\BOOKMARK [1][-]{section.2.8}{Discussion and Related Work}{chapter.2}% 25
-\BOOKMARK [2][-]{subsection.2.8.1}{Closure Representation}{section.2.8}% 26
-\BOOKMARK [2][-]{subsection.2.8.2}{Eval/Apply vs. Push/Enter}{section.2.8}% 27
-\BOOKMARK [2][-]{subsection.2.8.3}{Collapsed Markers}{section.2.8}% 28
-\BOOKMARK [2][-]{subsection.2.8.4}{Register Allocation}{section.2.8}% 29
-\BOOKMARK [2][-]{subsection.2.8.5}{Verification}{section.2.8}% 30
-\BOOKMARK [1][-]{section.2.9}{Conclusion}{chapter.2}% 31
-\BOOKMARK [0][-]{chapter.3}{Verified Compiler}{}% 32
-\BOOKMARK [1][-]{section.3.1}{Introduction}{chapter.3}% 33
-\BOOKMARK [1][-]{section.3.2}{Background}{chapter.3}% 34
-\BOOKMARK [1][-]{section.3.3}{C -4mu E 4muBig-Step Semantics}{chapter.3}% 35
-\BOOKMARK [2][-]{subsection.3.3.1}{Call-By-Name}{section.3.3}% 36
-\BOOKMARK [1][-]{section.3.4}{C -4mu E 4muSmall-Step Semantics}{chapter.3}% 37
-\BOOKMARK [2][-]{subsection.3.4.1}{Relation to Big Step}{section.3.4}% 38
-\BOOKMARK [1][-]{section.3.5}{Instruction Machine}{chapter.3}% 39
-\BOOKMARK [1][-]{section.3.6}{Compiler}{chapter.3}% 40
-\BOOKMARK [1][-]{section.3.7}{Compiler Correctness}{chapter.3}% 41
-\BOOKMARK [1][-]{section.3.8}{Discussion}{chapter.3}% 42
-\BOOKMARK [2][-]{subsection.3.8.1}{Threats to Validity}{section.3.8}% 43
-\BOOKMARK [2][-]{subsection.3.8.2}{Future Work}{section.3.8}% 44
-\BOOKMARK [2][-]{subsection.3.8.3}{Related Work}{section.3.8}% 45
-\BOOKMARK [1][-]{section.3.9}{Conclusion}{chapter.3}% 46
-\BOOKMARK [0][-]{chapter.4}{Future Work}{}% 47
-\BOOKMARK [0][-]{appendix.A}{Example Programs and Prelude}{}% 48
-\BOOKMARK [0][-]{appendix.B}{Heap Relation}{}% 49
-\BOOKMARK [0][-]{appendix*.209}{References}{}% 50
+\BOOKMARK [0][-]{chapter.1}{Introduction}{}% 2
+\BOOKMARK [1][-]{section.1.1}{Motivation}{chapter.1}% 3
+\BOOKMARK [1][-]{section.1.2}{Overview}{chapter.1}% 4
+\BOOKMARK [1][-]{section.1.3}{Call-by-Need}{chapter.1}% 5
+\BOOKMARK [1][-]{section.1.4}{Retrospective}{chapter.1}% 6
+\BOOKMARK [1][-]{section.1.5}{Contributions}{chapter.1}% 7
+\BOOKMARK [0][-]{chapter.2}{Native Code Compilation}{}% 8
+\BOOKMARK [1][-]{section.2.1}{Introduction}{chapter.2}% 9
+\BOOKMARK [1][-]{section.2.2}{Background and Motivation}{chapter.2}% 10
+\BOOKMARK [2][-]{subsection.2.2.1}{Preliminaries}{section.2.2}% 11
+\BOOKMARK [2][-]{subsection.2.2.2}{Evaluation Strategies}{section.2.2}% 12
+\BOOKMARK [2][-]{subsection.2.2.3}{Existing Call-by-Need Machines}{section.2.2}% 13
+\BOOKMARK [1][-]{section.2.3}{Environment Representations}{chapter.2}% 14
+\BOOKMARK [2][-]{subsection.2.3.1}{Existing Call-by-Need Environments}{section.2.3}% 15
+\BOOKMARK [1][-]{section.2.4}{Cactus Environment Calculus}{chapter.2}% 16
+\BOOKMARK [2][-]{subsection.2.4.1}{Correctness}{section.2.4}% 17
+\BOOKMARK [1][-]{section.2.5}{C -4mu E Machine}{chapter.2}% 18
+\BOOKMARK [2][-]{subsection.2.5.1}{Correctness}{section.2.5}% 19
+\BOOKMARK [1][-]{section.2.6}{Implementation}{chapter.2}% 20
+\BOOKMARK [2][-]{subsection.2.6.1}{Compilation}{section.2.6}% 21
+\BOOKMARK [2][-]{subsection.2.6.2}{Machine Literals and Primitive Operations}{section.2.6}% 22
+\BOOKMARK [2][-]{subsection.2.6.3}{Omitted Extensions}{section.2.6}% 23
+\BOOKMARK [2][-]{subsection.2.6.4}{Optimizations}{section.2.6}% 24
+\BOOKMARK [2][-]{subsection.2.6.5}{Garbage Collection}{section.2.6}% 25
+\BOOKMARK [1][-]{section.2.7}{Performance Evaluation}{chapter.2}% 26
+\BOOKMARK [2][-]{subsection.2.7.1}{Results}{section.2.7}% 27
+\BOOKMARK [2][-]{subsection.2.7.2}{The Cost of the Cactus}{section.2.7}% 28
+\BOOKMARK [1][-]{section.2.8}{Discussion and Related Work}{chapter.2}% 29
+\BOOKMARK [2][-]{subsection.2.8.1}{Closure Representation}{section.2.8}% 30
+\BOOKMARK [2][-]{subsection.2.8.2}{Eval/Apply vs. Push/Enter}{section.2.8}% 31
+\BOOKMARK [2][-]{subsection.2.8.3}{Collapsed Markers}{section.2.8}% 32
+\BOOKMARK [2][-]{subsection.2.8.4}{Register Allocation}{section.2.8}% 33
+\BOOKMARK [2][-]{subsection.2.8.5}{Verification}{section.2.8}% 34
+\BOOKMARK [1][-]{section.2.9}{Conclusion}{chapter.2}% 35
+\BOOKMARK [0][-]{chapter.3}{Verified Compilation}{}% 36
+\BOOKMARK [1][-]{section.3.1}{Introduction}{chapter.3}% 37
+\BOOKMARK [1][-]{section.3.2}{Background}{chapter.3}% 38
+\BOOKMARK [1][-]{section.3.3}{C -4mu E 4muBig-Step Semantics}{chapter.3}% 39
+\BOOKMARK [2][-]{subsection.3.3.1}{Call-By-Name}{section.3.3}% 40
+\BOOKMARK [1][-]{section.3.4}{C -4mu E 4muSmall-Step Semantics}{chapter.3}% 41
+\BOOKMARK [2][-]{subsection.3.4.1}{Relation to Big Step}{section.3.4}% 42
+\BOOKMARK [1][-]{section.3.5}{Instruction Machine}{chapter.3}% 43
+\BOOKMARK [1][-]{section.3.6}{Compiler}{chapter.3}% 44
+\BOOKMARK [1][-]{section.3.7}{Compiler Correctness}{chapter.3}% 45
+\BOOKMARK [1][-]{section.3.8}{Discussion}{chapter.3}% 46
+\BOOKMARK [2][-]{subsection.3.8.1}{Threats to Validity}{section.3.8}% 47
+\BOOKMARK [2][-]{subsection.3.8.2}{Future Work}{section.3.8}% 48
+\BOOKMARK [2][-]{subsection.3.8.3}{Related Work}{section.3.8}% 49
+\BOOKMARK [1][-]{section.3.9}{Conclusion}{chapter.3}% 50
+\BOOKMARK [0][-]{chapter.4}{Future Work}{}% 51
+\BOOKMARK [0][-]{appendix.A}{Example Programs and Prelude}{}% 52
+\BOOKMARK [0][-]{appendix.B}{Heap Relation}{}% 53
+\BOOKMARK [0][-]{appendix*.208}{References}{}% 54

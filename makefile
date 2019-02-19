@@ -1,5 +1,5 @@
 
-dissertation.pdf: dissertation.tex annotated.bib
+dissertation.pdf: dissertation.tex intro.tex annotated.bib
 	pdflatex dissertation.tex
 	bibtex dissertation
 	pdflatex dissertation.tex

@@ -64,7 +64,7 @@ architecture machine semantics should be relatively straightforward.
 Now that we have the language for our abstract instruction machine target, we
 can look at the formal semantics for it. Without loss of generality, we choose a
 step relation on instructions, wrapped by a step instruction on full basic
-blocks. This eases reasoning about the relation to the small step $\ce$
+blocks. This eases reasoning about the relation to the small step \ce
 relation. This is a formalization of the semantics described in
 Figure~\ref{fig:im_semantics}. 
 
@@ -111,47 +111,50 @@ relation and defines how the state changes given execution of the basic block
 pointed to by the instruction pointer. Note that we don't define an explicit
 halting relation. Instead, the machine will be stuck when the current code to be
 executed is a value and the stack is empty, which is where the small step
-$\ce$ semantics also get stuck. 
+\ce semantics also get stuck. 
 
 \begin{verbatim}
-Inductive step_bb : BasicBlock → State → State → Type := 
-  | step_push : ∀ rf p s h ro is v sn,
-  read ro (st rf p s h) v → 
-  step_bb is (st rf p (v::s) h) sn → 
+Inductive step_bb : BasicBlock -> State -> State -> Type := 
+  | step_push : forall rf p s h ro is v sn,
+  read ro (st rf p s h) v -> 
+  step_bb is (st rf p (v::s) h) sn -> 
   step_bb (instr (push ro) is) (st rf p s h) sn
-  | step_pop : ∀ rf p s h wo is w s' sn,
-  write wo w (st rf p s h) s' → 
-  step_bb is s' sn →
+  | step_pop : forall rf p s h wo is w s' sn,
+  write wo w (st rf p s h) s' -> 
+  step_bb is s' sn ->
   step_bb (instr (pop wo) is) (st rf p (w::s) h) sn
-  | step_new : ∀ rf p s h wo is w s' n sn,
-  (∀ i, i < n → not (In (i+w) (domain h))) →
-  w > 0 →
-  write wo w (st rf p s (zeroes n w ++ h)) s' →
-  step_bb is s' sn → 
+  | step_new : forall rf p s h wo is w s' n sn,
+  (forall i, i < n -> not (In (i+w) (domain h))) ->
+  w > 0 ->
+  write wo w (st rf p s (zeroes n w ++ h)) s' ->
+  step_bb is s' sn -> 
   step_bb (instr (new n wo) is) (st rf p s h) sn 
-  | step_mov : ∀ s is ro wo s' v sn, 
-  read ro s v → write wo v s s' → 
-  step_bb is s' sn → 
+  | step_mov : forall s is ro wo s' v sn, 
+  read ro s v -> write wo v s s' -> 
+  step_bb is s' sn -> 
   step_bb (instr (mov ro wo) is) s sn
-  | step_jump0 : ∀ ro k j s s', 
-  read ro s 0 →
-  write (WR IP) k s s' → 
+  | step_jump0 : forall ro k j s s', 
+  read ro s 0 ->
+  write (WR IP) k s s' -> 
   step_bb (jump (Some (ro, k)) j) s s'
-  | step_jumpS : ∀ ro k j s s' l k', 
-  l > 0 →
-  read ro s l →
-  read j s k → 
-  write (WR IP) k s s' → 
+  | step_jumpS : forall ro k j s s' l k', 
+  l > 0 ->
+  read ro s l ->
+  read j s k -> 
+  write (WR IP) k s s' -> 
   step_bb (jump (Some (ro, k')) j) s s'
-  | step_jump : ∀ ro s s' l, 
-  read ro s l →
-  write (WR IP) l s s' → 
+  | step_jump : forall ro s s' l, 
+  read ro s l ->
+  write (WR IP) l s s' -> 
   step_bb (jump None ro) s s'
 .
 
 Inductive step : transition State :=
-  | enter : ∀ rf p s h k bb sn,
-    read IP (st rf p s h) k → 
-    nth_error p k = Some bb → 
-    step_bb bb (st rf p s h) sn →
+  | enter : forall rf p s h k bb sn,
+    read IP (st rf p s h) k -> 
+    nth_error p k = Some bb -> 
+    step_bb bb (st rf p s h) sn ->
     step (st rf p s h) sn.
+\end{verbatim}
+
+This allows 

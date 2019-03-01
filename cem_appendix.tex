@@ -396,4 +396,32 @@ exec = \str.(splitArgs str (return 0) \fname.\argv.
 system = (compose fork exec)
 \end{verbatim}
 
-Note that we also use. 
+Note the use of parentheses gets pretty hairy. Despite our right associative
+applications, the lack of infix operators and do-notation hurts the readiability
+of long imperative programs significantly. Still, it is certainly
+\emph{possible} to write programs in this style. Note also that our heavy use of
+newPage shows that our lack of stack allocated memory is a pain. Due to our use
+of the system stack for our argument closures and update markers, incorporating
+alloca-style stack allocations would be a significant challenge, though it
+should be possible. 
+
+\section{Example Programs}
+
+In addition to re-writing the no-fib benchmark suite, we started writing example
+programs in this source language to gauge the difficulty. These programs use the
+prelude described above to implement basic programs. 
+
+We start with a canonical example of using call-by-need to implement a
+dynamic programming linear time fibonacci. 
+
+\begin{verbatim}
+fibs = (Y \fibs.[(1 :) (1 :) (zipWith + fibs (tail fibs))])
+\end{verbatim}
+
+This is an interesting example, because unlike the similar Haskell
+implementation, this implementation is \emph{guaranteed} to run in linear time.
+Because Haskell is a \emph{non-strict} language, we rely on its use of
+call-by-need as an optimization technique, not a guaranteed property of the
+language. 
+
+

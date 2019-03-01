@@ -1,0 +1,108 @@
+At the core of this dissertation is a novel technique for implementing call-by-need
+semantics. Call-by-need semantics evaluate arguments at call sites \emph{at most
+once}. In this way, it combines the advantages of call-by-value which evaluates
+arguments exactly once, and call-by-name, which evaluates arguments zero or more
+times. The primary insight of this dissertation is that we can implement this
+semantics in a natural way using a well known structure in programming language
+design: the shared environment. 
+
+\section{Motivation}
+
+Like the dissertation as a whole, the motivation is two-fold. First, existing
+call-by-need implementations are more eager than necessary about constructing
+efficient argument closures. This implies that any under-used argument closure
+will have wasted work. Part of the reason this has stayed the case is that it's
+not obvious there is a better way. We discuss this motivation in more detail in
+Chapter~\ref{chap:native}. 
+
+The second motivation is that existing call-by-need implementations are complex
+in nature, due to their use of supercombinators and flat environments. The STG
+machine in particular incorporates many clever techniques for avoiding overheads
+of lazy evaluations. While this is useful for generating fast code, it also
+makes formal reasoning about the compiler more difficult. I speculate that this
+is the primary reason that up until the work presented here, there hasn't been a
+verified compiler of a call-by-need semantics. This is a particularly desirable
+property for a call-by-need semantics, where correctness is arguably easier to
+reason about than for a strict language, where non-termination has more paths
+into programs. 
+
+\section{Overview}
+
+This structure of this dissertation can be thought of as an exploration of the
+advantages of this implementation approach. There are two advantages to my
+approach. First, it minimizes overheads for thunk creation. It, in a sense, is
+\emph{lazier} about lazy evaluation. I take advantage of this by creating a
+complete native code compiler for a simple functional language, and showing it
+has good performance despite an exceedingly simple implementation. Second, it lends
+itself to a exceedingly simple implementation. The simplicity of implementation
+allowed for investigating some interesting optimizations and implementation
+approaches, as well as comparisons to existing implementation approaches, with
+only one person doing the development work. In the second part, I show how I can
+use the simplicity to reason formally. 
+
+\section{Call-by-Need}
+
+Because this work is focused on implementing call-by-need semantics, it's worth
+spending some time discussing call-by-need semantics. One easy argument is that
+call-by-need underlies the widely used programming language Haskell.
+Technically, Haskell is a non-strict language. This implies that both
+call-by-name and call-by-need are valid implementation strategies. In practice,
+there are some situations when one would prefer call-by-name: when storing an
+intermediate value is more expensive than re-computing it. These cases are not
+limited to call-by-need; call-by-value suffers the same issue. This implies that
+in theory, Haskell could switch between call-by-name and call-by-value depending
+on the situation. In practice, GHC effectively always chooses call-by-need,
+sometimes performing transformations that increase memoization \cite{laziness}.
+
+Even amongst the Haskell community, the advantages and disadvantages of
+non-strict evaluation are hotly debated. For example, there exist both
+strictness annotations, and even strict-by-default variants of Haskell. There are
+real reasons for preferring strict evaluation in some contexts. For example,
+memory leaks due to naive attempts at freeing memory are a common issue with
+lazy semantics. 
+
+The advantages of non-strict semantics often show up when attempting to write
+high level, higher-order abstractions. An example of this principle can be found
+in the \texttt{lens} Haskell library. By using laziness everywhere possible, it
+ensures that code can compose lenses in a way that won't introduce
+nontermination. This is a strong argument for code re-use advantages in
+non-strict languages: by using laziness, one can prevent nontermination
+everywhere possible without any additional work. 
+
+In general, the purpose of this dissertation is not convince the reader that
+call-by-need is the ideal semantics. Instead, it takes as a given that it is one
+worth spending time on. Finally, I will say that I believe there is a lot of
+interesting potential for better understanding the time and space behavior of
+non-strict languages. From substructural types to dependent types to control
+flow analyses, the field of reasoning about time and space requirements for
+higher order languages is still in its infancy, and I'm excited to see it
+combined with work like that presented here to give developers high confidence
+in both their programs correctness and time and space requirements. 
+
+\section{Retrospective}
+
+As with any sufficiently large effort, there are places where, if one were to
+start over, things would be done differently. An obvious candidate for this
+re-writing of history for this dissertation would be \emph{starting} with a
+verified compiler, so that the native code compiler itself would be verified.
+While noble, this would be a daunting task. Implementing a full native code
+compiler is a challenge in itself, but specifying, implementing, and verifying a
+compiler, given the current state of verification tools, would be a daunting
+undertaking. 
+
+\section{Contributions}
+
+There are two primary contributions for this work. 
+
+\begin{itemize}
+\item A full native code compiler from a simple lazy functional language with
+literals and primitive operations to x86\_64 machine code. We show that the
+compiler performs comparably to the state of the art on a number of benchmarks. 
+
+\item A verified compiler that compiles from lambda calculus to a simple
+instruction machine, along with a specification of correctness and a proof that
+the compiler adheres to that specification. The compiler is implemented and the
+proofs checked in Coq. This is the first verified compiler of a call-by-need
+semantics. 
+\end{itemize}
+

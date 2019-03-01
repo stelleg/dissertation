@@ -24,12 +24,7 @@
 \usepackage{amssymb}
 \usepackage{hyperref}
 
-\def\drawplusplus#1#2#3{\hbox to 0pt{\hbox to #1{\hfill\vrule height #3 depth
-      0pt width #2\hfill\vrule height #3 depth 0pt width #2\hfill
-      }}\vbox to #3{\vfill\hrule height #2 depth 0pt width
-      #1 \vfill}}
-      %Poor man's typography
-\def\concat{\mathrel{\drawplusplus {8pt}{0.4pt}{5pt}}}
+\newcommand{\concat}{\ensuremath{+\!\!\!\!+\,}}  
 \newtheorem{thm}{Theorem}
 \newtheorem{cor}{Corollary}
 \newtheorem{lem}{Lemma}
@@ -75,16 +70,40 @@ For Beth
 
 \begin{acknowledgments}
   \vspace{1.1in}
+  This dissertation is the culmination of work over a period covering most of my
+  adult life. Because of this, the list of people who deserve credit for it is
+  far too long to list here. Instead, I'll make a meager attempt at listing a
+  few who played particularly important roles. 
+
   Starting at the beginning, I'd like to thank my parents and brothers, who gave
-  me a childhood rich in love and fun. In many ways, my decision to pursue a PhD
-  was driven by the need to continue having fun.  
+  me a childhood rich in love and fun. In a sense, my decision to pursue a PhD
+  was driven by a need to continue having fun doing what I love.  
 
-  I absolutely need to thank my advisor, Darko Stefanovic, for his support
-  and advice through my unconventional final years of the program. Without his
-  help there is no question this dissertation would not exist. Stephanie Forrest
-  deserves a great deal of credit as well, as she supported and advised me
-  selflessly through the challenging task of finding a topic I love. 
+  Surprisingly, most of the fun I've had has not been sitting and thinking about
+  hard problems, but making irreplaceable lifelong friends along the way. To
+  Taylor, Ben, Eric, Drew, George, Vu, and others, thank you for the brutally
+  honest technical discussions, the parties, the games, the hikes, the road
+  trips, and most of all your friendship. And of course, thanks to my three
+  amigos for life, Drake, Mike, and Larkin. 
 
+  It would be remiss of me to not thank my advisor, Darko Stefanovic, for his
+  support and advice through my unconventional final years through the program.
+  Without his help and wisdom there is no question that this dissertation would
+  not exist. Stephanie Forrest deserves a great deal of credit as well, both for
+  bringing me into the department, and supporting and advising me selflessly
+  through the challenging task of finding a topic I love. Finally, I would not
+  be here in New Mexico at all without the help and mentorship of my true friend
+  Eric Vatikiotis-Bateson.
+
+  The papers that form this basis of this dissertation would not have been
+  possible without the help of my extraordinary co-authors, Darko Stefanovic,
+  Stephen Olivier, and Stephanie Forrest. Their ability to write clearly and
+  carefully continues to inspire me to be a better communicator. 
+
+  Finally, I thank my wonderful wife, Beth, for truly being my life partner and
+  always inspiring me to be a better human. And to my children, Adelaide and
+  Sullivan, thank you for making life so much more.
+ 
 \end{acknowledgments}
 
 \maketitleabstract %(required even though there's no abstract title anymore)
@@ -109,14 +128,14 @@ verification.
 
 \tableofcontents
 \listoffigures
-\listoftables
+%\listoftables
 
 \mainmatter
 
 \chapter{Introduction}
 \input{intro}
 
-\chapter{Native Code Compiler}
+\chapter{Native Code Compilation}
 \input{tfp16/intro}
 \input{tfp16/background}
 \input{tfp16/env}
@@ -128,7 +147,7 @@ verification.
 \input{tfp16/discussion}
 \input{tfp16/conclusion}
 
-\chapter{Verified Compiler}
+\chapter{Verified Compilation}
 \input{ifl18/intro}
 \input{ifl18/background}
 \input{ifl18/cem}

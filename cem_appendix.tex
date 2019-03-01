@@ -1,8 +1,17 @@
 \chapter{CEM Source Language}
+
 For a better grasp on what the cem native code compiler can do, I share a
 number of example programs and libraries. I highlight the fact that the compiler
 can handle machine literals and primitive operations, including system calls and
-a basic system for monadic side effects.  
+a basic system for monadic side effects.  There are a number of non-standard
+design decisions worth mentioning. The first, and most significant one, is a
+non-standard use of parentheses. Instead of implicit applications, we use
+\texttt{()} parentheses to explicitly denote left-associative applications, and
+\texttt{\[\]} brackets to denote explicit right-associative applications. We use
+either the unicode $\lambda$ character or the forward slash \texttt{\\x.b} to
+denote lamdas, where \texttt{x} is a variable and \texttt{b} is the body of the
+lambda. This choice of explicit applications simplifies the syntax in a way that
+prevents ambiguity and simplifies parsing. 
 
 \section{Prelude}
 An extremely useful tool for any language is a base set of functionality
@@ -422,6 +431,38 @@ This is an interesting example, because unlike the similar Haskell
 implementation, this implementation is \emph{guaranteed} to run in linear time.
 Because Haskell is a \emph{non-strict} language, we rely on its use of
 call-by-need as an optimization technique, not a guaranteed property of the
-language. 
+language. Note also the the infix use of \texttt{:}. This is possible due to the
+implementation of machine integers. Recall that we don't have algebraic data
+types, so the technique used by Haskell of wrapping machine literals in a
+\texttt{newtype} is not an option. Instead, we use evaluation to force the
+value. In place of an environment pointer, we place the machine literal, and use
+the code pointer to take the continuation and apply itself to it. In this case,
+that results in the cons constructor applying itself to the value 1. Note that
+this is the approach used in all the machine primitive operations in the prelude
+listed above as well. While this is operationally equivalent the Haskell
+approach, it does raise questions about referential transparancy.    
 
+Another simple example shows how we can use the fork system call to implement
+parallel programs. This shows how easy it is to use the IO monad without the use
+of type classes. 
 
+\begin{verbatim}
+main = (>>= sys_fork \r.(r = 0
+  (print "Child says hi")
+  (print "Parent says hi")))
+\end{verbatim}
+
+Note again we use the fact that forcing \texttt{r} before checking equality is a
+perfectly valid thing to do, though not necessary in this case as the equality
+check \texttt{=} will force it as well. 
+
+\section{Visualization}
+
+In addition to the native code compiler, I have implemented a graphviz-based
+visualization tool that helps visualize how the heap changes over time. It uses
+variable names in the heap instead of deBruijn indices to increase readability.
+It also shows the stack and current closure through steps of the small step \ce
+semantics. The primary use is just to see how the cactus structure evolves
+through evaluation, and how it ensures sharing. 
+
+For example, consider evaluation of the expression  

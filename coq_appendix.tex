@@ -1,4 +1,4 @@
-\chapter{Coq Definitions}
+\chapter{Coq Implementation Details}
 
 For posterity, we use this section to define and discuss select Coq definitions
 in the implementation and formalization of the verified compiler. We attempt to
@@ -8,6 +8,28 @@ informing future work in this area. The formalization is available at
 successfully type-checked with Coq version 8.9. The version used for this
 dissertation is tagged with \texttt{dissertation}, which at the time of writing
 enables it to be downloaded as a GitHub release tarball.
+
+\section{Big-Step \ce Semantics}
+Here we define the big step syntax and semantics, which we use as our input
+language semantics. The language is lambda calculus with deBruijn indices.
+This is a formalization of the Figure~\ref{fig:bigstep}.
+
+\begin{verbatim}
+
+\end{verbatim}
+
+\section{Small-Step \ce Semantics}
+Our small step semantics are a straightforward implementation of the big step
+semantics. The language is the same lambda calculus with deBrujn indices, while
+we introduce a stack to match marker updates and argument bindings to variables.
+This is a formalization of Figure~\ref{fig:cesm}. 
+
+\begin{verbatim}
+
+\end{verbatim}
+
+\subsection{Relation to Big-Step}
+We prove that the small step semantics 
 
 \section{Instruction Machine} 
 
@@ -111,7 +133,10 @@ relation and defines how the state changes given execution of the basic block
 pointed to by the instruction pointer. Note that we don't define an explicit
 halting relation. Instead, the machine will be stuck when the current code to be
 executed is a value and the stack is empty, which is where the small step
-\ce semantics also get stuck. 
+\ce semantics also get stuck. In constrast, the native code implementation has a
+check to ensure the stack is non-empty. A full compiler with a sufficiently
+sophisticated type system could likely do away with this check, only terminating
+with the \texttt{main} function returning a value of type \texttt{World}. 
 
 \begin{verbatim}
 Inductive step_bb : BasicBlock -> State -> State -> Type := 
@@ -157,4 +182,8 @@ Inductive step : transition State :=
     step (st rf p s h) sn.
 \end{verbatim}
 
-This allows 
+With our step function defined, we can start thinking about how we want to
+implement our compiler, and how to relate the instruction machine to the small
+step semantics of our input language.  
+
+

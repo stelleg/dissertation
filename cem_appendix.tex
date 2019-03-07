@@ -186,7 +186,7 @@ elem = \val.\func.\list.(lookup val func list false true)
 \end{verbatim}
 
 \subsection{Side Effects and Partial Functions}
-An important feature of a real world programming language is the ability to have
+A necessary feature of a real world programming language is the ability to have
 side effects. Here we define a small set of basic tools for implementing basic
 side effects, including memory reads and writes, and system calls. Note we take
 an approach that avoids depending on \texttt{libc}, implementing analogous
@@ -465,4 +465,41 @@ It also shows the stack and current closure through steps of the small step \ce
 semantics. The primary use is just to see how the cactus structure evolves
 through evaluation, and how it ensures sharing. 
 
-For example, consider evaluation of the expression  
+For example, consider evaluation of the expression
+
+\begin{verbatim}
+(\a.(\b.(b a) \c.(c a)) (\i.i \j.j))
+\end{verbatim}
+
+By running the \texttt{cem} executable with the flags \texttt{-pg}, we get the
+following output: 
+
+\includegraphics[width=\linewidth/2]{figures/1.pdf}
+\includegraphics[width=\linewidth/2]{figures/2.pdf}
+\includegraphics[width=\linewidth/2]{figures/3.pdf}
+\includegraphics[width=\linewidth/2]{figures/4.pdf}
+\includegraphics[width=\linewidth/2]{figures/5.pdf}
+\includegraphics[width=\linewidth/2]{figures/6.pdf}
+\includegraphics[width=\linewidth/2]{figures/7.pdf}
+\includegraphics[width=\linewidth/2]{figures/8.pdf}
+\includegraphics[width=\linewidth/2]{figures/9.pdf}
+\includegraphics[width=\linewidth/2]{figures/10.pdf}
+\includegraphics[width=\linewidth/2]{figures/11.pdf}
+\includegraphics[width=\linewidth/2]{figures/12.pdf}
+\includegraphics[width=\linewidth/2]{figures/13.pdf}
+\includegraphics[width=\linewidth/2]{figures/14.pdf}
+\includegraphics[width=\linewidth/2]{figures/15.pdf}
+\includegraphics[width=\linewidth/2]{figures/16.pdf}
+\includegraphics[width=\linewidth/2]{figures/17.pdf}
+\includegraphics[width=\linewidth/2]{figures/18.pdf}
+\includegraphics[width=\linewidth/2]{figures/19.pdf}
+\includegraphics[width=\linewidth/2]{figures/20.pdf}
+\includegraphics[width=\linewidth/2]{figures/21.pdf}
+\includegraphics[width=\linewidth/2]{figures/22.pdf}
+\includegraphics[width=\linewidth/2]{figures/23.pdf}
+
+We can see that through the evaluation, the variable \texttt{a} is dereferenced
+twice, in two different scopes. The cactus structure ensures that the value is
+correctly shared between the two instances, with the second dereference
+correctly dereferencing the evaluated identity function. 
+

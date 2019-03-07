@@ -1,0 +1,91 @@
+This dissertation has been a thorough investigation of the advantages and
+disadvantages of a shared-environment approach to implementing call-by-need
+semantics. In Chapter~\ref{chap:cem}, I investigated the runtime efficiency
+advantages by implementing a simple native code compiler. Despite the compilers
+lack of optimization framework, it was often competitive with the state of the
+art. From this, I concluded that this approach is a promising abstract machine 
+for real-world compilers. In Chapter~\ref{chap:verified}, I showed how I could
+use the simplicity of the implementation to effectively reason formally about
+its correctness. While it was a significant undertaking, the success of the
+verified compiler provides strong evidence that the simplicity of the machine is
+a valuable property, and that property can be further exploited in future work.
+
+For the rest of this Chapter, I am retrospective on the work done for the
+dissertation, discussing both worked well and what didn't. The hope is that this
+deeper dive into the challenges and successes throughout the dissertation can
+better inform future work, both work that uses the \ce machine directly, and
+work that might take a different approach, but with similar goals. While some of
+what is discussed in this section has been covered in Chapter-specific
+conclusions from previous Chapters, we try and unify the conclusions into
+bigger-picture conclusions, accumulating the lessons learned along the way. In
+addition, through discussions with other experts and through further
+introspection, more conclusions and lessons learned have been discovered, and we
+use this section to bring those to light. 
+
+This Chapter is separated into a few important subsections. First, it summarizes
+the theses and conclusions of the dissertation. Second, it summarizes and
+addresses the threats to validity of the conclusions presented. Largely
+motivated by addressing these threats to validity, it then discusses future
+directions enabled by this work. 
+
+\section{Theses and Their Conclusions}
+
+There are two core theses presented in this dissertation. First,
+shared-environments efficiently implement call-by-need semantics, as described
+by the \ce machine. This thesis is described in detail in
+Chapter~\ref{chap:cem}. The conclusion of this chapter is that there are clear
+efficiencies gained and efficiencies lost with the shared environment approach.
+In particular, the efficiency gained by reduced thunk creation overhead enabled
+techniques like more efficient scott-encoded datatypes. 
+
+The primary conclusion for this thesis is that this is a good default behavior,
+but one that should be optimized away. Consider the analogue of strictness
+analysis. The philosophy is that laziness is a good default, but one that should
+be removed for efficiency where possible. In the same way, lazy thunk creation
+is a good default, but one that should be replaced with an optimized flat
+environment closure where necessary for efficiency reasons. In terms of cheap to
+create vs. efficient to execute, we can think of the shared-environment closure
+as the most extremely cheap to create, at the cost of efficiency to execute,
+where as a just-in-time compiled closure specialized on its values might be at
+the other extreme: expensive to create, but efficient to execute. 
+
+The second thesis of the dissertation is that the simplicity of the compiler
+that implements the \ce machine lends itself to formal reasoning. This thesis is
+described in detail in Chapter~\ref{chap:verified}. The evidence for this thesis
+is provided in the form of a verified compiler. By implementing the first
+verified compiler of a call-by-need semantics, I have provided compelling
+support for this thesis. 
+
+The conclusion for this thesis is therefore that yes, the simplicity of the
+compiler indeed lends itself to formal reasoning. That said, there are still
+many open questions. For example, many of the proofs are excruciatingly complex.
+It is therefore not at all clear that the structure of the compiler and proofs
+is \emph{the best possible}. Indeed, we expect there is a lot of room for
+improvement, particularly in the implementation of the proofs. We discuss these
+possibilities further in the next section. 
+
+Finally, we can derive a kind of combined thesis and conclusion from the first
+two. Namely, that the \ce machine and the compiler it enables are a valuable
+tool for implementing call-by-need for real-world projects. The evidence
+accumulated throughout the dissertation is compels me to conclude that yes, the
+work presented here can be used in real-world implementations. Both properties
+discussed, efficiency of closure creation and ability to reason formally about
+compilers, are clearly valuable properties to have for a compiler. Therefore, we
+can conclude that the work presented in this dissertation should prove useful
+when implementing a compiler with those properties. 
+
+\section{Threats to Validity}
+
+This section attempts to summarize and address what it considers to be the most
+pressing threats to the validity to the theses and conclusions discussed in this
+dissertation. While it attempts to enumerate the most pressing threats, any list
+of this nature will be incomplete, and therefore the goal is not to create a
+complete list. Instead, the aim of the section is simply to convey that possible
+criticisms have been seriously considered. Note that Chapters~\ref{chap:cem} and
+\ref{chap:verified} have chapter-specific threats to validity, and  
+
+While Chapters~\ref{chap:cem} and \ref{chap:verified} have sections dedicated to
+future work specific to their topics, I expand on those here, discussing future
+work that could combine the approaches of both efforts. In this, I expand on 
+
+

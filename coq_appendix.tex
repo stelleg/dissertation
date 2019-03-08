@@ -1,40 +1,163 @@
 \chapter{Coq Implementation Details}
 
-For posterity, we use this section to define and discuss select Coq definitions
-in the implementation and formalization of the verified compiler. We attempt to
-convey what worked well, and what posed significant challenges in the hope of
-informing future work in this area. The formalization is available at
+Proof irrelevance is an important idea in philosophy of logic. It is the notion
+that we don't really need to care how the proof was built, only that it was
+sound. In machine checked proofs this notion is particularly relevant: if the
+machine checks the proofs of our lemmas, we can be sure that they are valid
+proofs.
+
+In contrast, we \emph{must} care about the contents of the definitions and
+theorems. Without them, the reader can't be sure what's been proved is what is
+being claimed to have been proved. Therefore, we use this section to define and
+discuss select Coq definitions and theorem statements in the implementation and
+proof of correctness of the verified compiler. We attempt to convey what worked
+well, and what posed significant challenges in the hope of informing future work
+in this area. The formalization is available at
 \url{https://github.com/stelleg/cem\_coq} and as of this dissertation has been
-successfully type-checked with Coq version 8.9. The version used for this
+successfully type-checked with Coq version 8.9.  The version used for this
 dissertation is tagged with \texttt{dissertation}, which at the time of writing
-enables it to be downloaded as a GitHub release tarball.
+enables it to be downloaded as a GitHub release tarball. Inevitably, we will use
+definitions from both the Coq standard libraries, or generic definitions
+implemented throughout the project. In these cases, if the reader has questions,
+I encourage them to refer to the source code. In general, this section attempts
+to cover the most important definitions and theorems for the 
+
+It's also worth noting that the reader will find many definitions, lemmas,
+algorithms, and proofs in the repository that are unused in the final proof.
+This is a byproduct of the process of proving. Often, when one starts a proof it
+seems like a certain property or lemma will be required, so one proves that
+lemma, only to discover later that it was not necessary. Such helper lemmas
+sometimes come in useful later, during a different proof. It is for this reason
+there are so much unused Coq code in the repository. Hopefully, if the project
+is continued, some of them will prove useful.
+
+Another point worth noting is that the Coq code makes heavy use of Unicode
+characters and notations. In hindsight, the heavy use of fancy notations was
+almost always a mistake, and a refactoring to remove them would likely improve
+readability. The one forgivable exception is the occasional infix operator, for
+which I make no apologies.
 
 \section{Big-Step \ce Semantics}
 Here we define the big step syntax and semantics, which we use as our input
-language semantics. The language is lambda calculus with deBruijn indices.
-This is a formalization of the Figure~\ref{fig:bigstep}.
+language semantics. This is a formalization of the Figure~\ref{fig:bigstep}.
+
+We start with the lambda calculus with deBruijn indices.
 
 \begin{verbatim}
+Inductive tm : Type := 
+  | var : nat → tm 
+  | lam : tm → tm
+  | app : tm → tm → tm.
+\end{verbatim}
 
+Next, we define other helper definitions, including closures, environments
+(\texttt{env}), cells, heaps, configurations, what doing a lookup into the
+shared environment means (\texttt{clu}), and what replacing a closure at a
+location in a heap means (\texttt{update}).
+
+\begin{verbatim}
+Definition env := nat.
+
+Record closure : Type := close {
+  cl_tm : tm;
+  cl_en : env
+}.
+
+Record cell : Type := cl {
+  cell_cl : closure;
+  cell_env : env
+}.
+
+Definition heap := Map nat cell.
+
+Record configuration : Type := conf {
+  conf_h : heap;
+  conf_c : closure
+}.
+
+Fixpoint clu (v env:nat) (h:heap) : option (nat * cell) := 
+  match lookup env h with
+  | None => None
+  | Some (cl c a) => match v with
+    | S n => clu n a h
+    | 0 => Some (env, cl c a)
+    end
+  end.
+
+Fixpoint update (h : heap) (l : env) (v : closure) : heap := match h with 
+  | [] => []
+  | (u, cl c e)::h => if beq_nat l u 
+    then (u, cl v e) :: update h l v 
+    else (u, cl c e) :: update h l v
+  end.
+\end{verbatim}
+Finally, we define the actual machine big-step semantics.
+\begin{verbatim}
+Reserved Notation " c1 '⇓' c2 " (at level 50).
+Inductive step : configuration → configuration → Type :=
+  | Id : ∀ M x y z Φ Ψ v e, clu y e Φ = Some (x, {M, z}) → 
+                    ⟨Φ⟩M ⇓ ⟨Ψ⟩v →
+    ⟨Φ⟩close (var y) e ⇓ ⟨update Ψ x v⟩v
+  | Abs : ∀ N Φ e, ⟨Φ⟩close (:λN) e ⇓ ⟨Φ⟩close (:λN) e
+  | App : ∀ N M B B' Φ Ψ Υ f e ne ae, isfresh (domain Ψ) f → f > 0 →
+          ⟨Φ⟩close M e ⇓ ⟨Ψ⟩close (:λB) ne → 
+      ⟨Ψ, f ↦ {close N e, ne}⟩close B f ⇓ ⟨Υ⟩close (:λB') ae   →
+              ⟨Φ⟩close (M@N) e ⇓ ⟨Υ⟩close (:λB') ae
+where " c1 '⇓' c2 " := (step c1 c2).
 \end{verbatim}
 
 \section{Small-Step \ce Semantics}
+
 Our small step semantics are a straightforward implementation of the big step
 semantics. The language is the same lambda calculus with deBrujn indices, while
 we introduce a stack to match marker updates and argument bindings to variables.
 This is a formalization of Figure~\ref{fig:cesm}. 
 
+Most of the syntax is shared with the big-step semantics, and is imported
+directly from the big-step module. We share the definitions for stacks and
+states, followed directly by the small-step semantics.
 \begin{verbatim}
+Definition stack := list (closure + nat).
 
+Inductive state : Type := st {
+  st_hp : heap; 
+  st_st : stack;
+  st_cl : closure
+}.
+
+Reserved Notation " c1 '→_s' c2 " (at level 50).
+Inductive step : transition state :=
+  | Upd : ∀ Φ b e l s, 
+  st Φ (inr l::s) (close (lam b) e) →_s 
+  st (update Φ l (close (lam b) e)) s (close (lam b) e)
+  | Var : ∀ Φ s v l c e e', clu v e Φ = Some (l,cl c e') → 
+  st Φ s (close (var v) e) →_s st Φ (inr l::s) c
+  | Abs : ∀ Φ b e f c s, isfresh (domain Φ) f → f > 0 → 
+  st Φ (inl c::s) (close (lam b) e) →_s st ((f, cl c e):: Φ) s (close b f)
+  | App : ∀ Φ e s n m, 
+  st Φ s (close (app m n) e) →_s st Φ (inl (close n e)::s) (close m e)
+where " c1 '→_s' c2 " := (step c1 c2).
 \end{verbatim}
 
 \subsection{Relation to Big-Step}
-We prove that the small step semantics 
+
+We prove that the small step semantics implement the big step semantics with the
+following lemma. The description of the proof can be found in
+Section~\ref{sec:cem_cesm}. 
+
+\begin{verbatim}
+Notation " c1 '→_s*' c2 " := 
+  (refl_trans_clos cesm.step c1 c2) (at level 30). 
+
+Lemma cem_cesm : ∀ Φ Ψ c v, 
+  conf Φ c ⇓ conf Ψ v → ∀ s, 
+  st Φ s c →_s* st Ψ s v. 
+\end{verbatim}
 
 \section{Instruction Machine} 
 
-We start by defining and describing the assembly language of the abstract
-instruction machine, the target of the verified compiler. This is the
+Finally, we change representations and describe the assembly language of the
+abstract instruction machine; the target of the verified compiler. This is the
 formalization of language defined in Figure~\ref{fig:im_syntax}. Note the use of
 coercions to help ease the use of type-safe read and write operands, and an
 infix operator to duplicate common syntax for real world assembly languages when
@@ -53,28 +176,28 @@ Inductive Reg :=
   | R2.
 
 Inductive WO := 
-  | WR : Reg -> WO
-  | WM : Reg -> nat -> WO.
+  | WR : Reg → WO
+  | WM : Reg → nat → WO.
 
 Coercion WR : Reg >-> WO.
 Infix "%" := WM (at level 30).
 
 Inductive RO := 
-  | RW : WO -> RO
-  | RC : nat -> RO.
+  | RW : WO → RO
+  | RC : nat → RO.
 
 Coercion RW : WO >-> RO.
 Coercion RC : nat >-> RO.
 
 Inductive Instr : Type :=
-  | push : RO -> Instr
-  | pop : WO -> Instr
-  | new : nat -> WO -> Instr 
-  | mov : RO -> WO -> Instr.
+  | push : RO → Instr
+  | pop : WO → Instr
+  | new : nat → WO → Instr 
+  | mov : RO → WO → Instr.
 
 Inductive BasicBlock : Type :=
-  | instr : Instr -> BasicBlock -> BasicBlock
-  | jump : option (RO*Ptr) -> RO -> BasicBlock.
+  | instr : Instr → BasicBlock → BasicBlock
+  | jump : option (RO*Ptr) → RO → BasicBlock.
 
 Definition Program := list BasicBlock.
 \end{verbatim}
@@ -110,17 +233,17 @@ Inductive State := st {
 }.
 
 Open Scope nat_scope. 
-Inductive read : RO -> State -> Ptr -> Type :=
-  | read_reg : forall r s, read (RW (WR r)) s (rff (st_rf s) r)
-  | read_mem : forall r o rf p s h v, 
-    lookup (o+rff rf r) h = Some v ->
+Inductive read : RO → State → Ptr → Type :=
+  | read_reg : ∀ r s, read (RW (WR r)) s (rff (st_rf s) r)
+  | read_mem : ∀ r o rf p s h v, 
+    lookup (o+rff rf r) h = Some v →
     read (RW (WM r o)) (st rf p s h) v
-  | read_const : forall c s, read (RC c) s c.
+  | read_const : ∀ c s, read (RC c) s c.
 
-Inductive write : WO -> Word -> State -> State -> Type :=
-  | write_reg : forall r rf p s h w, 
+Inductive write : WO → Word → State → State → Type :=
+  | write_reg : ∀ r rf p s h w, 
     write (WR r) w (st rf p s h) (st (upd r w rf) p s h)
-  | write_mem : forall r o rf p s h w, 
+  | write_mem : ∀ r o rf p s h w, 
     write (WM r o) w (st rf p s h) 
                      (st rf p s (replace beq_nat (o+rff rf r) w h)).
 \end{verbatim}
@@ -133,52 +256,52 @@ relation and defines how the state changes given execution of the basic block
 pointed to by the instruction pointer. Note that we don't define an explicit
 halting relation. Instead, the machine will be stuck when the current code to be
 executed is a value and the stack is empty, which is where the small step
-\ce semantics also get stuck. In constrast, the native code implementation has a
+\ce semantics also get stuck. In contrast, the native code implementation has a
 check to ensure the stack is non-empty. A full compiler with a sufficiently
 sophisticated type system could likely do away with this check, only terminating
 with the \texttt{main} function returning a value of type \texttt{World}. 
 
 \begin{verbatim}
-Inductive step_bb : BasicBlock -> State -> State -> Type := 
-  | step_push : forall rf p s h ro is v sn,
-  read ro (st rf p s h) v -> 
-  step_bb is (st rf p (v::s) h) sn -> 
+Inductive step_bb : BasicBlock → State → State → Type := 
+  | step_push : ∀ rf p s h ro is v sn,
+  read ro (st rf p s h) v → 
+  step_bb is (st rf p (v::s) h) sn → 
   step_bb (instr (push ro) is) (st rf p s h) sn
-  | step_pop : forall rf p s h wo is w s' sn,
-  write wo w (st rf p s h) s' -> 
-  step_bb is s' sn ->
+  | step_pop : ∀ rf p s h wo is w s' sn,
+  write wo w (st rf p s h) s' → 
+  step_bb is s' sn →
   step_bb (instr (pop wo) is) (st rf p (w::s) h) sn
-  | step_new : forall rf p s h wo is w s' n sn,
-  (forall i, i < n -> not (In (i+w) (domain h))) ->
-  w > 0 ->
-  write wo w (st rf p s (zeroes n w ++ h)) s' ->
-  step_bb is s' sn -> 
+  | step_new : ∀ rf p s h wo is w s' n sn,
+  (∀ i, i < n → not (In (i+w) (domain h))) →
+  w > 0 →
+  write wo w (st rf p s (zeroes n w ++ h)) s' →
+  step_bb is s' sn → 
   step_bb (instr (new n wo) is) (st rf p s h) sn 
-  | step_mov : forall s is ro wo s' v sn, 
-  read ro s v -> write wo v s s' -> 
-  step_bb is s' sn -> 
+  | step_mov : ∀ s is ro wo s' v sn, 
+  read ro s v → write wo v s s' → 
+  step_bb is s' sn → 
   step_bb (instr (mov ro wo) is) s sn
-  | step_jump0 : forall ro k j s s', 
-  read ro s 0 ->
-  write (WR IP) k s s' -> 
+  | step_jump0 : ∀ ro k j s s', 
+  read ro s 0 →
+  write (WR IP) k s s' → 
   step_bb (jump (Some (ro, k)) j) s s'
-  | step_jumpS : forall ro k j s s' l k', 
-  l > 0 ->
-  read ro s l ->
-  read j s k -> 
-  write (WR IP) k s s' -> 
+  | step_jumpS : ∀ ro k j s s' l k', 
+  l > 0 →
+  read ro s l →
+  read j s k → 
+  write (WR IP) k s s' → 
   step_bb (jump (Some (ro, k')) j) s s'
-  | step_jump : forall ro s s' l, 
-  read ro s l ->
-  write (WR IP) l s s' -> 
+  | step_jump : ∀ ro s s' l, 
+  read ro s l →
+  write (WR IP) l s s' → 
   step_bb (jump None ro) s s'
 .
 
 Inductive step : transition State :=
-  | enter : forall rf p s h k bb sn,
-    read IP (st rf p s h) k -> 
-    nth_error p k = Some bb -> 
-    step_bb bb (st rf p s h) sn ->
+  | enter : ∀ rf p s h k bb sn,
+    read IP (st rf p s h) k → 
+    nth_error p k = Some bb → 
+    step_bb bb (st rf p s h) sn →
     step (st rf p s h) sn.
 \end{verbatim}
 
@@ -186,4 +309,209 @@ With our step function defined, we can start thinking about how we want to
 implement our compiler, and how to relate the instruction machine to the small
 step semantics of our input language.  
 
+\subsection{Relation to Small-Step Semantics}
 
+We now have everything we need, except for the compiler definition, which we
+will address in the next section. We start by assuming a \texttt{new} function,
+which is effectively a \texttt{malloc} that given a heap, returns a non-null
+free contiguous region of memory. Of course, in reality \texttt{malloc} is a
+partial function, but we aren't modelling running out of memory in this work. 
+
+\begin{verbatim}
+Variable new : ∀ (n:nat) (h : im.Heap), sigT (λ w:nat, 
+  prod (∀ i, lt i n → (i+w) ∉ domain h)
+       (w > 0)).
+
+Definition prog_eq (p : Ptr) (pr : Program) (t : tm) := 
+  let subpr := assemble t p in subpr = firstn (length subpr) (skipn p pr).
+\end{verbatim}
+
+Next, we discuss heap relations between the instruction machine and the \ce \\
+machine semantics. Unfortunately, this gets incredibly involved. Despite much
+effort, I was unable to find a more elegant relation between the two.
+
+\begin{verbatim}
+Inductive heap_rel : cesm.heap → im.Heap → Type := 
+  | heap_nil : heap_rel [] [] 
+  | heap_cons : ∀ l l' ne ch ih ip ep ine e t, 
+    l ∉ domain ch → l' ∉ domain ih → 
+    S l' ∉ domain ih → S (S l') ∉ domain ih →
+    l > 0 → l' > 0 → 
+    heap_rel ch ih → 
+    heap_rel 
+      ((l, cl (close t e) ne)::ch) 
+      ((l', ip)::(S l', ep)::(S (S l'), ine)::ih).
+
+Fixpoint in_heap_rel (ch : cesm.heap) (ih : im.Heap)
+                     (r : heap_rel ch ih)
+                     (l e ne : nat) (t : db.tm) 
+                     (il ip ep nep : Ptr) : Type := match r with
+  | heap_nil => False
+  | heap_cons l' il' ne' cht iht ip' ep' nep' e' t' _ _ _ _ _ _ rt => 
+    if andb (beq_nat l l') (beq_nat il il') then
+    (ne' = ne) *  (ip' = ip) * (ep' = ep) * 
+    (nep' = nep) * (e' = e) * (t' = t)
+    else 
+      if andb (negb (beq_nat l l')) (negb (beq_nat il il'))
+        then in_heap_rel cht iht rt l e ne t il ip ep nep
+        else False
+  end.
+
+Inductive env_eq (ch : cesm.heap) (ih : im.Heap) (r : heap_rel ch ih)
+  : nat → Ptr → Type :=
+  | e0 : env_eq ch ih r 0 0 
+  | eS : ∀ l e ne t il ip ep nep, 
+    in_heap_rel ch ih r l e ne t il ip ep nep →
+    env_eq ch ih r l il.
+
+Inductive heap_eq (ch : cesm.heap) (ih : im.Heap) 
+                  (r : heap_rel ch ih) (p : Program) : Type := 
+  | mkheap_eq : 
+    (∀ l e ne t il ip ep nep, 
+      in_heap_rel ch ih r l e ne t il ip ep nep →
+      (prog_eq ip p t) * 
+      (env_eq ch ih r e ep) * 
+      (env_eq ch ih r ne nep)) → 
+    heap_eq ch ih r p.
+
+\end{verbatim}
+
+In words, the \texttt{heap\_rel} defines a heap relation that simply relates an
+entry in the \ce heap to the three machine words in the instruction machine
+heap. \texttt{in\_heap\_rel} is a decidable relation that determines whether or
+not a given heap location and cell at that location and their corresponding
+machine analogues are related by a heap relation object. We say environments are
+equal if they are either both the empty environment or the first element of the
+environments are in the heap relation, and the tails are equal. Two heaps are
+equivalent if for every cell, the term portions are equivalent and the
+environment and environment continuations are equivalent. The inductive relation
+on the environments is crucial for inductive reasoning on deBruijn indices.
+
+Given our heap and environment relations, we can move to notions of closure,
+stack, and complete state equivalences.
+
+\begin{verbatim}
+Inductive clos_eq (ch : cem.heap) (ih : im.Heap) 
+                  (r : heap_rel ch ih) (p : Program):
+                  closure → Ptr → Ptr → Type :=
+  | c_eq : ∀ t e ip ep, 
+           prog_eq ip p t → 
+           env_eq ch ih r e ep →
+           clos_eq ch ih r p (cem.close t e) ip ep. 
+
+Inductive stack_eq (ch : cem.heap) (ih : im.Heap) 
+                   (r : heap_rel ch ih) (p : Program) : 
+  cesm.stack → im.Stack → Type := 
+  | stack_nil : stack_eq ch ih r p nil nil
+  | stack_upd : ∀ l e ne t il ip ie ine cs is, 
+                in_heap_rel ch ih r l e ne t il ip ie ine →
+                stack_eq ch ih r p cs is →
+                stack_eq ch ih r p (inr l::cs) (0::il::is)
+  | stack_arg : ∀ ip ep cs is c, 
+                 ip > 0 →
+                 clos_eq ch ih r p c ip ep →
+                 stack_eq ch ih r p cs is → 
+                 stack_eq ch ih r p (inl c::cs) (ip::ep::is).
+
+Inductive state_rel (cs : cesm.state) (is : im.State) : Type := 
+  | str : ∀ r, 
+  heap_eq (st_hp cs) (st_h is) r (st_p is) →
+  clos_eq (st_hp cs) (st_h is) r (st_p is) (st_cl cs) 
+          (rff (st_rf is) IP) (rff (st_rf is) EP) →
+  stack_eq (st_hp cs) (st_h is) r (st_p is) (st_st cs) (st_s is) →
+  state_rel cs is.
+\end{verbatim}
+For the stack relation, we have either the empty stacks or two stacks with
+either both update markers or both argument closures on top, and equivalent
+stacks below that. For update markers, we have that the two marker locations
+exist in the heap relation. For argument closures, we have that the closures are
+equivalent. 
+
+The closure and state relations are straightforward, the closure relation
+requires that the term and subprogram are equal, and that the environments are
+equivalent. The state relation requires equivalent closure and registerfile
+entries (IP and EP), equivalent heaps, and equivalent stacks.
+
+Finally, we can pose our lemma that the instruction machine implements the
+small-step semantics.
+
+\begin{verbatim}
+Lemma cesm_im : ∀ v s s', state_rel s s' → 
+  cesm.step s v → 
+  sigT (λ v', prod (refl_trans_clos im.step s' v') (state_rel v v')).
+\end{verbatim}
+This states that if we have related small step and instruction machine states,
+and we take a small step, then the instruction machine will take a step to a
+state that is related to the new state of the small-step machine.  While we
+don't discuss the proof in detail, it's worth mentioning that even with many
+supporting definitions and lemmas, it took on the order of 2000 Ltac statements
+to prove. Note that is a single step, but the reflexive transitive closure
+version follows trivially. 
+
+\section{Compiler and Correctness}
+
+We've seen the \texttt{assemble} function referred to relate the lambda terms to
+the machine instructions in the previous section. This sections defines that
+function, which is the entire compiler implementation.
+
+\begin{verbatim}
+Infix ";" := instr (at level 30, right associativity).
+
+Fixpoint var_inst (i : nat) : BasicBlock := match i with
+  | 0 => push EP ;
+         push (RC 0) ;
+         mov (EP%0) R1 ;
+         mov (EP%1) EP ;
+         jump None R1
+  | S i => mov (EP%2) EP ; 
+           var_inst i
+  end.
+
+
+(* Assembles deBruijn indices to instructions *)
+Fixpoint assemble (t : tm) (k : nat) : Program := match t with  
+  | var v => [var_inst v]
+  | app m n => let ms := assemble m (1+k) in
+               let nk := 1+k+length ms in
+                push EP ;
+                push (RC nk) ;
+                jump None (RC (1+k)) :: 
+                ms ++ 
+                assemble n nk
+  | lam b => pop R1 ;
+             jump (Some (RW (WR R1), (1+k))) (RC (2+k)) ::
+             (*Update*)
+             pop R1 ;  
+             mov (RC k) (R1%0) ;
+             mov EP (R1%1) ;
+             jump None (RC k) ::
+             (*Take*)
+             new 3 R2 ;
+             mov R1 (R2%0);
+             pop (R2%1) ;
+             mov EP (R2%2) ;
+             mov R2 EP ;
+             jump None (3+k) :: 
+             assemble b (3+k)
+  end. 
+\end{verbatim}
+We can see that the compiler is very simple, only requiring ~35 lines of code.
+It is this simplicity that enables the formal reasoning achieved in the previous
+section. 
+
+Finally, we can define our top level correctness theorem.
+
+\begin{verbatim}
+Definition compile t := assemble t 0.
+
+Theorem compile_correct (t : db.tm) v : cem.step (cem.I t) v → 
+  sigT (λ v', refl_trans_clos im.step (im.I (compile t)) v' *
+              state_rel (cesm.st (cem.conf_h v) nil (cem.conf_c v)) v').
+\end{verbatim}
+This theorem states that if a term steps in the big step semantics to a value,
+then the instruction machine will step in zero or more steps to a related state.
+Knowledge of the \texttt{state\_rel} relation is crucial here: it would be
+trivial to define a meaningless relation, e.g. the relation defined by
+\texttt{λ c i, True}, and prove the relation trivially. Because we know that
+the relation requires equivalence of term and subprogram pointed to by IP, we
+know that the theorem is what we want.

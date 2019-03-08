@@ -22,7 +22,7 @@ addition, through discussions with other experts and through further
 introspection, more conclusions and lessons learned have been discovered, and we
 use this section to bring those to light. 
 
-This Chapter is separated into a few important subsections. First, it summarizes
+This chapter is separated into a few important subsections. First, it summarizes
 the theses and conclusions of the dissertation. Second, it summarizes and
 addresses the threats to validity of the conclusions presented. Largely
 motivated by addressing these threats to validity, it then discusses future
@@ -64,16 +64,6 @@ is \emph{the best possible}. Indeed, we expect there is a lot of room for
 improvement, particularly in the implementation of the proofs. We discuss these
 possibilities further in the next section. 
 
-Finally, we can derive a kind of combined thesis and conclusion from the first
-two. Namely, that the \ce machine and the compiler it enables are a valuable
-tool for implementing call-by-need for real-world projects. The evidence
-accumulated throughout the dissertation is compels me to conclude that yes, the
-work presented here can be used in real-world implementations. Both properties
-discussed, efficiency of closure creation and ability to reason formally about
-compilers, are clearly valuable properties to have for a compiler. Therefore, we
-can conclude that the work presented in this dissertation should prove useful
-when implementing a compiler with those properties. 
-
 \section{Threats to Validity}
 
 This section attempts to summarize and address what it considers to be the most
@@ -82,10 +72,90 @@ dissertation. While it attempts to enumerate the most pressing threats, any list
 of this nature will be incomplete, and therefore the goal is not to create a
 complete list. Instead, the aim of the section is simply to convey that possible
 criticisms have been seriously considered. Note that Chapters~\ref{chap:cem} and
-\ref{chap:verified} have chapter-specific threats to validity, and  
+\ref{chap:verified} have chapter-specific threats to validity, so in this
+section we instead focus on more general threats to validity. 
+
+The first, and most glaring, is that the verified compiler makes no claims about
+the behaviour of the compiled code in the case of non-termination in the source
+semantics. This was discussed thoroughly in Chapter~\ref{chap:verified}, but
+it is worth returning to here. It is a hole that I am comfortable, due largely
+to the belief that effectively everyone will be programming in total languages
+in the future, making this hole disappear. This belief was not represented in
+the dissertation in any way, but even if we accept that this work only applies
+to total languages, we can accept that they do exist, and in the context of
+those languages, this is a complete verified compiler. 
+
+Another sort of existential threat to validity is that I haven't built a
+\emph{true} real world compiler yet, and therefore can make no claims about the
+performance or simplicity of such a beast. Part of this comes from a vague
+definition of what it means to be a real world compiler. To paraphrase Edwin
+Brady, the creator of the Idris programming language, a language should be
+"pacman-complete", that is, it should be straightforward to implement pacman in
+the language. In this way, a compiler should be able to compile such a program.
+While I would claim that the native code compiler could indeed compile such a
+program, I also accept that a much better solution would be to have it compile
+full Haskell, as well as have a fully functional, high-performance garbage
+collector integrated into the generated code. While pacman-completeness is more
+about source language, there is also disagreement about what constitutes a
+real-world compiler in terms of what the internal languages implement. For
+example, many are inclined to dismiss a compiler, like the one presented here,
+that doesn't implement recursion and algebraic data types in the internal
+language. A tangential goal of this dissertation is to open the reader to the
+possibility that those are not necessary for high performance code. Removing
+them certainly makes formal reasoning simpler, something that hopefully the
+reader is now convinced is an important property for a compiler to have.  
+
+\section{Future Work}
 
 While Chapters~\ref{chap:cem} and \ref{chap:verified} have sections dedicated to
 future work specific to their topics, I expand on those here, discussing future
-work that could combine the approaches of both efforts. In this, I expand on 
+work that could combine the approaches of both efforts. 
+
+The most obvious one would be to combine the efforts. By extracting the Coq
+implementation of the compiler into Haskell, the language that the native code
+compiler is implemented in, we would attain a verified fragment of a true native
+code compiler. We could then work towards extending the proof to cover more of
+the implementation over time. When combined with the possibility of implementing
+a full Haskell compiler using the native code compiler in this work, we have a
+viable path towards a high performance, fully verified compiler for Haskell. 
+
+This approach neglects the fact that there are many cases where GHC
+significantly outperforms the native code compiler in its current form. Recent
+work on verified transformations and optimizations, when combined with our
+verified compiler, could result in a verified compiler that is actually
+competitive with GHC in performance, likely outperforming it in some cases due
+to lightweight closure creation enabled by the \ce machine. In a sense, this
+would be a natural next step to the existing type-safe core language of GHC:
+instead of just ensuring that transformations are type-safe, we could have a
+compiler that ensures that they are correct.
+
+While discussed briefly in the previous chapters, one exciting area for future
+work is reasoning formally about performance. Reasoning about memory use of lazy
+functional programs is notoriously hard, so any help that the compiler can
+provide is extremely valuable. Unfortunately, heuristic approaches interacting
+with the many optimizations that exist already can lead to extreme difficulty in
+reasoning about memory consumption of a source program. We hope that in
+combination with future language tools, one could use the simplicity of the
+compiler presented here to better reason about time and space efficiencies, and
+help ensure that the compiler makes better decisions about how to preserve
+and/or improve time and space requirements. The lack of many intermediate
+representations make this compiler an ideal target for such reasoning.
+
+\section{Conclusion}
+
+I have presented a pair of compilers that provide evidence for the two main
+claims of this dissertation: the \ce abstract machine gives rise to efficient,
+easy to reason about compilers. 
+
+If the reader accepts the claims that those are desirable properties for a
+compiler to have, then she must conclude that the \ce machine and the compiler
+it enables are valuable tools for implementing call-by-need for real-world
+projects. The evidence accumulated throughout the dissertation compels me to
+to agree with the reader that yes, the work presented here can be used in
+real-world implementations. Both properties discussed, efficiency of closure
+creation and ability to reason formally about compilers, are clearly valuable
+properties to have for a compiler. Therefore, we can conclude that the work
+presented in this dissertation will prove useful when attempting to implement a
+lazy compiler with those properties. 
 
 

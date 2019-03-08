@@ -72,7 +72,7 @@ $$ \overbrace{c_m (c_m (\cdots(c_m}^{m} \; \mathit{id} \;
 \overbrace{\mathit{id})\cdots) \mathit{id})}^{m} \; \mathit{true} \;
 \mathit{id} \; \mathit{bottom} $$ where $c_n = \lambda s.\lambda z.\overbrace{s
 \; (s \cdots (s}^{n} \; z) \cdots) $, $\mathit{true} = \lambda t.\lambda f.t$,
-$\mathit{id}=\lambda x.x$, and $\mathit{bottom} = (\lambda x.x \; x) \lambda x.x \; x$.
+$\mathit{id}=\lambda x.x$, and \\ $\mathit{bottom} = (\lambda x.x \; x) \lambda x.x \; x$.
 Call-by-value never terminates,
 call-by-name takes exponential time, and call-by-need takes only polynomial time
 ~\cite{danvy2013synthetic}. Of course, this is a contrived example, but it

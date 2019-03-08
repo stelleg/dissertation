@@ -1,9 +1,9 @@
 
 dissertation.pdf: dissertation.tex intro.tex conclusions.tex annotated.bib cem_appendix.tex coq_appendix.tex
-	pdflatex dissertation.tex
+	xelatex dissertation.tex
 	bibtex dissertation
-	pdflatex dissertation.tex
-	pdflatex dissertation.tex
+	xelatex dissertation.tex
+	xelatex dissertation.tex
 
 clean:
 	rm dissertation.pdf

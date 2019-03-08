@@ -10,7 +10,7 @@ both cover the design space for closure representation, and develop an approach
 called \emph{safely linked closures}. It uses flat closures when
 there is no duplication, and links in a way that preserves liveness, to prevent
 violation of the \emph{safe for space complexity} (SSC) rule
-\cite{appel1992compiling}. While we do not address SSC or garbage collection in
+\cite{shao1994space}. While we do not address SSC or garbage collection in
 general, understanding the relationship between SSC and shared environment
 call-by-need is an interesting area for future work. In particular, hot
 environments with no sharing could benefit greatly from replacing shared

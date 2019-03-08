@@ -51,7 +51,7 @@ The machine operates as a small-step implementation of the calculus, extended
 only with a context to implement the updates from the NVar subderivation
 ($\sigma \; u$) and the operands from the NEval subderivation ($\sigma \; c$).
 Much like the calculus, a term $t$ is inserted into an initial state $\langle
-t[0], \sigma, \epsilon[0\mapsto\bullet]$. On the update rule, the current
+t[0], \sigma, \epsilon[0\mapsto\bullet]\rangle$ . On the update rule, the current
 closure is a value, and there is an update marker as the outermost context.
 This implies that a variable was entered and that the current closure
 represents the corresponding value for that variable. Thus, we update the
@@ -67,10 +67,11 @@ traverses the cactus environment to locate the correct closure.
 To get some intuition for the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
 machine and how it works, consider Figure~\ref{fig:state}, evaluation of the
 term $(\lambda a.(\lambda b.b \; a) \lambda c.c \; a) \; ((\lambda i.i)
-\lambda j.j)$, which is $(\lambda(\lambda0\;1)\;\lambda0\;1)\;((\lambda0)\;
+\lambda j.j)$, or $(\lambda(\lambda0\;1)\;\lambda0\;1)\;((\lambda0)\;
 \lambda0)$ with deBruijn indices.
 
 \begin{figure}
+\scriptsize
 \begin{align*}
 &\langle (\lambda(\lambda0\;1)\;\lambda0\;1)\;((\lambda0)\;\lambda0)[0],\square,\epsilon[0\mapsto\bullet]\rangle\\
 &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda(\lambda0\;1)\;\lambda0\;1[0],\square (\lambda0)\;\lambda0[0],\epsilon[0\mapsto\bullet]\rangle\\ 
@@ -96,7 +97,7 @@ term $(\lambda a.(\lambda b.b \; a) \lambda c.c \; a) \; ((\lambda i.i)
 &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle 0[1],\square 5,\epsilon[0\mapsto\bullet][1\mapsto\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto\lambda0[0]\cdot1][4\mapsto\lambda0[0]\cdot0][5\mapsto1[3]\cdot0]\rangle\\ 
 &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0[0],\square 5 1,\epsilon[0\mapsto\bullet][1\mapsto\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto\lambda0[0]\cdot1][4\mapsto\lambda0[0]\cdot0][5\mapsto1[3]\cdot0]\rangle\\ 
 &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0[0],\square 5,\epsilon[0\mapsto\bullet][1\mapsto\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto\lambda0[0]\cdot1][4\mapsto\lambda0[0]\cdot0][5\mapsto1[3]\cdot0]\rangle\\ 
-&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0[0],\square,\epsilon[0\mapsto\bullet][1\mapsto\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto\lambda0[0]\cdot1][4\mapsto\lambda0[0]\cdot0][5\mapsto\lambda0[0]\cdot0]\rangle\\ 
+&\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}\langle \lambda0[0],\square,\epsilon[0\mapsto\bullet][1\mapsto\lambda0[0]\cdot0][2\mapsto\lambda0\;1[1]\cdot1][3\mapsto\lambda0[0]\cdot1][4\mapsto\lambda0[0]\cdot0][5\mapsto\lambda0[0]\cdot0]\rangle
 \end{align*}
 \caption{$\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine example.
 Evaluation of $(\lambda(\lambda0\;1)\;\lambda0\;1)\;((\lambda0)\;\lambda0)$}

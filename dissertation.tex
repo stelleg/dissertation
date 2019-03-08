@@ -24,6 +24,9 @@
 \usepackage{amssymb}
 \usepackage{hyperref}
 
+\usepackage{fontspec}
+\setmonofont[Scale=0.8]{DejaVu Sans Mono}
+
 \newcommand{\concat}{\ensuremath{+\!\!\!\!+\,}}  
 \newtheorem{thm}{Theorem}
 \newtheorem{cor}{Corollary}
@@ -147,7 +150,7 @@ verification.
 \input{tfp16/discussion}
 \input{tfp16/conclusion}
 
-\chapter{Verified Compilation}
+\chapter{Verified Compilation}\label{chap:verified}
 \input{ifl18/intro}
 \input{ifl18/background}
 \input{ifl18/cem}

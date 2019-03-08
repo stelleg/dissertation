@@ -1,5 +1,7 @@
-\chapter{CEM Source Language}
+\chapter{Native Code Compiler Implementation Details}
+In this chapter we discuss details of the native code compiler.  
 
+\section{Source Language}
 For a better grasp on what the cem native code compiler can do, I share a
 number of example programs and libraries. I highlight the fact that the compiler
 can handle machine literals and primitive operations, including system calls and
@@ -7,18 +9,17 @@ a basic system for monadic side effects.  There are a number of non-standard
 design decisions worth mentioning. The first, and most significant one, is a
 non-standard use of parentheses. Instead of implicit applications, we use
 \texttt{()} parentheses to explicitly denote left-associative applications, and
-\texttt{\[\]} brackets to denote explicit right-associative applications. We use
+\texttt{[]} brackets to denote explicit right-associative applications. We use
 either the unicode $\lambda$ character or the forward slash \texttt{\\x.b} to
 denote lamdas, where \texttt{x} is a variable and \texttt{b} is the body of the
 lambda. This choice of explicit applications simplifies the syntax in a way that
 prevents ambiguity and simplifies parsing. 
 
-\section{Prelude}
+\subsection{Prelude}
 An extremely useful tool for any language is a base set of functionality
 available in global namespace. I follow Haskell terminology and refer to this
 set of bound variables as a Prelude. 
 
-\subsection{Pure Prelude}
 I start with a pure fragment of the prelude: there are no partial functions
 modulo termination and type-safety. Note we have wrapper functions for our
 machine primitive operations that force evaluation of arguments. We also make
@@ -109,7 +110,8 @@ concat = (foldr append nil)
 concatMap = \f.(foldr (compose append f) nil)
 filter = \c.(Y \filter.\ls.(ls nil \h.\t.(c h (cons h) id (filter t))))
 scanl = (Y \scanl.\f.\q.\ls.(cons q (ls nil \x.\xs.(scanl f (f q x) xs))))
-scanr = (Y \scanr.\f.\q.\ls.(ls (cons q nil) \x.\xs.(scanr f x q nil \q.\qs.(cons (f x q)))))
+scanr = (Y \scanr.\f.\q.\ls.(ls (cons q nil) 
+  \x.\xs.(scanr f x q nil \q.\qs.(cons (f x q)))))
 iterate = (Y \iterate.\f.\x.(cons x (iterate f (f x))))
 repeat = (iterate id)
 take = (Y \take.\n.\xs.(xs ; \x.\xs.(n <= 0 ; (: x (take (n - 1) xs)))))
@@ -118,9 +120,12 @@ cycle = \xs.[concat repeat xs]
 drop = (Y \drop.\n.\xs.(xs ; \x.\xs.(n = 1 xs (drop (n - 1) xs))))
 tail = (drop 1)
 splitAt = \n.\xs.(pair (take n xs) (drop n xs))
-takeWhile = (Y \takeWhile.\f.\xs.(xs nil \x.\xs.(f x (cons x (takeWhile f xs)) nil)))
-dropWhile = (Y \dropWhile.\f.\xs.(xs nil \x.\xs.(f x (dropWhile f xs) (cons x xs))))
-splitHalf = (Y \sh.\xs.(xs (pair ; ;) \h1.\t1.(t1 (pair (: h1 ;) ;) \h2.\t2.
+takeWhile = (Y \takeWhile.\f.\xs.(xs nil 
+  \x.\xs.(f x (cons x (takeWhile f xs)) nil)))
+dropWhile = (Y \dropWhile.\f.\xs.(xs nil 
+  \x.\xs.(f x (dropWhile f xs) (cons x xs))))
+splitHalf = (Y \sh.\xs.(xs (pair ; ;) 
+  \h1.\t1.(t1 (pair (: h1 ;) ;) \h2.\t2.
   {tails = (sh t2)} (tails \f.\s.(
   (pair (: h1 f) (: h2 s)))))))
 sort = \f.{merge = (Y \merge.\xs.\ys.(xs ys \x.\xts.(ys xs \y.\yts.(f x y 
@@ -141,15 +146,17 @@ readInt = (compose (Y \readInt.\n.(n 0 \h.\t.(h - 48 + (readInt t * 10))))
 showBool = \b.(b "true" "false")
 forever = \c.(Y \forever.(>> c forever))
 isSpace = \c.(any (= c) " \n\t\r")
-partition = \f.(Y \partition.\s.\acc.(s (pair acc nil) \h.\t.(f h (pair acc s)
-    (partition t (append acc))))) 
+partition = \f.(Y \partition.\s.\acc.(s (pair acc nil) 
+  \h.\t.(f h (pair acc s)
+  (partition t (append acc))))) 
 splitWhen = \f.(Y \splitWhen.\xs.(split f xs \l.\r.(r 
   (l ; \h.\t.(: l ;))
   \h.\t.{cont = (splitWhen r)}(l cont \h.\t.(: l cont)))))
 words = (splitWhen isSpace)
 lines = (splitWhen (= '\n'))
 splitArgs = (map (map fst) (splitWhen \p.(p \e.\c.(and (not e) (c = ' '))) 
-  (drop 1 (scanl \q.\x.(q \p.\c.(c = '\\' (pair true x) (pair false x))) (pair false ' ')))))
+  (drop 1 (scanl \q.\x.(q \p.\c.(c = '\\' (pair true x) (pair false x))) 
+    (pair false ' ')))))
 intersperse = \v.(Y \intersperse.\l.(l l \h.\t.(t l 
   \h'.\t'.[(: h) (: v) intersperse t])))
 unwords = (compose concat (intersperse " "))
@@ -169,7 +176,8 @@ zipWith = \f.(Y \zipWith.\as.\bs.(as nil \a.\at.(bs nil \b.\bt.
 zip = (zipWith pair)
 for = \as.\f.(Y \for.\as.(as (return id) \a.\as.(>> (f a) (for as))) as)
 mapm_ = (flip for)
-mapm = \f.\as.(Y \mapm.\as.\acc.(as (return acc) \a.\as.(>>= (f a) \c.(mapm as (cons c acc)))) as nil)
+mapm = \f.\as.(Y \mapm.\as.\acc.(as (return acc) 
+  \a.\as.(>>= (f a) \c.(mapm as (cons c acc)))) as nil)
 replace = \l.\v.(map (const v) l)
 zip-with-default = \f.\d.(Y \zwd.\as.\bs.(as 
   (replace bs d)
@@ -214,10 +222,12 @@ mv = mvq
 rd = rdq
 
 ## System calls ##
-sys_mmap = \addr.\len.\prot.\flags.\fd.\offset.\w.[w 9 offset fd flags prot len addr \a.\b.\c.\d.\e.\f.\t.\w._!6]
+sys_mmap = \addr.\len.\prot.\flags.\fd.\offset.\w.
+  [w 9 offset fd flags prot len addr \a.\b.\c.\d.\e.\f.\t.\w._!6]
 sys_write = \fd.\buf.\count.\w.[w 1 count buf fd \a.\b.\c.\t.\w._!3]
 sys_read = \fd.\buf.\count.\w.[w 0 count buf fd \a.\b.\c.\t.\w._!3]
-sys_open = \fname.\flags.\mode.\w.[w 2 mode flags fname \a.\b.\c.\t.\w._!3]
+sys_open = \fname.\flags.\mode.\w.
+  [w 2 mode flags fname \a.\b.\c.\t.\w._!3]
 sys_close = \fd.\w.[w 3 fd \a.\t.\w._!1]
 sys_exit = \code.\w.[w 60 code\a.\t.\w._!1]
 sys_socket = \dom.\type.\prot.\w.[w 41 prot type dom \a.\b.\c.\t.\w._!3]
@@ -226,8 +236,10 @@ sys_fork = \world.[world 57 \t.\w._!0]
 sys_nanosleep = \rqtp.\rmtp.\w.[w 35 rmtp rqtp \a.\b.\t.\w._!2]
 sys_munmap = \addr.\len.\w.[w 11 len addr \a.\b.\t.\w._!2]
 sys_wait = \pid.\w.[w 61 0 0 pid \pid.\a.\b.\t.\w._!3]
-sys_execve = \fname.\argv.\envp.\w.[w 59 envp argv fname \a.\b.\c.\t.\w._!3]
-sys_getdents = \fd.\dirent*.\count.\w.[w 78 count dirent* fd \a.\b.\c.\t.\w._!3]
+sys_execve = \fname.\argv.\envp.\w.
+  [w 59 envp argv fname \a.\b.\c.\t.\w._!3]
+sys_getdents = \fd.\dirent*.\count.\w.
+  [w 78 count dirent* fd \a.\b.\c.\t.\w._!3]
 
 ## Basic IO ##
 pageSize = 4096
@@ -240,8 +252,10 @@ sleep = \sec.\nsec.(>>= (malloc 2) \p.
   (free p)))))
 newPage = (malloc pageSize)
 read-utf8-char-from-buf = \p.(>>= (rdb p) \c1.
-  (c1 / 128 = 0 (return (pair c1  1)) (>>= (rdb (p + 1)) \c2.{c2' = (2 ^ 8 * c2 + c1)}
-  (c2 / 128 = 0 (return (pair c2' 2)) (>>= (rdb (p + 2)) \c3.{c3' = (2 ^ 16 * c3 + c2')}  
+  (c1 / 128 = 0 (return (pair c1  1)) 
+    (>>= (rdb (p + 1)) \c2.{c2' = (2 ^ 8 * c2 + c1)}
+  (c2 / 128 = 0 (return (pair c2' 2)) 
+    (>>= (rdb (p + 2)) \c3.{c3' = (2 ^ 16 * c3 + c2')}  
   (c3 / 128 = 0 (return (pair c3' 3)) (>>= (rdb (p + 3)) \c4.
   (return (pair (2 ^ 24 * c4 + c3') 4)))))))))
 write-utf8-char-to-buf = \c.\p.[
@@ -267,7 +281,7 @@ putStrBuf = \size.\buf.{
   {finished = (return (pair loc s))}
   (s 
     finished 
-    \h.\t.(loc - buf >= (size - 4) # This is to ensure the 4 byte unicode char can't be written
+    \h.\t.(loc - buf >= (size - 4)
       finished 
       (>>= (write-utf8-char-to-buf h loc) \n.(putStrBuf (loc + n) t)))))
   }
@@ -322,8 +336,10 @@ PME = (error "Pattern match error")
 head = \l.(l (error "head of empty list") \h.\t.h)
 index = \n.\k.(Y \index.\n.\k.\cont.(n = 0
   cont
-  \x.(index (n - 1) k (k = n x cont))) n (n - k + 1) (error "index failed"))
-listIndex = (Y \listIndex.\n.\l.(l (error "listIndex failed") \h.\t.(n = 0 h (listIndex (n - 1) t))))
+  \x.(index (n - 1) k (k = n x cont))) n (n - k + 1) 
+     (error "index failed"))
+listIndex = (Y \listIndex.\n.\l.(l (error "listIndex failed") 
+  \h.\t.(n = 0 h (listIndex (n - 1) t))))
 !! = listIndex
 fst = (index 2 1)
 snd = (index 2 2)
@@ -367,7 +383,7 @@ ls = \path.(>>= newPage \buf.
     (return nil))
   (>>= (sys_getdents fd buf pageSize) \n.
   (n < 0 
-    (>> (printf "getdents on directory \"%s\" failed with errno %d" path n)
+    (>> (printf "getdents on dir \"%s\" failed with errno %d" path n)
     (return nil))
   {read-dent = (Y \rdd.\ld.(ld - n >= buf
       (return nil)
@@ -383,9 +399,15 @@ ls = \path.(>>= newPage \buf.
   (return files)))))))))
 pwd = (>>= getEnv \env.(lookup "PWD" strcmp env (return "/") return))
 findPath = \name.(>>= getEnv \env.
-  {paths = (lookup "PATH" strcmp env (cons "/usr/bin" nil) (splitWhen (= ':')))}
-  {find-file = (Y \ff.\paths.(paths (>> (printf "couldn\'t find %s" name) (return name)) \p.\ps.(>> (printf "checking %s")
-    (>>= (ls p) \fs.(elem name strcmp fs (>> (printf "found %s in %s" name p) (return (append p (cons '/' name)))) (>> (printf "couldn\'t find %s in %s" name p) (ff ps)))))))}
+  {paths = (lookup "PATH" strcmp env 
+    (cons "/usr/bin" nil) (splitWhen (= ':')))}
+  {find-file = (Y \ff.\paths.(paths 
+    (>> (printf "couldn\'t find %s" name) (return name)) 
+      \p.\ps.(>> (printf "checking %s")
+    (>>= (ls p) \fs.(elem name strcmp fs 
+    (>> (printf "found %s in %s" name p) 
+    (return (append p (cons '/' name)))) 
+    (>> (printf "couldn\'t find %s in %s" name p) (ff ps)))))))}
   (find-file paths))
 exec = \str.(splitArgs str (return 0) \fname.\argv.
   (>>= getEnv \env.
@@ -414,7 +436,7 @@ of the system stack for our argument closures and update markers, incorporating
 alloca-style stack allocations would be a significant challenge, though it
 should be possible. 
 
-\section{Example Programs}
+\subsection{Example Programs}
 
 In addition to re-writing the no-fib benchmark suite, we started writing example
 programs in this source language to gauge the difficulty. These programs use the
@@ -473,30 +495,29 @@ For example, consider evaluation of the expression
 
 By running the \texttt{cem} executable with the flags \texttt{-pg}, we get the
 following output: 
-
-\includegraphics[width=\linewidth/2]{figures/1.pdf}
-\includegraphics[width=\linewidth/2]{figures/2.pdf}
-\includegraphics[width=\linewidth/2]{figures/3.pdf}
-\includegraphics[width=\linewidth/2]{figures/4.pdf}
-\includegraphics[width=\linewidth/2]{figures/5.pdf}
-\includegraphics[width=\linewidth/2]{figures/6.pdf}
-\includegraphics[width=\linewidth/2]{figures/7.pdf}
-\includegraphics[width=\linewidth/2]{figures/8.pdf}
-\includegraphics[width=\linewidth/2]{figures/9.pdf}
-\includegraphics[width=\linewidth/2]{figures/10.pdf}
-\includegraphics[width=\linewidth/2]{figures/11.pdf}
-\includegraphics[width=\linewidth/2]{figures/12.pdf}
-\includegraphics[width=\linewidth/2]{figures/13.pdf}
-\includegraphics[width=\linewidth/2]{figures/14.pdf}
-\includegraphics[width=\linewidth/2]{figures/15.pdf}
-\includegraphics[width=\linewidth/2]{figures/16.pdf}
-\includegraphics[width=\linewidth/2]{figures/17.pdf}
-\includegraphics[width=\linewidth/2]{figures/18.pdf}
-\includegraphics[width=\linewidth/2]{figures/19.pdf}
-\includegraphics[width=\linewidth/2]{figures/20.pdf}
-\includegraphics[width=\linewidth/2]{figures/21.pdf}
-\includegraphics[width=\linewidth/2]{figures/22.pdf}
-\includegraphics[width=\linewidth/2]{figures/23.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/1.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/2.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/3.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/4.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/5.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/6.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/7.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/8.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/9.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/10.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/11.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/12.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/13.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/14.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/15.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/16.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/17.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/18.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/19.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/20.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/21.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/22.pdf}
+\includegraphics[width=0.99\linewidth/2]{figures/23.pdf}
 
 We can see that through the evaluation, the variable \texttt{a} is dereferenced
 twice, in two different scopes. The cactus structure ensures that the value is

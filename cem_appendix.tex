@@ -2,6 +2,7 @@
 In this chapter we discuss details of the native code compiler.  
 
 \section{Source Language}
+
 For a better grasp on what the cem native code compiler can do, I share a
 number of example programs and libraries. I highlight the fact that the compiler
 can handle machine literals and primitive operations, including system calls and
@@ -14,6 +15,12 @@ either the unicode $\lambda$ character or the forward slash \texttt{\\x.b} to
 denote lamdas, where \texttt{x} is a variable and \texttt{b} is the body of the
 lambda. This choice of explicit applications simplifies the syntax in a way that
 prevents ambiguity and simplifies parsing. 
+
+One way to view this section is as the results of an experiment in how simple we
+can make a call-by-need source language, and still have the ability to write
+real programs. 
+
+TODO: Add source language syntax description.
 
 \subsection{Prelude}
 An extremely useful tool for any language is a base set of functionality

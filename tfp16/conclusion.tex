@@ -5,14 +5,14 @@ While strictness analysis helps to alleviate this issue, there are and there
 always will be cases it cannot catch. Existing implementations choose to pay an
 up-front cost of constructing a flat environment to ensure efficient variable
 lookup if a delayed computation is used. When a delayed computation is never
-used, this overhead is wasted. In this paper we have presented a novel approach
+used, this overhead is wasted. In this chapter we have presented a novel approach
 that minimizes this overhead. We have achieved this overhead minimization by
 taking an old idea, shared environments, and using them in a novel way. By
 leveraging the structure inherent in a shared environment to share results of
 computation, we have avoided some of the overheads involved in delaying a
 computation. 
 
-We conclude by summarizing the key points of this paper. First, a shared
+We conclude by summarizing the key points of this chapter. First, a shared
 environment, explicitly represented as a cactus stack, is a natural way to share
 the results of computation as required by lazy evaluation. Second, this approach
 is in a sense \emph{lazier} about lazy evaluation than existing implementations

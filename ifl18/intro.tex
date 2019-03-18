@@ -30,12 +30,10 @@ verified compiler is provably preserved.
 Existing verified compilers have focused on call-by-value semantics
 \cite{chlipala2007certified, leroy2012compcert, cakeml14}. This semantics has
 the property of being historically easier to implement than call-by-need, and
-therefore likely easier to reason about formally. In this paper, we build on
-recent work developing a simple method for implementing call-by-need semantics,
-which has enabled us to implement, and reason formally about the correctness of,
-call-by-need. We use the Coq proof assistant \cite{barras1997coq} to implement
-and prove the correctness of our compiler. We start with a source language of
-$\lambda$ calculus with de Bruijn indices:
+therefore likely easier to reason about formally. In this chapter, formalize the
+\ce machine described in Chapter 2. We use the Coq proof assistant
+\cite{barras1997coq} to implement and prove the correctness of our compiler. We
+start with a source language of $\lambda$ calculus with de Bruijn indices:
 \begin{align*}
  t &::= t \; t \; | \; x \; | \;  \lambda \; t \\
  x &\in \mathbb{N}
@@ -56,7 +54,7 @@ definition of call-by-need.
 
 For our target, we define a simple instruction machine, described in
 Section~\ref{sec:im_semantics}. This simple target allows us to describe the
-compiler and proofs concisely for the paper, while still allowing
+compiler and proofs concisely for the chapter, while still allowing
 flexibility in eventually verifying a compiler down to machine code for some
 set of real hardware, e.g., x86, ARM, or Power. 
 
@@ -65,11 +63,11 @@ value, the compiled code evaluates to the same value. While there are stronger
 definitions of what qualifies as a verified compiler, we argue that this is
 sufficient in Section~\ref{sec:discussion}. This main result, along with the
 proof that the call-by-name version of our semantics implements Curien's
-calculus of closures, are the primary contributions of this paper. We are
+calculus of closures, are the primary contributions of this chapter. We are
 unaware of any existing verified non-strict compilers, much less a verified
 compiler of call-by-need. 
 
-The paper is structured as follows. In Section~\ref{sec:background} we give the
+The chapter is structured as follows. In Section~\ref{sec:background} we give the
 necessary background. In Section~\ref{sec:cem_big} we describe the source syntax
 and semantics (the big-step \ce semantics) in detail.  We also use
 this section to define a call-by-name version of the semantics, and

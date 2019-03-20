@@ -75,7 +75,7 @@ previously described in the literature \cite{nakata2009small}. This raises the
 question of whether or not semantics that aren't obviously correct are a good
 base for what it means to be a call-by-need semantics. Instead, we have chosen to
 relate our call-by-name semantics formally to a semantics that is obviously
-correct, Curien's calculus of closures. Along with the tiny modification
+correct, Curien's calculus of closures. Along with the small modification
 required for memoization of results, we hope that we have convinced the reader
 that it is \emph{extremely likely} that the memoization of results is correct.
 Of course, further evidence such as examples of correct evaluation would go
@@ -122,6 +122,78 @@ One useful feature of Coq is the ability to extract Coq programs out to other
 implementations, e.g. Haskell. This raises the possibility of extracting the
 verified compiler out to a Haskell implementation that could be incorporated
 into GHC, providing a path towards a verified Haskell compiler. 
+
+\subsection{Relation to Ariola et al.}
+
+As mentioned above, to improve the relation to existing work, we could relate
+the semantics to the operational semantics of Ariola et al., seen in
+Figure~\ref{fig:cbn} ~\cite{ariola1995call}. Because I spent a large amount of
+time attempting this, we use this section to discuss challenges to this
+approach. 
+
+One approach I tried was to show bisimulation between $\rightarrow_{N}$ and
+$\Downarrow$. Unfortunately, as mentioned in Section~\ref{sec:threats}, there is
+an issue I discovered when formalizing this semantics. Essentially, the rules
+for variable freshness are insufficient. To fix this, one has to modify the
+rules to ensure global freshness. This modification is shown in
+Figure~\ref{fig:cbn_fixed}. While it makes the semantics more complicated, the
+real challenge for proving bisimulation comes from the complexity of managing  
+
+\begin{figure}
+\begin{align*}
+\tag{Heap} \Phi, \Psi, \Upsilon &::= x_1 \mapsto t_1, \dots, x_n \mapsto t_n
+\end{align*}
+\begin{align*}
+\tag{Id} \inference
+{\langle \Phi \rangle t \Downarrow \langle \Psi \rangle \lambda x.t'}
+{\langle \Phi, x \mapsto t, \Upsilon \rangle x \Downarrow \langle \Psi, x
+\mapsto \lambda x.t', \Upsilon \rangle \lambda x.t'}
+\end{align*}
+\begin{align*}
+\tag{Abs} \inference 
+{}
+{\langle \Phi \rangle \lambda x . t \Downarrow \langle \Phi \rangle \lambda x.t}
+\end{align*}
+\begin{align*}
+\tag{App} \inference
+{\langle \Phi \rangle t_l \Downarrow \langle \Psi \rangle \lambda 
+x.t_n \\ \langle \Psi, x' \mapsto t_m \rangle [x'/x]t_n \Downarrow \langle
+\Upsilon \rangle \lambda y.t'}
+{\langle \Phi \rangle t_l \; t_m \Downarrow \langle \Upsilon \rangle \lambda y.t'}
+\end{align*}
+\caption{Ariola et. al's Operational Semantics}
+\label{fig:cbn}
+\end{figure}
+
+By retaining the whole heap, we ensure global freshness of new variables. 
+
+\begin{figure}
+\begin{align*}
+\tag{Heap} \Phi, \Psi, \Upsilon &::= x_1 \mapsto t_1, \dots, x_n \mapsto t_n
+\end{align*}
+\begin{align*}
+\tag{Id} \inference
+{\langle \Phi \rangle t \Downarrow \langle \Psi \rangle \lambda x.t'}
+{\langle \Phi, x \mapsto t, \Upsilon \rangle x \Downarrow \langle \Psi, x
+\mapsto \lambda x.t', \Upsilon \rangle \lambda x.t'}
+\end{align*}
+\begin{align*}
+\tag{Abs} \inference 
+{}
+{\langle \Phi \rangle \lambda x . t \Downarrow \langle \Phi \rangle \lambda x.t}
+\end{align*}
+\begin{align*}
+\tag{App} \inference
+{\langle \Phi \rangle t_l \Downarrow \langle \Psi \rangle \lambda 
+x.t_n \\ \langle \Psi, x' \mapsto t_m \rangle [x'/x]t_n \Downarrow \langle
+\Upsilon \rangle \lambda y.t'}
+{\langle \Phi \rangle t_l \; t_m \Downarrow \langle \Upsilon \rangle \lambda y.t'}
+\end{align*}
+\caption{Ariola et. al's Operational Semantics (Fixed)}
+\label{fig:cbn_fixed}
+\end{figure}
+
+
 
 \subsection{Related Work}
 

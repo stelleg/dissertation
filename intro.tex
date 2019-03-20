@@ -4,7 +4,7 @@ once}. In this way, it combines the advantages of call-by-value which evaluates
 arguments exactly once, and call-by-name, which evaluates arguments zero or more
 times. The primary insight of this dissertation is that we can implement this
 semantics in a natural way using a well known structure in programming language
-design: the shared environment. 
+implementation: the shared environment. 
 
 \section{Motivation}
 
@@ -19,34 +19,31 @@ The second motivation is that existing call-by-need implementations are complex
 in nature, due to their use of supercombinators and flat environments. The STG
 machine in particular incorporates many clever techniques for avoiding overheads
 of lazy evaluations. While this is useful for generating fast code, it also
-makes formal reasoning about the compiler more difficult. I speculate that this
-is the primary reason that up until the work presented here, there hasn't been a
-verified compiler of a call-by-need semantics. This is a particularly desirable
-property for a call-by-need semantics, where correctness is arguably easier to
-reason about than for a strict language, where non-termination has more paths
-into programs. 
+makes formal reasoning about the compiler more difficult. This is likely the
+primary reason that there aren't existing verified compilers for call-by-need at
+the time of this dissertation.
 
 \section{Overview}
 
 This dissertation can be thought of as an exploration of the advantages of
 implementing call-by-need with shared environments. There are two advantages to
-this approach. First, it minimizes overheads for thunk creation. It, in a sense,
-is \emph{lazier} about lazy evaluation. I take advantage of this by creating a
-complete native code compiler for a simple functional language, and showing it
-has good performance despite an exceedingly simple implementation. Second, it
-lends itself to a exceedingly simple implementation. The simplicity of
-implementation allowed investigating some interesting optimizations and
-implementation approaches, as well as comparisons with existing implementation
-approaches, with only one person doing the development work. Moreover, I show
-how the simplicity lets us reason formally to verify the correctness of the
-implementation.
+this approach, corresponding directly to the two motivation points above. First,
+it minimizes overheads for thunk creation. It, in a sense, is \emph{lazier}
+about lazy evaluation. I take advantage of this by creating a complete native
+code compiler for a simple functional language, and showing it has good
+performance despite an exceedingly simple implementation. Second, it lends
+itself to a exceedingly simple implementation. The simplicity of implementation
+allowed investigating some interesting optimizations and implementation
+approaches, as well as comparisons with existing implementation approaches, with
+only one person doing the development work. Moreover, I show how the simplicity
+lets us reason formally to verify the correctness of the implementation.
 
 \section{Call-by-Need}
 
 Because this work is focused on implementing call-by-need semantics, it is worth
-spending some time discussing the merits of call-by-need semantics. One easy
+spending some time discussing why call-by-need semantics are important. One easy
 argument is that call-by-need underlies the widely used programming language
-Haskell.  Technically, Haskell is a non-strict language. This implies that both
+Haskell. Technically, Haskell is a non-strict language. This implies that both
 call-by-name and call-by-need are valid implementation strategies. In practice,
 there are some situations when one would prefer call-by-name, namely, when
 storing an intermediate value is more expensive than re-computing it. These

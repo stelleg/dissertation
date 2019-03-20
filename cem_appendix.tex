@@ -1,26 +1,76 @@
 \chapter{Native Code Compiler Implementation Details}
-In this chapter we discuss details of the native code compiler.  
+In this appendix we discuss details of the native code compiler. We focus on
+implementation details not included in Chapter~\ref{chap:cem}. This includes a
+complete definition of the language, as well as extensive examples of what
+writing programs in the language looks like. In part, we share these details due
+to a number of interesting properties that the implementation has. Some of those
+properties include
+
+\begin{itemize}
+\item No first class recursion and let bindings. Replaced by use of Y combinator
+\item No algebraic data types: scott encoded data types. 
+\item World type: reasoning about IO in an untyped setting by passing 
+\item No libc dependence: system calls as an explicit language construct
+\item Novel syntax: explicit parentheses, a merging of lambda calculus and lisp
+\end{itemize}
+
+
 
 \section{Source Language}
 
-For a better grasp on what the cem native code compiler can do, I share a
-number of example programs and libraries. I highlight the fact that the compiler
-can handle machine literals and primitive operations, including system calls and
-a basic system for monadic side effects.  There are a number of non-standard
-design decisions worth mentioning. The first, and most significant one, is a
-non-standard use of parentheses. Instead of implicit applications, we use
-\texttt{()} parentheses to explicitly denote left-associative applications, and
-\texttt{[]} brackets to denote explicit right-associative applications. We use
-either the unicode $\lambda$ character or the forward slash \texttt{\\x.b} to
-denote lamdas, where \texttt{x} is a variable and \texttt{b} is the body of the
-lambda. This choice of explicit applications simplifies the syntax in a way that
-prevents ambiguity and simplifies parsing. 
+For a better grasp on what the cem native code compiler can do, this section
+provides a number of example programs and libraries. It highlights the fact that
+the compiler can handle machine literals and primitive operations, including
+system calls and a basic system for monadic side effects.  There are a number of
+non-standard design decisions worth mentioning. The first, and most significant
+one, is a non-standard use of parentheses. Instead of implicit applications, we
+use \texttt{()} parentheses to explicitly denote left-associative applications,
+and \texttt{[]} brackets to denote explicit right-associative applications. We
+use either the unicode $\lambda$ character or the forward slash \texttt{\\x.b}
+to denote lamdas, where \texttt{x} is a variable and \texttt{b} is the body of
+the lambda. This choice of explicit applications simplifies the syntax in a way
+that prevents ambiguity and simplifies parsing. 
 
 One way to view this section is as the results of an experiment in how simple we
 can make a call-by-need source language, and still have the ability to write
 real programs. 
 
-TODO: Add source language syntax description.
+\subsection{Language Definition}
+
+Here we give the full language definition: 
+
+\begin{verbatim}
+data Expr a b = Var b
+              | App (Expr a b) (Expr a b)
+              | Lam a (Expr a b)
+              | Lit Literal
+              | Op Op
+              | World
+              deriving (Eq, Ord)
+
+type Literal = Int
+
+data Op = Add 
+        | Sub 
+        | Mul 
+        | Div 
+        | Mod 
+        | Eq 
+        | Neq 
+        | Lt 
+        | Gt 
+        | Le 
+        | Ge 
+        | Write WordSize 
+        | Read WordSize 
+        | Call String Int 
+        | Syscall Int
+\end{verbatim}
+
+The expressions include the three standard lambda calculus constructors, as well
+as literals \texttt{Lit}, which are just standard 32 bit machine words, machine
+operations \texttt{Op}, and world values \texttt{World}, which are used for
+reasoning about IO. 
 
 \subsection{Prelude}
 An extremely useful tool for any language is a base set of functionality

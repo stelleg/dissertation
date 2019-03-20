@@ -11,12 +11,10 @@ As discussed in Section~\ref{sec:introduction}, our source syntax is the lambda
 calculus with de Bruijn indices. De Bruijn indices count the number of
 intermediate lambdas between the occurrence of the variable and its binding
 lambda.  
-
 \begin{align*}
  t &::= t \; t \; | \; x \; | \;  \lambda \; t \\
  x &\in \mathbb{N}
 \end{align*}
-
 The essence of the \ce semantics (Figure~\ref{fig:bigstep}) is that we implement a shared
 environment, and use its structure to share results of computations. This makes
 possible a simple abstract machine that operates on the lambda calculus directly,

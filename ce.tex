@@ -3,3 +3,9 @@ small-step versions. We try and give some intuition for why it works, and show
 an example derivation for the small step semantics. The definitions here are the
 core of both implementations, the native code compiler in Chapter~\ref{chap:cem}
 and the verified compiler in Chapter~\ref{chap:verified}.
+
+We formalize the connection between call-by-need evaluation and shared
+environments in a big-step semanitcs (Section~\ref{sec:calc}).
+Section~\ref{sec:mach} implements the big-step with a small-step semantics by
+adding a context (or stack), and explains how \ce uses the shared environment in
+a natural way to implement lazy evaluation.

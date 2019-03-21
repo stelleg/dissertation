@@ -76,7 +76,7 @@ $c$ and continuing environment $l''$ reside. $\mu(l) = c \cdot l'$ is the
 statement that $l \mapsto c \cdot l' \in \mu$, and $\mu(u \mapsto c \cdot l')$
 is $\mu$ with location $u$ updated to map to $c \cdot e$. We define two
 different semantics, one for call-by-name (Figure~\ref{fig:bigstepname}) and one
-for call-by-need (Figure~\ref{bigstep}), which makes the connection to Curien's
+for call-by-need (Figure~\ref{fig:bigstep}), which makes the connection to Curien's
 call-by-name calculus more straightfoward. The rule for application is
 identical for both semantics: each evaluates the left hand side to a function,
 then binds the variable in the cactus environment, extending the current
@@ -158,7 +158,7 @@ value is shared correctly.
 \begin{align*}
 \tag{Abs} \inference {} {\left(\lambda t\left[l\right], \mu\right) \Downarrow \left(\lambda t\left[l\right], \mu\right)}
 \end{align*}
-\caption{Big-step \ce syntax and semantics (call-by-need)}
+\caption{Big-step call-by-need \ce syntax and semantics}
 \label{fig:bigstep}
 \end{figure}
 

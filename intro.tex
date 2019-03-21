@@ -2,10 +2,10 @@ The strength of lazy functional programming languages is the freedom they
 give the programmer to focus on correctness instead of operational details. As a
 result, there are two properties that lazy functional programers tend to have.
 First, they reason about the correctness of their code to a degree seen almost
-nowhere else in the programming languages community. Second, they rely on the
-compilers for these languages to generate efficient code in a way that
-programmers of strict languages don't. Essentially, they are leaving more
-operational decisions up to the compiler, and focusing their energy more on the
+nowhere else in the programming community. Second, they rely on the compilers
+for these languages to generate efficient code in a way that programmers of
+strict languages don't. Essentially, they are leaving more operational
+decisions up to the compiler, and focusing their energy more on the
 correctness of their code. 
 
 It is for this reason that we compiler implementors must take great care in the
@@ -35,12 +35,18 @@ an introduction to the dissertation, including an outline of the structure,
 instructions for access to artifacts and reproduction of results, and an
 overview of the contributions. In Chapter~\ref{chap:background}, we provide
 necessary background for understanding the dissertation, as well as further
-discussion of motivation. In Chapter~\ref{chap:ce}  In Chapter~\ref{chap:cem}, we describe the
-implementation of a native code compiler based on the \ce machine, and analyze
-and discuss its performance. In Chapter~\ref{chap:verified}, we present the
-verified compiler, discussing the structure of the compiler and proofs. Finally,
-in Chapter~\ref{chap:conclusion}, we discuss threats to validity, future work,
-and conclusions.
+discussion of motivation. In Chapter~\ref{chap:ce}  In Chapter~\ref{chap:cem},
+we describe the implementation of a native code compiler based on the \ce
+machine, and analyze and discuss its performance. In
+Chapter~\ref{chap:verified}, we present the verified compiler, discussing the
+structure of the compiler and proofs. Finally, in Chapter~\ref{chap:conclusion},
+we discuss threats to validity, future work, and conclusions. We then use
+appendices to give further implementation details, both for the native code
+compiler and the verified compiler. In the case of the native code compiler, our
+hope is to share some of the other interesting properties of the implementation.
+For the verified compiler, the purpose of the appendix is to give the reader a
+more full understanding of the structure and definitions involved in the proofs,
+so that she may convince herself that they are correct.
 
 \section{Reproducibility and Artifacts}
 

@@ -1,11 +1,9 @@
-Call-by-need evaluation is a formalization of the idea that work
-should be delayed until needed, and performed only once.  Existing
-implementations of call-by-need take care in \emph{packaging} a delayed
+Existing implementations of call-by-need take care in \emph{packaging} a delayed
 computation, or \emph{thunk}, by building a closure with an array that contains
 the bindings of all free variables \cite{jonesstg,boquist1997grin}. The overhead
-induced by this operation is well known, and is one reason existing implementations
-avoid thunks wherever possible \cite{johnsson1984efficient}. The key insight of
-our Cactus Environment (\ce) Machine is that this overhead can be
+induced by this operation is well known, and is one reason existing
+implementations avoid thunks wherever possible \cite{johnsson1984efficient}. The
+key insight of our Cactus Environment (\ce) Machine is that this overhead can be
 minimized by only recording a location in a shared environment.
 
 As an example, consider the application $f \; e$. In existing call-by-need
@@ -21,28 +19,18 @@ it is \emph{lazier} about lazy evaluation: in the case that $e$ is unneeded, the
 work to package it in a thunk is entirely wasted. In the spirit of lazy
 evaluation, we attempt to minimize this potentially unnecessary work.  
 
-The contributions of the chapter are:
-\begin{itemize}
-\item A big-step calculus and small-step abstract machine that formalize the
-notion of a shared environment for call-by-need evaluation using an explicitly
-shared environment (Section~\ref{sec:calc}).
-\item A simple implementation of the abstract machine that compiles to x86
-assembly with a preliminary evaluation that shows performance comparable to
-existing implementations (Sections~\ref{sec:impl} and~\ref{sec:eval}).
-\end{itemize}
+In this chapter we present a simple implementation of the \ce machine that
+compiles a simple lazy functional language to x86\_64 assembly. In addition, it
+presents a preliminary evaluation that shows performance comparable to existing
+implementations (Sections~\ref{sec:impl} and~\ref{sec:eval}). 
 
-We formalize the connection between call-by-need evaluation and shared
-environments in a calculus (Section~\ref{sec:calc}).  Section~\ref{sec:mach}
-uses the calculus to derive a novel abstract machine, the $\mathcal{\mathcal{C}
-\mskip -4mu \mathcal{E}}$ machine, explains how $\mathcal{\mathcal{C} \mskip
--4mu \mathcal{E}}$ uses the shared environment in a natural way to implement
-lazy evaluation, and gives its formal semantics.  We then describe a
-straightforward implementation of \ce in Section~\ref{sec:impl}, extended with
-machine literals and primitive operations, and compiling directly to native
-code. We evaluate the implementation in Section~\ref{sec:eval}, showing that it
-is capable of performing comparably to existing implementations despite lacking
-several common optimizations, and we discuss the results. We discuss related
-work, the limitations of our approach, and some ideas for future work in
+We describe a straightforward
+implementation of \ce in Section~\ref{sec:impl}, extended with machine literals
+and primitive operations, and compiling directly to native code. We evaluate the
+implementation in Section~\ref{sec:eval}, showing that it is capable of
+performing comparably to existing implementations despite lacking several common
+optimizations, and we discuss the results. We discuss related work, the
+limitations of our approach, and some ideas for future work in
 Section~\ref{sec:disc}, and conclude the chapter in Section~\ref{sec:conc}.
 
 

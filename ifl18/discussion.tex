@@ -173,9 +173,9 @@ By retaining the whole heap, we ensure global freshness of new variables.
 \end{align*}
 \begin{align*}
 \tag{Id} \inference
-{\langle \Phi \rangle t \Downarrow \langle \Psi \rangle \lambda x.t'}
-{\langle \Phi, x \mapsto t, \Upsilon \rangle x \Downarrow \langle \Psi, x
-\mapsto \lambda x.t', \Upsilon \rangle \lambda x.t'}
+{\langle \Phi, x \mapsto t, \Upsilon \rangle t \Downarrow \langle \Phi', x \mapsto t, \Upsilon' \rangle \lambda x.t'}
+{\langle \Phi, x \mapsto t, \Upsilon \rangle x \Downarrow 
+ \langle \Phi', x \mapsto \lambda x.t', \Upsilon' \rangle \lambda x.t'}
 \end{align*}
 \begin{align*}
 \tag{Abs} \inference 

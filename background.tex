@@ -1,7 +1,7 @@
 This chapter provides relevant background for the $\mathcal{\mathcal{C} \mskip
--4mu \mathcal{E}}$ machine, outlining lambda calculus, evaluation strategies,
-Curien's calculus of closures, and verifying implementations in formal
-logic. 
+-4mu \mathcal{E}}$ machine and its two implementations, outlining lambda
+calculus, evaluation strategies, Curien's calculus of closures, and verifying
+implementations in formal logic. 
 
 \section{Preliminaries} \label{sec:prelim}
 
@@ -24,7 +24,7 @@ Closures combine a term with an environment, which binds the free variables of
 the term to closures. 
 
 As the formal basis for closures we use Curien's calculus of
-closures~\cite{curien1991abstract}, Figure~\ref{fig:calcclos}.  It is a
+closures~\cite{curien1991abstract}, Figure~\ref{fig:curien}.  It is a
 formalization of closures with an environment represented as a list of closures,
 indexed by deBruijn indices. We will occasionally modify this calculus by
 replacing the deBruijn indices with variables for readability, in which case
@@ -37,20 +37,24 @@ markers to denote unique syntax elements, e.g., $t', t_1 \in \textnormal{Term}$.
 \begin{align*}
 \tag{Term} t &::= i \; | \; \lambda t \; | \; t \; t  \\
 \tag{Variable} i &\in \mathbb{N}  \\
-\tag{Closure} c &::= t [\rho] \\
+\tag{Closure} c &::= t \left[\rho\right] \\
+\tag{Value} v &::= \lambda t \left[\rho\right] \\
 \tag{Environment} \rho &::= \bullet \; | \; c \cdot \rho \\
 \end{align*}
 \textbf{Semantics}
 \begin{align*}
 \tag{LEval}\inference
-{t_1[\rho] {\xrightarrow{* }}_L \lambda t_2[\rho'] }
-{t_1 t_3[\rho] \rightarrow_L t_2[t_3[\rho] \cdot \rho'] } 
+{t_1\left[\rho\right] {\Downarrow} \lambda t_2\left[\rho'\right] \\ 
+ t_2\left[t_3\left[\rho\right] \cdot \rho'\right] \Downarrow v}
+{t_1 t_3\left[\rho\right] \Downarrow v } 
 \end{align*}
 \begin{align*}
-\tag{LVar} i [c_0 \cdot c_1 \cdot ... c_i \cdot \rho] \rightarrow_L c_i
+\inference
+{c_i \Downarrow v}
+{\tag{LVar} i \left[c_0 \cdot c_1 \cdot ... c_i \cdot \rho\right] \Downarrow v}
 \end{align*}
-\caption{Curien's call-by-name calculus of closures ~\cite{curien1991abstract}}
-\label{fig:calcclos}
+\caption{Curien's call-by-name calculus of closures}
+\label{fig:curien}
 \end{figure}
 
 \section{Evaluation Strategies} \label{sec:eval}
@@ -65,7 +69,6 @@ work (call-by-value), and never perform unnecessary work (call-by-name). These
 are intuitively good properties to have, and we illustrate the
 correctness of such an intuition with the following example, modified from
 ~\cite{danvy2013synthetic}:
-
 
 $$ \overbrace{c_m (c_m (\cdots(c_m}^{m} \; \mathit{id} \;
 \overbrace{\mathit{id})\cdots) \mathit{id})}^{m} \; \mathit{true} \;

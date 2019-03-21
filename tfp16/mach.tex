@@ -1,68 +1,63 @@
-\section{$\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ Machine} \label{sec:mach}
+\section{Small-Step \ce} \label{sec:mach}
 
 Using the calculus of cactus environments defined in the previous section, we
-derive an abstract machine: the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine. The syntax
-and semantics are defined in Figure~\ref{fig:CEM}. 
+derive an abstract machine: the \ce machine. The syntax and semantics are
+defined in Figure~\ref{fig:cesm}. 
 
-\begin{figure*}
+\begin{figure}
 \textbf{Syntax}
 \begin{align*}
 \tag{State} s &::= \langle c, \sigma, \mu \rangle \\
 \tag{Term} t &::= i \; | \; \lambda t \; | \; t \; t  \\
 \tag{Variable} i &\in \mathbb{N}  \\
-\tag{Closure} c &::= t [l] \\
-\tag{Value} v &::= \lambda t[l] \\
-\tag{Heap} \mu &::= \epsilon \; | \; \mu [ l \mapsto \rho ] \\
+\tag{Closure} c &::= t \left[l\right] \\
+\tag{Value} v &::= \lambda t\left[l\right] \\
+\tag{Heap} \mu &::= \epsilon \; | \; \mu \left[ l \mapsto \rho \right] \\
 \tag{Environment} \rho &::= \bullet \; | \; c \cdot l \\
-\tag{Context} \sigma &::= \square \; | \; \sigma \; c \;  | \; \sigma \; u \\
+\tag{Stack} \sigma &::= \square \; | \; \sigma \; c \;  | \; \sigma \; u \\
 \tag{Location} l,u,f &\in \mathbb{N}
 \end{align*}
 \textbf{Semantics}
 \begin{align*}
 \tag{Upd}
 \langle v,  \sigma \; u , \mu \rangle 
-  &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}
-\langle v, \sigma, \mu(u \mapsto v \cdot l) \rangle  
-\; \textnormal{where} \; c \cdot l = \mu(u) \\
+  &\rightarrow
+\langle v, \sigma, \mu\left(u \mapsto v \cdot l\right) \rangle  
+\; \textnormal{where} \; c \cdot l = \mu\left(u\right) \\
 \tag{Lam}
-\langle \lambda t[l], \sigma \; c, \mu \rangle 
-  &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}
-\langle t[f], \sigma, \mu[f \mapsto c \cdot l]\rangle f \not \in \textnormal{dom}(\mu)  \\
+\langle \lambda t\left[l\right], \sigma \; c, \mu \rangle 
+  &\rightarrow
+\langle t\left[f\right], \sigma, \mu\left[f \mapsto c \cdot l\right]\rangle f
+\not \in \textnormal{dom}\left(\mu\right)  \\
 \tag{App}
-\langle t \; t'[l], \sigma, \mu \rangle
-  &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}
-\langle t[l], \sigma \; t'[l], \mu \rangle \\
-\tag{Var1}
-\langle 0[l], \sigma, \mu \rangle
-  &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}
-\langle c, \sigma \; l , \mu \rangle 
-\; \textnormal{where} \; c \cdot l' = \mu(l)\\
-\tag{Var2}
-\langle i[l], \sigma, \mu \rangle
-  &\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}
-\langle (i-1)[l'], \sigma, \mu \rangle
-\; \textnormal{where} \; c \cdot l' = \mu(l)
+\langle t \; t'\left[l\right], \sigma, \mu \rangle
+  &\rightarrow
+\langle t\left[l\right], \sigma \; t'\left[l\right], \mu \rangle \\
+\tag{Var}
+\langle i\left[l\right], \sigma, \mu \rangle
+  &\rightarrow
+\langle c, \sigma \; l'', \mu \rangle
+\; \textnormal{where} \; l'' \mapsto c \cdot l' = \mu\left(l, i\right)
 \end{align*}
-\caption{Syntax and semantics of the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine.}
-\label{fig:CEM}
-\end{figure*}
+\caption{Small-step \ce syntax and semantics}
+\label{fig:cesm}
+\end{figure}
 
-The machine operates as a small-step implementation of the calculus, extended
-only with a context to implement the updates from the NVar subderivation
-($\sigma \; u$) and the operands from the NEval subderivation ($\sigma \; c$).
-Much like the calculus, a term $t$ is inserted into an initial state $\langle
-t[0], \sigma, \epsilon[0\mapsto\bullet]\rangle$ . On the update rule, the current
-closure is a value, and there is an update marker as the outermost context.
-This implies that a variable was entered and that the current closure
-represents the corresponding value for that variable. Thus, we update the
-location $u$ that the variable entered, replacing whatever term was entered
-with the current closure. The Lam rule takes an argument off the context and
-binds it to a variable, allocating a fresh heap location for the bound
-variable. This ensures that every instance of the variable will point to this
-location, and thus the bound term will be evaluated at most once. The App rule
-simply pushes an argument term in the current environment. The Var1 rule enters
-the closure pointed to by the environment location, while the Var2 rule
-traverses the cactus environment to locate the correct closure.  
+The small-step semantics operate identically to the big-step, extended only with
+a context to implement the updates from the Id subderivation ($\sigma \; u$) and
+the operands from the App subderivation ($\sigma \; c$).  Much like the
+calculus, a term $t$ is inserted into an initial state $\langle t[0], \sigma,
+\epsilon[0\mapsto\bullet]\rangle$ . On the update rule, the current closure is a
+value, and there is an update marker as the outermost context.  This implies
+that a variable was entered and that the current closure represents the
+corresponding value for that variable. Thus, we update the location $u$ that the
+variable entered, replacing whatever term was entered with the current closure.
+The Lam rule takes an argument off the context and binds it to a variable,
+allocating a fresh heap location for the bound variable. This ensures that every
+instance of the variable will point to this location, and thus the bound term
+will be evaluated at most once. The App rule simply pushes an argument term in
+the current environment. The Var rule enters the closure pointed to by the
+\textit{i}'th environment location.  
 
 To get some intuition for the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
 machine and how it works, consider Figure~\ref{fig:state}, evaluation of the
@@ -103,18 +98,4 @@ term $(\lambda a.(\lambda b.b \; a) \lambda c.c \; a) \; ((\lambda i.i)
 Evaluation of $(\lambda(\lambda0\;1)\;\lambda0\;1)\;((\lambda0)\;\lambda0)$}
 \label{fig:state}
 \end{figure}
-
-\subsection{Correctness}
-We prove that the reflexive transitive closure of the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine
-step relation evaluates to a value and heap and empty context iff
-$\xrightarrow{}_{N}$ evaluates to the same value and heap.
-
-{\thm \textnormal{(Equivalence)} $$(c, \mu) \rightarrow_{N} (v, \mu') \;
-\leftrightarrow \; \langle c, \square, \mu \rangle \xrightarrow{*
-}_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}} \langle v, \square, \mu' \rangle $$} 
-
-By induction on the $\rightarrow_{N}$ step relation for one direction, and
-induction on the reflexive transitive closure of the
-$\rightarrow_{\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}}$ step relation for
-the other.
 

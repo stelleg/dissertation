@@ -1,8 +1,8 @@
-\section{\ce Big-Step Semantics} \label{sec:cem_big}
+\section{Big-Step \ce} \label{sec:cem_big}
 
-In this section we define our big-step source semantics. A big-step semantics
+In this section we review our big-step source semantics. A big-step semantics
 has the advantage of powerful, easy-to-use induction properties. This eases
-reasoning about many program properties. We shall also define a small-step
+reasoning about many program properties. We shall also review the small-step
 semantics and prove that it implements the big-step semantics, but by showing
 that our implementation preserves the big-step semantics, we prove preservation
 of any inductive reasoning on the structure of evaluation tree.  
@@ -56,42 +56,6 @@ entire heap domain, for a real implementation, this is far too strong a
 constraint, as it doesn't allow any sort of heap re-use. We return to this issue
 in Section~\ref{sec:discussion}, and discuss how this could be relaxed to either
 allow reasoning about garbage collection or direct heap reuse.
-
-\begin{figure}
-\textbf{Syntax}
-\begin{align*}
-\tag{Term} t &::= i \; | \; \lambda t \; | \; t \; t  \\
-\tag{Variable} i &\in \mathbb{N}  \\
-\tag{Closure} c &::= t \left[l\right] \\
-\tag{Value} v &::= \lambda t \left[l\right] \\
-\tag{Heap} \mu &::= \epsilon \; | \; \mu \left[ l \mapsto \rho \right] \\
-\tag{Environment} \rho &::= \bullet \; | \; c \cdot l \\
-\tag{Location} l,f &\in \mathbb{N}  \\
-\tag{Configuration} s &::= \left(c, \mu \right)
-\end{align*}
-\textbf{Semantics}
-\begin{align*}
-\tag{Id} \inference
-{\mu \left( l, i \right) = l' \mapsto c \cdot l'' \quad 
- \left(c, \mu\right) \Downarrow \left(v, \mu'\right)}
-{\left(i\left[l\right],\mu\right) \Downarrow \left(v, \mu'\left[l' \mapsto v \cdot l''\right]\right)}
-\end{align*}
-\begin{align*}
-\tag{App} \inference
-{\left(t\left[l\right], \mu\right) \Downarrow \left(\lambda t_2\left[l'\right], \mu'\right) 
-   \quad f \not \in \textnormal{dom}\left(\mu'\right)
-   \\ \left(t_2\left[f\right], \mu'\left[f \mapsto t_3\left[l\right] \cdot l'\right]\right)
-         \Downarrow 
-      \left(v, \mu'' \right) 
-   }
-{\left(t \; t_3\left[l\right], \mu\right) \Downarrow \left(v, \mu'' \right)}  
-\end{align*}
-\begin{align*}
-\tag{Abs} \inference {} {\left(\lambda t\left[l\right], \mu\right) \Downarrow \left(\lambda t\left[l\right], \mu\right)}
-\end{align*}
-\caption{Big step \ce syntax and semantics (call-by-need)}
-\label{fig:bigstep}
-\end{figure}
 
 The fact that our natural semantics is defined on the lambda calculus with de Bruijn
 indices differs from most existing definitions of call-by-need, such as
@@ -169,67 +133,6 @@ fresh allocation will keep any equivalent environments equivalent, and that the
 new environment defined by the fresh allocation will be equivalent to the
 extended environment of Curien's semantics.
 \end{proofoutline}
-
-\begin{figure}
-\textbf{Syntax}
-\begin{align*}
-\tag{Term} t &::= i \; | \; \lambda t \; | \; t \; t  \\
-\tag{Variable} i &\in \mathbb{N}  \\
-\tag{Closure} c &::= t \left[\rho\right] \\
-\tag{Value} v &::= \lambda t \left[\rho\right] \\
-\tag{Environment} \rho &::= \bullet \; | \; c \cdot \rho \\
-\end{align*}
-\textbf{Semantics}
-\begin{align*}
-\tag{LEval}\inference
-{t_1\left[\rho\right] {\Downarrow} \lambda t_2\left[\rho'\right] \\ 
- t_2\left[t_3\left[\rho\right] \cdot \rho'\right] \Downarrow v}
-{t_1 t_3\left[\rho\right] \Downarrow v } 
-\end{align*}
-\begin{align*}
-\inference
-{c_i \Downarrow v}
-{\tag{LVar} i \left[c_0 \cdot c_1 \cdot ... c_i \cdot \rho\right] \Downarrow v}
-\end{align*}
-\caption{Curien's call-by-name calculus of closures}
-\label{fig:curien}
-\end{figure}
-
-\begin{figure}
-\textbf{Syntax}
-\begin{align*}
-\tag{Term} t &::= i \; | \; \lambda t \; | \; t \; t  \\
-\tag{Variable} i &\in \mathbb{N}  \\
-\tag{Closure} c &::= t \left[l\right] \\
-\tag{Value} v &::= \lambda t \left[l\right] \\
-\tag{Heap} \mu &::= \epsilon \; | \; \mu \left[ l \mapsto \rho \right] \\
-\tag{Environment} \rho &::= \bullet \; | \; c \cdot l \\
-\tag{Location} l,f &\in \mathbb{N}  \\
-\tag{Configuration} s &::= \left(c, \mu \right)
-\end{align*}
-\textbf{Semantics}
-\begin{align*}
-\tag{Id} \inference
-{\mu \left( l, i \right) = l' \mapsto c \cdot l'' \quad 
- \left(c, \mu\right) \Downarrow \left(v, \mu'\right)}
-{\left(i\left[l\right],\mu\right) \Downarrow \left(v, \mu'\right)}
-\end{align*}
-\begin{align*}
-\tag{App} \inference
-{\left(t\left[l\right], \mu\right) \Downarrow \left(\lambda t_2\left[l'\right], \mu'\right) 
-   \quad f \not \in \textnormal{dom}\left(\mu'\right)
-   \\ \left(t_2\left[f\right], \mu'\left[f \mapsto t_3\left[l\right] \cdot l'\right]\right)
-         \Downarrow 
-      \left(v, \mu'' \right) 
-   }
-{\left(t \; t_3\left[l\right], \mu\right) \Downarrow \left(v, \mu'' \right)}  
-\end{align*}
-\begin{align*}
-\tag{Abs} \inference {} {\left(\lambda t\left[l\right], \mu\right) \Downarrow \left(\lambda t\left[l\right], \mu\right)}
-\end{align*}
-\caption{Big step call-by-name \ce syntax and semantics}
-\label{fig:bigstepname}
-\end{figure}
 
 By proving that Curien's semantics is implemented by the call-by-name variant of
 our semantics, we provide further evidence that our call-by-need is a

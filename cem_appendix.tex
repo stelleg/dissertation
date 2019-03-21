@@ -86,8 +86,9 @@ operator in Haskell.
 
 Also note that we define the y-combinator at the start of the prelude; this is
 the source of all recursion. Whether or not this is sufficient for all
-call-by-need recursion seems to be a topic for disagreement \cite{ariola}, but
-we have found it to be quite useful in     
+call-by-need recursion seems to be a topic for disagreement, but I am of the
+opinion that wherever possible, constructs should be removed from the core
+language when an equivalent semantics can be achieved without it.
 
 \begin{verbatim}
 # Recursion!

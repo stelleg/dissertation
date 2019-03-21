@@ -1,19 +1,10 @@
-% Example template for using the unmeethesis style
-% This example is for a Master's candidate in Mathematics
-% It contains examples of front matter and most sections that the
-% typical graduate student would need to include
-% By: N. Doren 02/10/00
-%     Minor mods by N. Doren 08/26/11
-
-% Use the following specification for BOTTOM page numbering:
 \documentclass[botnum, fleqn]{unmeethesis}
+\usepackage{mathtools}
 \usepackage{tabularx}
 \usepackage{makeidx}  % allows for indexgeneration
 \usepackage{amsfonts}
-\usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{tikz}
-\usepackage{mathtools}
 \usetikzlibrary{chains,fit,shapes,calc}
 \usepackage{verbatim}
 \usepackage{semantic}
@@ -24,8 +15,9 @@
 \usepackage{amssymb}
 \usepackage{hyperref}
 \usepackage{epigraph}
-
 \usepackage{fontspec}
+\usepackage{amsmath}
+
 \setmonofont[Scale=0.8]{DejaVu Sans Mono}
 
 \newcommand{\concat}{\ensuremath{+\!\!\!\!+\,}}  
@@ -108,25 +100,24 @@ For Beth
   I thank my wonderful wife, Beth, for truly being my life partner and always
   inspiring me to be a better person. And to my children, Adelaide and Sullivan,
   thank you for making life so much more.
- 
 \end{acknowledgments}
 
 \maketitleabstract %(required even though there's no abstract title anymore)
 
 \begin{abstract}
 Call-by-need semantics implement the wisdom that work should be done at most
-once. It is the basis of the popular programming language Haskell, and is often
-credited with Haskell's success in its ability to create high-level, composable,
-easy to reason about abstractions with good performance. Unfortunately, while
-correctness of Haskell code is famously easy to reason about, the correctness of
-the de-facto standard Haskell compiler, GHC, is not. This prevents programmers
-from knowing their formal reasoning about Haskell is preserved through
-compilation. This thesis presents a new way to compile call-by-need semantics,
-that doesn't have this issue. The thesis is broken into two parts. First, we
-show that the abstract machine can be implemented as a native code compiler that
-has good performance. This compiler extends lambda calculus with literals,
-primitive operations, and side effects. Second, we present a verified compiler
-in Coq, showing how the simplicity of the abstract machine enables formal
+once. It is the default semantics for the popular programming language Haskell,
+and is largely responsible for Haskell's success in its ability to create
+high-level, composable, easy to reason about abstractions with good performance.
+Unfortunately, while correctness of Haskell code is famously easy to reason
+about, the correctness of the de-facto standard Haskell compiler, GHC, is not.
+This prevents programmers from knowing their reasoning about Haskell is
+preserved through compilation. This thesis presents a new way to compile
+call-by-need semantics using shared environments that doesn't have this issue.
+The thesis is broken into two parts. First, we show that the abstract machine,
+the \ce machine, can be implemented as a native code compiler that has good
+performance. Second, we present a verified compiler, implemented in the Coq
+proof assistant, demonstrating how the simplicity of the approach enables formal
 verification. 
 \clearpage %(required for 1-page abstract)
 \end{abstract}
@@ -137,22 +128,25 @@ verification.
 
 \mainmatter
 
-\chapter{Introduction}
+\chapter{Introduction}\label{chap:intro}
 \epigraph{To be admitted to Nature's hearth costs nothing. None is excluded, but
 excludes himself. You have only to push aside the curtain.}{\textit{Henry David
 Thoreau}}
 \input{intro}
 
-\chapter{Background and Motivation}
+\chapter{Background and Motivation}\label{chap:background}
 \epigraph{Science is the belief in the ignorance of experts.}{\textit{Richard
 Feynman}}
 \input{background}
 
+\chapter{\ce Machine}\label{chap:ce}
+\input{ce}
+\input{tfp16/calc}
+\input{tfp16/mach}
+
 \chapter{Native Code Compilation}\label{chap:cem}
 \epigraph{Much of my work has come from being lazy.}{\textit{John Backus}}
 \input{tfp16/intro}
-\input{tfp16/calc}
-\input{tfp16/mach}
 \input{tfp16/implement}
 \input{tfp16/evaluation}
 \input{tfp16/results}
@@ -172,9 +166,11 @@ truth.}{\textit{Kurt Gödel}}
 \input{ifl18/discussion}
 \input{ifl18/conclusion}
 
-\chapter{Conclusions}
-\epigraph{He who learns but does not think, is lost! He who thinks but does not
-learn is in great danger.}{\textit{Confucius}}
+\chapter{Conclusions}\label{chap:conclusion}
+\epigraph{Understand as well as I may, my comprehension can only be an
+infinitesimal fraction of all I want to understand.}{\textit{Ada Lovelace}}
+%\epigraph{He who learns but does not think, is lost! He who thinks but does not
+%learn is in great danger.}{\textit{Confucius}}
 \input{conclusions}
 
 \chapter*{Appendices}

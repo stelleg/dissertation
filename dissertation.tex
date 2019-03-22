@@ -107,8 +107,8 @@ For Beth
 \begin{abstract}
 Call-by-need semantics formalizes the wisdom that work should be done at most
 once. It is the default semantics for the popular programming language Haskell,
-and is largely responsible for Haskell's success in its ability to create
-high-level, composable, easy to reason about abstractions with good performance.
+and deserves much of the credit for Haskell's ability to create high-level,
+composable, easy to reason about abstractions with good performance.
 Unfortunately, while correctness of Haskell code is famously easy to reason
 about, the correctness of the de-facto standard Haskell compiler, GHC, is not.
 This prevents programmers from knowing their reasoning about Haskell is
@@ -140,6 +140,8 @@ Feynman}}
 \input{background}
 
 \chapter{\ce Machine}\label{chap:ce}
+\epigraph{The lurking suspicion that something could be simplified is the
+world's richest source of rewarding challenges.}{\textit{Edsger Dijkstra}}
 \input{ce}
 \input{tfp16/calc}
 \input{tfp16/mach}
@@ -151,7 +153,6 @@ Feynman}}
 \input{tfp16/evaluation}
 \input{tfp16/results}
 \input{tfp16/discussion}
-\input{tfp16/conclusion}
 
 \chapter{Verified Compilation}\label{chap:verified}
 \epigraph{I don't believe in empirical science. I only believe in a priori
@@ -164,7 +165,6 @@ truth.}{\textit{Kurt Gödel}}
 \input{ifl18/compiler}
 \input{ifl18/correctness}
 \input{ifl18/discussion}
-\input{ifl18/conclusion}
 
 \chapter{Conclusions}\label{chap:conclusion}
 \epigraph{Understand as well as I may, my comprehension can only be an
@@ -176,7 +176,7 @@ infinitesimal fraction of all I want to understand.}{\textit{Ada Lovelace}}
 \chapter*{Appendices}
 
 \appendix
-\input{cem_appendix}
+\input{cem_appendix} \label{chap:cem_appendix}
 \input{coq_appendix}
 
 \bibliographystyle{amsplain}

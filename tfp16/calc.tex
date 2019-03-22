@@ -46,8 +46,9 @@ keeping call-by-need evaluation in mind:
 \end{center}
 This inverted tree structure seen earlier with the leaves pointing toward the
 root is called a \emph{cactus stack} (sometimes called a spaghetti stack or
-saguaro stack) \cite{hauck1968burroughs,ichbiah1991rationale}. In this
-particular cactus stack, every node defines an environment as the sequence of
+saguaro stack) when used as to implement stacks
+\cite{hauck1968burroughs,ichbiah1991rationale}, or a parent pointer tree in
+general. In this use case, every node defines an environment as the sequence of
 closures in the path to the root.  If $t_2[\bullet]$ is a thunk, and is updated
 in place with the value after its first reference, then both environments would
 contain the resulting value. This is exactly the kind of sharing that is

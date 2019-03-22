@@ -468,7 +468,6 @@ Fixpoint var_inst (i : nat) : BasicBlock := match i with
   end.
 
 
-(* Assembles deBruijn indices to instructions *)
 Fixpoint assemble (t : tm) (k : nat) : Program := match t with  
   | var v => [var_inst v]
   | app m n => let ms := assemble m (1+k) in
@@ -516,4 +515,95 @@ trivial to define a meaningless relation, e.g. the relation defined by
 the relation requires equivalence of term and subprogram pointed to by IP, we
 know that the theorem is what we want.
 
-TODO: Add definitions and theorems for relation to curiens calculus of closures.
+\section{Curien}
+
+To relate our implementation to a known semantics, we choose Curien's calculus
+of closures. We show that the call-by-name \ce semnatics implement Curien's
+calculus of closures. We start by defining Curien's calculus of closures. 
+
+\begin{verbatim}
+Inductive closure := | close : tm → list closure → closure. 
+Definition env := list closure.
+
+Inductive step : closure → closure → Type := 
+  | Abs : ∀ b e, step (close (lam b) e) (close (lam b) e)
+  | Var : ∀ x e v c, nth_error e x = Some c → step c v → step (close (var x) e) v
+  | App : ∀ m n b e v mve, 
+      step (close m e) (close (lam b) mve) → 
+      step (close b (close n e::mve)) v → 
+      step (close (app m n) e) v.
+\end{verbatim}
+
+This is a formalization of the semantics in Figure~\ref{fig:curien}. We relate
+this to the call-by-name variant of the \ce semantics. Defined in
+Figure~\ref{fig:bigstepname}, we formalize this semantics in Coq as follows.
+
+\begin{verbatim}
+Reserved Notation " c1 '⇓n' c2 " (at level 50).
+Inductive step : configuration → configuration → Type :=
+  | Id : ∀ M x z Φ Ψ y v e, clu y z Φ = Some (x, {M, e}) → 
+            ⟨Φ⟩M ⇓n ⟨Ψ⟩v →
+    ⟨Φ⟩close (var y) z ⇓n ⟨Ψ⟩v
+  | Abs : ∀ N Φ e, ⟨Φ⟩close (:λN) e ⇓n ⟨Φ⟩close (:λN) e
+  | App : ∀ N M B B' Φ Ψ Υ f e ne ae, isfresh (domain Ψ) f → 
+          ⟨Φ⟩close M e ⇓ ⟨Ψ⟩close (:λB) ne → 
+      ⟨Ψ, f ↦ {close N e, ne}⟩close B f ⇓ ⟨Υ⟩close (:λB') ae   →
+              ⟨Φ⟩close (M@N) e ⇓ ⟨Υ⟩close (:λB') ae
+where " c1 '⇓n' c2 " := (step c1 c2).
+\end{verbatim}
+
+Note the only difference between this semantics and the call-by-need is the lack
+of an updated heap in the \texttt{Id} rule (and we don't require nonzero heap
+locations, but this is unimportant). With these two semantics defined, we can
+relate them by first relating environments and closures. We start by defining an
+inductive relation on what it means for environments to be equivalent.
+Effectively, a cactus environment is equivalent a Curien environment if
+following the following the environment pointers results in equivalent closures
+at each location. 
+
+\begin{verbatim}
+Inductive env_eq (h : heap) : curien.env → cem.env → Type := 
+  | env_eq_nil : ∀ l, env_eq h nil l
+  | env_eq_cons : ∀ t e e' l l' l'',
+      lookup l h = Some (cl (cem.close t l') l'') →
+      env_eq h e l' →
+      env_eq h e' l'' →
+      env_eq h (curien.close t e :: e') l
+  .
+Inductive close_eq (h : heap) : curien.closure → cem.closure → Type := 
+  | close_equiv : ∀ t e l, 
+      env_eq h e l → 
+      close_eq h (curien.close t e) (cem.close t l).
+\end{verbatim}
+
+With this relation, we can define and prove a helper lemma that takes advantage
+of the monotonicity of the cactus environment to implement a cactus environment
+to prove that if an environment is equivalent to a Curien environment, and the
+call-by-name \ce semantics take a step, it will stay equivalent. This is
+noteworthy due to being one of the few places in the proof structures that would
+need to be changed to incorporate a notion of heap reuse/garbage collection.
+
+\begin{verbatim}
+Lemma env_eq_step : ∀ h h' c v e l, 
+  cem_name.step (conf h c) (conf h' v) →
+  env_eq h e l → 
+  env_eq h' e l.
+\end{verbatim}
+
+Finally, we are ready to define our correctness lemma.
+
+\begin{verbatim}
+Theorem step_eq : ∀ h c c' v, close_eq h c c' → curien.step c v →
+  sigT (λ co, match co with conf h' v' => prod 
+    (cem_name.step (conf h c') co)
+    (close_eq h' v v') 
+  end). 
+\end{verbatim}
+
+Note the use of \texttt{sigT} instead of standard \texttt{∃} syntax. This is due
+to our use of the \texttt{Type} universe for all of our judgements, instead of
+\texttt{Prop}. I do this to enable the eventual possibility of doing
+computation on the judgements, to allow reasoning about time and space
+requirements of the semantics. The impredicative nature of \texttt{Prop} was
+never required in the proofs of this dissertation, so the use of \texttt{Type}
+was sufficient. 

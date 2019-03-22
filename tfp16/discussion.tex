@@ -57,8 +57,3 @@ would be to only load strict free variables into registers. That is to say,
 some environment variables may not be used, and only the ones we know will be
 used should be loaded into registers, while the rest should be loaded on demand. 
 
-\subsection{Verification}
-A signal property of our implementation is its simplicity, which makes it an
-attractive target for a verified compiler. Because it avoids complexities
-required for flat environment implementations, e.g., black hole updates, basing
-a verified compiler on this machine is another exciting area for future work. 

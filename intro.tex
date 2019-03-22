@@ -1,12 +1,14 @@
 The strength of lazy functional programming languages is the freedom they
-give the programmer to focus on correctness instead of operational details. As a
-result, there are two properties that lazy functional programers tend to have.
-First, they reason about the correctness of their code to a degree seen almost
-nowhere else in the programming community. Second, they rely on the compilers
-for these languages to generate efficient code in a way that programmers of
-strict languages don't. Essentially, they are leaving more operational
-decisions up to the compiler, and focusing their energy more on the
-correctness of their code. 
+give the programmer to focus on correctness instead of operational details. In a
+strict language, the programmer specifies exactly what code should be run. In a
+lazy language, only the code necessary to compute a result is run. As a result
+of this freedom from operational concerns, there are two properties that lazy
+functional programers tend to have. First, they reason about the correctness of
+their code to a degree seen almost nowhere else in the programming community.
+Second, they rely on the compilers for these languages to generate efficient
+code in a way that programmers of strict languages don't.  Essentially, they are
+leaving more operational decisions up to the compiler, and focusing their energy
+more on the correctness of their code. 
 
 It is for this reason that we compiler implementors must take great care in the
 design of our compilers for lazy languages. We must have compilers that are
@@ -30,17 +32,17 @@ programming languages.
 
 \section{Outline}
 
-This dissertation is organized into six chapters. In this chapter, we provide
+This dissertation is organized into six chapters. In this chapter, I provide
 an introduction to the dissertation, including an outline of the structure,
 instructions for access to artifacts and reproduction of results, and an
-overview of the contributions. In Chapter~\ref{chap:background}, we provide
+overview of the contributions. In Chapter~\ref{chap:background}, I provide
 necessary background for understanding the dissertation, as well as further
 discussion of motivation. In Chapter~\ref{chap:ce}  In Chapter~\ref{chap:cem},
-we describe the implementation of a native code compiler based on the \ce
+I describe the implementation of a native code compiler based on the \ce
 machine, and analyze and discuss its performance. In
-Chapter~\ref{chap:verified}, we present the verified compiler, discussing the
+Chapter~\ref{chap:verified}, I present the verified compiler, discussing the
 structure of the compiler and proofs. Finally, in Chapter~\ref{chap:conclusion},
-we discuss threats to validity, future work, and conclusions. We then use
+I discuss threats to validity, future work, and conclusions. We then use
 appendices to give further implementation details, both for the native code
 compiler and the verified compiler. In the case of the native code compiler, our
 hope is to share some of the other interesting properties of the implementation.
@@ -52,47 +54,48 @@ so that she may convince herself that they are correct.
 
 The implementations presented in this dissertation are available for download to
 allow the reader to reproduce any claims made. All of the software is bundled as
-a single tarball at \url{http://cs.unm.edu/\textasciitilde stelleg/cem.tgz}. 
+a single tarball at \url{http://cs.unm.edu/\textasciitilde stelleg/cem.tgz}.
+Instructions are included for building, running, and proof-checking the code.
+For performance results, the hardware and operating system are listed in
+Chapter~\ref{chap:cem}. In addition to the above tarball, each implementation has been
+continued to be developed at \url{https://github.com/stelleg/cem} and
+\url{https://github.com/stelleg/cem\_coq}. Finally, there is a simpler native
+code compiler for pedagogical purposes available at
+\url{https://github.com/stelleg/cem\_pearl}. 
 
 \section{Call-by-Need}
 
 Because this work is focused on implementing call-by-need semantics, it is worth
-spending some time discussing why call-by-need semantics are important. One easy
-argument is that call-by-need underlies the widely used programming language
-Haskell. Technically, Haskell is a non-strict language. This implies that both
-call-by-name and call-by-need are valid implementation strategies. In practice,
-there are some situations when one would prefer call-by-name, namely, when
-storing an intermediate value is more expensive than re-computing it. These
-cases are not limited to call-by-need; call-by-value suffers the same issue.
-This implies that in theory, Haskell could switch between call-by-name and
-call-by-value depending on the situation. In practice, GHC effectively always
-chooses call-by-need, sometimes performing transformations that increase
-memoization \cite{jones96floating}.
+spending some time discussing why call-by-need semantics are important. That
+said, the purpose of this dissertation is not to justify the existence of
+call-by-need semantics. 
+
+One easy argument for the importance of call-by-need is that it underlies the
+widely used programming language Haskell. Technically, Haskell is a non-strict
+language.  This implies that both call-by-name and call-by-need are valid
+implementation strategies. In practice, there are some situations when one would
+prefer call-by-name, namely, when storing an intermediate value is more
+expensive than re-computing it. These cases are not limited to call-by-need;
+call-by-value suffers the same issue.  This implies that in theory, Haskell
+could switch between call-by-name and call-by-value depending on the situation.
+In practice, GHC effectively always chooses call-by-need, sometimes even
+performing compile-time transformations that increase memoization
+\cite{jones96floating}.  
 
 Even amongst the Haskell community, the advantages and disadvantages of
 non-strict evaluation are hotly debated. For example, there exist both
-strictness annotations, and even strict-by-default variants of Haskell. There are
-real reasons for preferring strict evaluation in some contexts. For example,
-memory leaks due to naive attempts at freeing memory are a common issue with
-lazy semantics. 
+strictness annotations, and even strict-by-default variants of Haskell. There
+are real reasons for preferring strict evaluation in some contexts. In
+particular, reasoning about time and space requirements for lazy programs is
+notoriously difficult.  
 
-The advantages of non-strict semantics often show up when attempting to write
-high level, higher-order abstractions. An example of this principle can be found
-in the \texttt{lens} Haskell library. By using laziness everywhere possible, it
-ensures that code can compose lenses without introducing nontermination. This is
-a strong argument for code re-use advantages in non-strict languages: by using
-laziness, one can prevent nontermination everywhere possible without any
-additional work. 
+The advantages of non-strict semantics often show up especially when attempting
+to write high level, composable abstractions. This is a strong argument for code
+re-use advantages in non-strict languages: by using laziness, one avoids work
+and non-termination where possible without additional programmer effort.
 
-In general, the purpose of this dissertation is not to convince the reader that
-call-by-need is the ideal semantics. Instead, it takes as a given that it is one
-worth spending time on. Finally, I will say that I believe there is a lot of
-interesting potential for better understanding the time and space behavior of
-non-strict languages. From substructural types to dependent types to control
-flow analyses, the field of reasoning about time and space requirements for
-higher order languages is still in its infancy, and I am excited to see it
-combined with work like that presented here to give developers high confidence
-in both their programs' correctness and their time and space requirements. 
+We will return to this discussion in Section~\ref{sec:eval_strat}, where we compare
+and contrast different evaluation strategies.
 
 \section{Retrospective}
 
@@ -137,4 +140,6 @@ call-by-need has benefits for formal reasoning.
 
 Combined, these contributions support the core thesis of this dissertation: that
 shared-environment call-by-need has valuable contributions to make to the study
-and implementation of call-by-need compilers.
+and implementation of call-by-need compilers. Smaller, more
+implementation-specific contributions are enumerated in Chapters~\ref{chap:cem}
+and~\ref{chap:verified}. 

@@ -21,7 +21,8 @@ In mechanical evaluation of expressions, it would be too inefficient to perform
 explicit substitution. To solve this, the standard approach uses closures
 ~\cite{landin1964mechanical,curien1991abstract,jonesstg,biernacka2007concrete}.
 Closures combine a term with an environment, which binds the free variables of
-the term to closures. 
+the term to closures. \emph{Entering} a closure refers to the operational
+process of beginning to evaluate its term in its environment.
 
 As the formal basis for closures we use Curien's calculus of
 closures~\cite{curien1991abstract}, Figure~\ref{fig:curien}.  It is a
@@ -35,15 +36,14 @@ markers to denote unique syntax elements, e.g., $t', t_1 \in \textnormal{Term}$.
 \begin{figure}
 \textbf{Syntax}
 \begin{align*}
-\tag{Term} t &::= i \; | \; \lambda t \; | \; t \; t  \\
+\tag{Term} t,v &::= i \; | \; \lambda t \; | \; t \; t  \\
 \tag{Variable} i &\in \mathbb{N}  \\
 \tag{Closure} c &::= t \left[\rho\right] \\
-\tag{Value} v &::= \lambda t \left[\rho\right] \\
 \tag{Environment} \rho &::= \bullet \; | \; c \cdot \rho \\
 \end{align*}
 \textbf{Semantics}
 \begin{align*}
-\tag{LEval}\inference
+\inference
 {t_1\left[\rho\right] {\Downarrow} \lambda t_2\left[\rho'\right] \\ 
  t_2\left[t_3\left[\rho\right] \cdot \rho'\right] \Downarrow v}
 {t_1 t_3\left[\rho\right] \Downarrow v } 
@@ -51,13 +51,16 @@ markers to denote unique syntax elements, e.g., $t', t_1 \in \textnormal{Term}$.
 \begin{align*}
 \inference
 {c_i \Downarrow v}
-{\tag{LVar} i \left[c_0 \cdot c_1 \cdot ... c_i \cdot \rho\right] \Downarrow v}
+{i \left[c_0 \cdot c_1 \cdot ... c_i \cdot \rho\right] \Downarrow v}
 \end{align*}
-\caption{Curien's call-by-name calculus of closures}
+\begin{align*}
+\inference{}{\lambda t\left[\rho\right] \Downarrow \lambda t\left[\rho\right]}
+\end{align*}
+\caption{Curien's calculus of closures}
 \label{fig:curien}
 \end{figure}
 
-\section{Evaluation Strategies} \label{sec:eval}
+\section{Evaluation Strategies} \label{sec:eval_strat}
 
 There are three standard evaluation strategies for lambda calculus:
 call-by-value, call-by-need, and call-by-name.  Call-by-value evaluates every argument

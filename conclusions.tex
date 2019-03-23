@@ -110,20 +110,21 @@ There are two theses presented in this dissertation. First, shared-environments
 efficiently implement call-by-need semantics, as described by the \ce machine.
 This thesis is described in detail in Chapter~\ref{chap:cem}. The conclusion of
 this chapter is that there are clear efficiencies gained and efficiencies lost
-with the shared environment approach.  In particular, the efficiency gained by
-reduced thunk creation overhead enabled techniques like more efficient
-scott-encoded datatypes. 
+with the shared environment approach. In particular, the efficiency gained by
+reduced thunk creation overhead enabled more efficient lambda calculus
+evaluation. 
 
 The primary conclusion for this thesis is that this is a good default behavior,
 but one that should be optimized away. Consider the analogue of strictness
-analysis. The philosophy is that laziness is a good default, but one that should
-be removed for efficiency where possible. In the same way, lazy thunk creation
-is a good default, but one that should be replaced with an optimized flat
-environment closure where necessary for efficiency reasons. In terms of cheap to
-create vs. efficient to execute, we can think of the shared-environment closure
-as the most extremely cheap to create, at the cost of efficiency to execute,
-where as a just-in-time compiled closure specialized on its values might be at
-the other extreme: expensive to create, but efficient to execute. 
+analysis. The idea behind strictness analyses and transforms is that laziness is
+a good default, but one that should be replaced with eager evaluation for
+efficiency where possible. In the same way, lazy thunk creation is a good
+default, but one that should be replaced with an optimized flat environment
+closure where necessary for efficiency reasons. In terms of cheap to create vs. 
+efficient to execute, we can think of the shared-environment closure as the most
+extremely cheap to create, at the cost of efficiency to execute, where as a
+just-in-time compiled closure specialized on its values might be at the other
+extreme: expensive to create, but efficient to execute. 
 
 The second thesis of the dissertation is that the simplicity of the compiler
 that implements the \ce machine lends itself to formal reasoning. This thesis is
@@ -142,12 +143,13 @@ possibilities further in the next section.
 
 \section{Conclusion}
 
-I have presented a pair of compilers that provide evidence for the two main
-claims of this dissertation: the \ce abstract machine gives rise to efficient,
-easy to reason about compilers. 
+I have presented a novel technique for implementing call-by-need semantics,
+along with a pair of compilers that provide evidence for the two main claims of
+this dissertation: the \ce machine gives rise to efficient, easy to reason about
+compilers. 
 
 If the reader accepts the claims that those are desirable properties for a
-compiler to have, then she must conclude that the \ce machine and the compiler
+compiler to have, then she must conclude that the \ce machine and the compilers
 it enables are valuable tools for implementing call-by-need for real-world
 projects. The evidence accumulated throughout the dissertation compels me to
 to agree with the reader that yes, the work presented here can be used in

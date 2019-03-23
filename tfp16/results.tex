@@ -51,7 +51,8 @@ To isolate the effect of register allocation and unpacked machine
 literals, we replace machine integers with Church numerals in a compatible
 subset of the evaluation programs. Figure~\ref{fig:res-church}
 shows the performance results with this modification, which are much improved,
-with the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine occasionally even outperforming optimized GHC.
+with the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine occasionally
+even outperforming optimized GHC.
 
 \begin{figure*}
 \centering
@@ -72,8 +73,9 @@ units are seconds. Times averaged over 5 runs.}
 
 Next, we consider the disparity due to the Y-combinator, by running a simple
 exponentiation example with Church numerals, calculating $3^8 - 3^8 = 0$. In
-this case, the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine significantly outperform both GHC and UHC,
-as seen in Figure~\ref{fig:res-church-exp} .
+this case, the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine
+significantly outperforms both GHC and UHC, as seen in
+Figure~\ref{fig:res-church-exp} .
 
 \begin{figure*}
 \begin{tabularx}{\textwidth}{l | X | X | X | X | X}

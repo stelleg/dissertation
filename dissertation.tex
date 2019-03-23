@@ -17,6 +17,7 @@
 \usepackage{epigraph}
 \usepackage{fontspec}
 \usepackage{amsmath}
+\usepackage{rotating}
 
 \setmonofont[Scale=0.8]{DejaVu Sans Mono}
 
@@ -66,9 +67,8 @@ For Beth
 
 \begin{acknowledgments}
   \vspace{1.1in}
-  This dissertation is the culmination of work over a period covering most of my
-  adult life. Because of this, the list of people who deserve credit for it is
-  far too long to list here. Instead, I'll make a meager attempt at listing a
+  The list of people who deserve acknowledgment for this dissertation is far too
+  long to enumerate here. Instead, I'll make a meager attempt at mentioning a
   few who played particularly important roles. 
 
   Starting at the beginning, I'd like to thank my parents and brothers, who gave
@@ -107,18 +107,17 @@ For Beth
 \begin{abstract}
 Call-by-need semantics formalizes the wisdom that work should be done at most
 once. It is the default semantics for the popular programming language Haskell,
-and deserves much of the credit for Haskell's ability to create high-level,
-composable, easy to reason about abstractions with good performance.
-Unfortunately, while correctness of Haskell code is famously easy to reason
-about, the correctness of the de-facto standard Haskell compiler, GHC, is not.
-This prevents programmers from knowing their reasoning about Haskell is
-preserved through compilation. This thesis presents a new way to compile
-call-by-need semantics using shared environments that doesn't have this issue.
-The thesis is broken into two parts. First, we show that the abstract machine,
-the \ce machine, can be implemented as a native code compiler that has good
-performance. Second, we present a verified compiler, implemented in the Coq
-proof assistant, demonstrating how the simplicity of the approach enables formal
-verification. 
+and deserves much of the credit for Haskell's high-level abstractions performing
+well.  While correctness of Haskell code is easy to reason about, the
+correctness of existing Haskell compilers is not.  This prevents programmers
+from being confident their reasoning about Haskell is preserved through
+compilation. This thesis presents a novel technique for compiling call-by-need
+semantics that uses shared environments to enable good performance and formal
+reasoning. To demonstrate these properties, I first present an abstract machine,
+the \ce machine, which formalizes the approach. Second, I show that it can be
+implemented as a native code compiler with encouraging performance results.
+Second, we present a verified compiler, implemented in the Coq proof assistant,
+demonstrating how the simplicity of the approach enables formal verification.  
 \clearpage %(required for 1-page abstract)
 \end{abstract}
 

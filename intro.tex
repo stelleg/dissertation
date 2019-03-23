@@ -68,7 +68,9 @@ code compiler for pedagogical purposes available at
 Because this work is focused on implementing call-by-need semantics, it is worth
 spending some time discussing why call-by-need semantics are important. That
 said, the purpose of this dissertation is not to justify the existence of
-call-by-need semantics. 
+call-by-need semantics. For a more technical coverage of the topic, including
+definitions, see Section~\ref{sec:eval_strat}, which defines and contrasts
+different evaluation strategies.
 
 One easy argument for the importance of call-by-need is that it underlies the
 widely used programming language Haskell. Technically, Haskell is a non-strict
@@ -94,8 +96,16 @@ to write high level, composable abstractions. This is a strong argument for code
 re-use advantages in non-strict languages: by using laziness, one avoids work
 and non-termination where possible without additional programmer effort.
 
-We will return to this discussion in Section~\ref{sec:eval_strat}, where we compare
-and contrast different evaluation strategies.
+There are also well-known cases of when composing lazy programs can result in
+better asymtotics than strict composition. Consider the well-known case for
+finding the minimal value in a list. 
+\begin{verbatim}
+  take 1 . sort
+\end{verbatim}
+With lazy semantics, this can result in an $O(n)$ implementation, where the
+strict implementation of compose will always result in a $O(n \log n)$
+implementation. This kind of asymptotic improvement is a direct result of the
+efficiencies gained by avoiding eager work. 
 
 \section{Retrospective}
 
@@ -119,23 +129,27 @@ Section~\ref{sec:future}.
 
 \section{Contributions}
 
-There are two primary contributions of this dissertation, embodied in the
-following two artifacts:
+There are three primary contributions of this dissertation.
 
 \begin{itemize}
+\item A novel technique for implementing call-by-need semantics using shared
+environments. The technique is formalized in the \ce machine, defined with both
+a big and small-step semantics.
+
 \item A full native code compiler from a simple lazy functional language with
-literals and primitive operations to x86\_64 machine code. We show that the
+literals and primitive operations to x86\_64 machine code. The implementation
+follows naturally from the definition of the \ce machine. I show that the
 compiler performs comparably to the state of the art on a number of benchmarks.
 This implementation and its analysis provide evidence supporting the thesis that
 shared-environment call-by-need has novel efficiencies.
 
-\item A verified compiler that compiles from lambda calculus to a simple
+\item A verified compiler that compiles call-by-need lambda calculus to a simple
 instruction machine, along with a specification of correctness and a proof that
 the compiler adheres to that specification. The compiler is implemented and the
-proofs checked in Coq. This is the first verified compiler of a call-by-need
-semantics. This implementation and mechanized proof provides evidence for the
-thesis that the simple compiler artifact that arises from shared-environment
-call-by-need has benefits for formal reasoning.
+proofs checked in Coq, formalizing the \ce semantics in the process. This is the
+first verified compiler of a call-by-need semantics. This implementation and
+mechanized proof provides evidence for the thesis that the simplicity of \ce
+implementations lends itself to formal verification
 \end{itemize}
 
 Combined, these contributions support the core thesis of this dissertation: that

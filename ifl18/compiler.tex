@@ -5,14 +5,14 @@ de Bruijn indices to programs. The compiler proceeds by recursion on lambda
 terms, keeping a current index into the program to ensure correct linking
 without a separate pass. For variables, when we get to zero we push the current
 environment pointer and a null instruction pointer to denote the update marker
-to the location of the closure being entered. Then we \textit{mov} the closure
-at that location into \textit{r1} and \textit{ep}, and \textit{jump} to
-\textit{r1}, recalling that the \textit{jump} sets the \textit{ip}. For 
-nonzero variables, we replicate traversing the environment pointer \textit{i}
+to the location of the closure being entered. Then we $\mathit{mov}$ the closure
+at that location into $r1$ and $ep$, and $\mathit{jump}$ to
+$r1$, recalling that the $\mathit{jump}$ sets the $ip$. For 
+nonzero variables, we replicate traversing the environment pointer $i$
 times before loading the closure.  For applications, we calculate the program
 location of the argument basic block, and push that and the current environment
 pointer onto the stack, effectively pushing an argument closure on top of the
-stack. We then \textit{jump} to the left hand side of the application, as is
+stack. We then $\mathit{jump}$ to the left hand side of the application, as is
 standard for push-enter evaluation. For abstractions, we use a conditional jump
 depending on whether the top of the stack is a null pointer (and therefore an
 update marker) or a valid instruction pointer (and therefore an argument). If it
@@ -21,7 +21,7 @@ with the current value instruction pointer and the current environment pointer.
 We must point to the first of the three abstractions basic blocks, as this value
 could later update another heap location as well. In the case that the top of
 the stack was a valid instruction pointer, we allocate a new chunk of 3 word of
-memory, and \textit{mov} the argument closure into it, with the current
+memory, and $\mathit{mov}$ the argument closure into it, with the current
 environment pointer as the environment continuation. We then set our current
 environment pointer to this fresh location. This is the process by which we
 extend our shared environment structure in the instruction machine. Finally, we
@@ -31,37 +31,37 @@ the next basic block, for real machine code this jump can be omitted.
 
 \begin{figure}
 \begin{align*}
-var \; 0 :=  \;
-  &push \; ep : \\
-  &push \; 0 : \\
-  &mov \; \left(ep\%0\right) \; r1 : \\
-  &mov \; \left(ep\%1\right) \; ep : \\
-  &jump \; r1 \\
-var \; \left(i+1\right) := \;
-  &mov \; \left(ep\%2\right) \; ep : \\
-  &var \; i \\
-compile \; i \; k := \; & \left[var \; i\right] \\
-compile \; \left( m \; n \right) \; k := \;
-  &let \; ms = compile \; m \; \left(k+1\right) \; in \\
-  &let \; nk = 1+k+length \; ms \; in \\
-  &push \; ep :  \\
-  &push \; nk : \\
-  &jump \; \left(k+1\right) :: \\
-  &ms \concat compile \; n \; nk \\
-compile \; \left(\lambda b\right) \; k := \;
-  &pop \; r1 : \\
-  &jump \; \left(r1, k+1 \right) \; \left(k+2\right) :: \\
-  &pop \; r1 : \\
-  &mov \; k \; r1\%0 : \\
-  &mov \; ep \; r1\%1 : \\
-  &jump \; k :: \\
-  &new \; 3 \; r2 : \\
-  &mov \; r1 \; \left(r2\%0\right) : \\
-  &pop \; \left(r2\%1\right) : \\
-  &mov \; ep \; \left(r2\%2\right) : \\
-  &mov \; r2 \; ep : \\
-  &jump \; \left(k+3\right) :: \\
-  &compile \; b \; \left(k+3\right)
+\mathit{var} \; 0 :=  \;
+  &\mathit{push} \; ep : \\
+  &\mathit{push} \; 0 : \\
+  &\mathit{mov} \; \left(ep\%0\right) \; r1 : \\
+  &\mathit{mov} \; \left(ep\%1\right) \; ep : \\
+  &\mathit{jump} \; r1 \\
+\mathit{var} \; \left(i+1\right) := \;
+  &\mathit{mov} \; \left(ep\%2\right) \; ep : \\
+  &\mathit{var} \; i \\
+\mathit{compile} \; i \; k := \; & \left[\mathit{var} \; i\right] \\
+\mathit{compile} \; \left( m \; n \right) \; k := \;
+  &\mathit{let} \; ms = \mathit{compile} \; m \; \left(k+1\right) \; in \\
+  &\mathit{let} \; nk = 1+k+length \; ms \; in \\
+  &\mathit{push} \; ep :  \\
+  &\mathit{push} \; nk : \\
+  &\mathit{jump} \; \left(k+1\right) :: \\
+  &ms \concat \mathit{compile} \; n \; nk \\
+\mathit{compile} \; \left(\lambda b\right) \; k := \;
+  &\mathit{pop} \; r1 : \\
+  &\mathit{jump} \; \left(r1, k+1 \right) \; \left(k+2\right) :: \\
+  &\mathit{pop} \; r1 : \\
+  &\mathit{mov} \; k \; r1\%0 : \\
+  &\mathit{mov} \; ep \; r1\%1 : \\
+  &\mathit{jump} \; k :: \\
+  &\mathit{new} \; 3 \; r2 : \\
+  &\mathit{mov} \; r1 \; \left(r2\%0\right) : \\
+  &\mathit{pop} \; \left(r2\%1\right) : \\
+  &\mathit{mov} \; ep \; \left(r2\%2\right) : \\
+  &\mathit{mov} \; r2 \; ep : \\
+  &\mathit{jump} \; \left(k+3\right) :: \\
+  &\mathit{compile} \; b \; \left(k+3\right)
 \end{align*}
 \caption{Compiler Definition}
 \label{fig:compiler}

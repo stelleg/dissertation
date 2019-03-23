@@ -56,14 +56,13 @@ required by call-by-need, and thus we can use this structure to build a
 call-by-need evaluator. This is the essence of the \ce machine. 
 
 Curien's calculus of closures does not differentiate between flat and shared
-environment representations, and indeed, no call-by-name that we are aware of
-has had the need to. Therefore, we must derive a new semantics, forcing the
-environment to be shared. Because we can hold the closure directly in the
-environment, we choose to replace the standard heap of closures with a
-\emph{heap of environments}. To enforce sharing, we extend Curien's calculus of
-closures to explicitly include the heap of environments, which we refer to as a
-\emph{cactus environment}. This is simply a parent pointer tree in which the
-contained objects are closures. 
+environment representations; it has no need to. Therefore, we must derive a new
+semantics, forcing the environment to be shared. Because we can hold the closure
+directly in the environment, we choose to replace the standard heap of closures
+with a \emph{heap of environments}. To enforce sharing, we extend Curien's
+calculus of closures to explicitly include the heap of environments, which we
+refer to as a \emph{cactus environment}. This is simply a parent pointer tree in
+which the contained objects are closures. 
 
 See Figure~\ref{fig:bigstep} for the syntax and semantics of the \ce big step
 semantics. Recall that we are only concerned with evaluation of closed terms.

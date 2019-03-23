@@ -24,14 +24,15 @@ Closures combine a term with an environment, which binds the free variables of
 the term to closures. \emph{Entering} a closure refers to the operational
 process of beginning to evaluate its term in its environment.
 
-As the formal basis for closures we use Curien's calculus of
-closures~\cite{curien1991abstract}, Figure~\ref{fig:curien}.  It is a
-formalization of closures with an environment represented as a list of closures,
-indexed by deBruijn indices. We will occasionally modify this calculus by
-replacing the deBruijn indices with variables for readability, in which case
-variables are looked up in the environment instead of indexed, e.g., $t[x = c, y
-= c'])$ ~\cite{barendregt1984lambda}. We also add superscript and subscript
-markers to denote unique syntax elements, e.g., $t', t_1 \in \textnormal{Term}$. 
+Because of its use of deBruijn indices, I use Curien's calculus of
+closures~\cite{curien1991abstract} as the formal basis for closures,
+defined in Figure~\ref{fig:curien}. It is a formalization of closures with an
+environment represented as a list of closures, indexed by deBruijn indices. We
+will occasionally modify this calculus by replacing the deBruijn indices with
+variables for readability, in which case variables are looked up in the
+environment instead of indexed, e.g., $t[x = c, y = c'])$
+~\cite{barendregt1984lambda}. We also add superscript and subscript markers to
+denote unique syntax elements, e.g., $t', t_1 \in \textnormal{Term}$. 
 
 \begin{figure}
 \textbf{Syntax}
@@ -78,8 +79,8 @@ $$ \overbrace{c_m (c_m (\cdots(c_m}^{m} \; \mathit{id} \;
 \mathit{id} \; \mathit{bottom} $$ where $c_n = \lambda s.\lambda z.\overbrace{s
 \; (s \cdots (s}^{n} \; z) \cdots) $, $\mathit{true} = \lambda t.\lambda f.t$,
 $\mathit{id}=\lambda x.x$, and \\ $\mathit{bottom} = (\lambda x.x \; x) \lambda x.x \; x$.
-Call-by-value never terminates,
-call-by-name takes exponential time, and call-by-need takes only polynomial time
+When evaluating this expression, call-by-value never terminates, call-by-name
+takes exponential time, and call-by-need takes only polynomial time
 ~\cite{danvy2013synthetic}. Of course, this is a contrived example, but it
 illustrates desirable properties of call-by-need.
 
@@ -91,28 +92,34 @@ for \emph{strictness analysis}
 \cite{mycroft1982abstract,wadler1987projections}, which transforms non-strict
 evaluation to strict when possible.
 
+When compiling applications, there are two general implementation approaches.
+The first, \emph{eval/apply}, the caller first \emph{evaluates} the function,
+then \emph{applies} the arguments. In the second, \emph{push/enter}, the caller
+\emph{pushes} the arguments onto the stack, then \emph{enters} the code for the
+function \cite{marlow2006making}.  
+
 \section{Existing Call-by-Need Machines}
 
 Diehl et al. ~\cite{diehl2000abstract} review the call-by-need
-literature in detail.  Here we summarize the most relevant points.
+literature in detail.  Here I summarize the most relevant points.
 
 The best known machine for lazy evaluation is the Spineless Tagless
 G-Machine (STG machine), which underlies the Glasgow Haskell Compiler (GHC). 
 STG uses flat environments that can be allocated on the stack, the heap,
 or some combination ~\cite{jonesstg}.  
 
-Two other influential lazy evaluation machines relevant to the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
+Two other influential lazy evaluation machines relevant to the \ce 
 machine are the call-by-need Krivine machines
 ~\cite{lkm,krivine2007call,sestoft}, and the three-instruction machine (TIM)
 ~\cite{TIM}.  Krivine machines started as an approach to call-by-name
 evaluation, and were later extended to call-by-need
-~\cite{krivine2007call,sestoft,danvy2013synthetic,lkm}.  The $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
+~\cite{krivine2007call,sestoft,danvy2013synthetic,lkm}.  The \ce machine
 modifies the lazy Krivine machine to capture the environment sharing given by
 the cactus environment. The TIM is an implementation of call-by-need and
 call-by-name ~\cite{TIM}.  It involves, as the name suggests, three machine
 instructions, \texttt{TAKE}, \texttt{PUSH}, and \texttt{ENTER}. In
-Section~\ref{sec:impl}, we follow Sestoft ~\cite{sestoft} and
-re-appropriate these instructions for the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine.
+Section~\ref{sec:impl}, I follow Sestoft ~\cite{sestoft} and
+re-appropriate these instructions for the \ce machine.
 
 There has also been recent interest in \emph{heapless} abstract
 machines for lazy evaluation. Danvy et al. ~\cite{danvy2012inter} and
@@ -144,7 +151,7 @@ compiler is provably preserved.
 
 Due to the complexities discussed above involved in implementing lazy languages,
 existing work has focused on compiling strict languages
-\cite{chlipala2007certified, leroy2012compcert, cakeml14}. Here we use the
+\cite{chlipala2007certified, leroy2012compcert, cakeml14}. Here I use the
 simple \ce machine as a base for a verified compiler of a lazy language, using
 the Coq proof assistant. 
 
@@ -177,9 +184,9 @@ For this dissertation, we choose to take the approach of \cite{chlipala2007certi
 and define verification as the first implication above, focusing on the case in
 which the source semantics evaluates to a value. This is still a strong
 result: any source program that has meaning compiles to an executable with
-equivalent meaning. In addition, if we ever choose to extend the language with a
-type system that ensures termination, or some notion of progress, then we can
-use this proof in combination with our verification proof to prove the other
+equivalent meaning. In addition, if anyone ever chooses to augment the language
+with a type system that ensures termination, or some notion of progress, then we
+can use this proof in combination with our verification proof to prove the other
 direction. 
 
 \section{Environment Representations} \label{sec:env}
@@ -288,9 +295,9 @@ environments is quick variable lookups. In a lazy language, this advantage is
 reduced because \emph{a thunk can only be entered once}. After it is entered, it
 is overwritten with a value, so the next time that heap location is entered it
 is entered with a value and a different environment. Thus, the work to ensure
-that the variable lookup is fast is used only once. This is in contrast to
-a call by value language, in which every closure is constructed for a value,
-and can be entered an arbitrary number of times. 
+that the variable lookup is fast is used for at most one evaluation of the
+thunk. This is in contrast to a call-by-value language, in which every closure
+is constructed for a value, and can be entered an arbitrary number of times. 
 
 A more subtle drawback of the flat environment representation is that
 environments can vary in size, and thus a value in WHNF can be too large to fit
@@ -314,8 +321,8 @@ indexing, but with an initial overhead.
 To summarize, the flat environment representation in a call by need language
 implies that whenever a term might be needed, the necessary environment is
 constructed from the current environment.  This operation can be expensive, and
-it is wasted if the variable is never entered. In this work, we aim to minimize
-this potentially unnecessary overhead.
+it is wasted if the variable is never dereferenced. In this work, we aim to
+minimize this potentially unnecessary overhead.
 
 Figure~\ref{fig:designspace} depicts the design space relevant to this chapter.
 There are existing call by value machines with both flat and shared

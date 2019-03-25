@@ -1,19 +1,19 @@
-This dissertation has been a thorough investigation of a shared-environment
-approach to implementing call-by-need semantics. Chapter~\ref{chap:cem} 
-investigated the runtime efficiency advantages by implementing a simple native
-code compiler. Despite the compilers lack of optimization framework, it was
-often competitive with the state of the art. From this, the conclusion is that
-this approach is a promising abstract machine for real-world compilers. In
+This dissertation is a thorough investigation of a shared-environment approach
+to implementing call-by-need semantics. Chapter~\ref{chap:cem} investigated the
+runtime efficiency advantages by implementing a simple native code compiler.
+Despite the compilers lack of optimization framework, it was often competitive
+with the state of the art. From this, the conclusion is that this approach is a
+promising abstract machine for real-world compilers. In
 Chapter~\ref{chap:verified}, I showed how I could use the simplicity of the
 implementation to effectively reason formally about its correctness. While it
 was a significant undertaking, the success of the verified compiler provides
 strong evidence that the simplicity of the machine is a valuable property, and
 that property can be further exploited in future work.
 
-For the rest of this Chapter, I am retrospective on the work done for the
-dissertation, discussing both worked well and what didn't. The hope is that this
-deeper dive into the challenges and successes throughout the dissertation can
-better inform future work, both work that uses the \ce machine directly, and
+For the rest of this Chapter, I take a retrospective look at the work done for
+the dissertation, discussing both worked well and what didn't. The hope is that
+this deeper dive into the challenges and successes throughout the dissertation
+can better inform future work, both work that uses the \ce machine directly, and
 work that might take a different approach, but with similar goals. While some of
 what is discussed in this section has been covered in previous Chapters, I try
 and address big-picture conclusions here, accumulating the lessons learned along

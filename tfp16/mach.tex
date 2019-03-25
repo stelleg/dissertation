@@ -1,6 +1,7 @@
 \section{Small-Step \ce} \label{sec:mach}
-Using the calculus of cactus environments defined in the previous section, we derive an abstract machine: the \ce machine. The syntax and semantics are
-defined in Figure~\ref{fig:cesm}. 
+Using the big-step \ce from the previous section, I construct a small-step
+semantics by adding a stack.  The syntax and semantics are defined in
+Figure~\ref{fig:cesm}. 
 
 \begin{figure}
 \textbf{Syntax}
@@ -42,20 +43,20 @@ defined in Figure~\ref{fig:cesm}.
 \end{figure}
 
 The small-step semantics operate identically to the big-step, extended only with
-a context to implement the updates from the Id subderivation ($\sigma \; u$) and
-the operands from the App subderivation ($\sigma \; c$).  Much like the
-calculus, a term $t$ is inserted into an initial state $\langle t[0], \sigma,
-\epsilon[0\mapsto\bullet]\rangle$ . On the update rule, the current closure is a
-value, and there is an update marker as the outermost context.  This implies
-that a variable was entered and that the current closure represents the
-corresponding value for that variable. Thus, we update the location $u$ that the
-variable entered, replacing whatever term was entered with the current closure.
-The Lam rule takes an argument off the context and binds it to a variable,
-allocating a fresh heap location for the bound variable. This ensures that every
-instance of the variable will point to this location, and thus the bound term
-will be evaluated at most once. The App rule simply pushes an argument term in
-the current environment. The Var rule enters the closure pointed to by the
-\textit{i}'th environment location.  
+a context (or stack) to implement the updates from the Id subderivation ($\sigma
+\; u$) and the operands from the App subderivation ($\sigma \; c$).  Much like
+the big-step semantics, a term $t$ is inserted into an initial state $\langle
+t[0], \sigma, \epsilon[0\mapsto\bullet]\rangle$ . For the update rule, the
+current closure is a value, and there is an update marker as the outermost
+context.  This implies that a variable was entered and that the current closure
+represents the corresponding value for that variable. Thus, we update the
+location $u$ that the variable entered, replacing whatever term was entered with
+the current closure.  The Lam rule takes an argument off the context and binds
+it to a variable, allocating a fresh heap location for the bound variable. This
+ensures that every instance of the variable will point to this location, and
+thus the bound term will be evaluated at most once. The App rule simply pushes
+an argument term in the current environment. The Var rule enters the closure
+pointed to by the \textit{i}'th environment location.  
 
 To get some intuition for the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
 machine and how it works, consider Figure~\ref{fig:state}, evaluation of the

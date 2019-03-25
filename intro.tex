@@ -2,14 +2,13 @@ The strength of lazy functional programming languages is the freedom they give
 the programmer to focus on correctness instead of operational details. In a
 strict language, the programmer specifies what code will run, and when. In a
 lazy language, the programmer only specifies what the result should be, leaving
-what code should be executed in the process up to the compiler. As a result of
-this freedom from operational concerns, there are two properties that lazy
-functional programers tend to have. First, they reason about the correctness of
-their code to a degree seen almost nowhere else in the programming community.
-Second, they rely on compilers to generate efficient code in a way that
-programmers of strict languages don't.  Essentially, they are leaving more
-operational decisions up to the compiler, and focusing their energy more on the
-correctness of their code. 
+what code should be executed up to the compiler. As a result of this freedom
+from operational concerns, there are two properties that lazy functional
+programers tend to have. First, they reason about the correctness of their code
+to a degree seen almost nowhere else in the programming community.  Second, they
+rely on compilers to generate efficient code in a way that programmers of strict
+languages don't.  Essentially, they are leaving more operational decisions up to
+the compiler, and focusing their energy more on the correctness of their code. 
 
 It is for this reason that we compiler implementors must take great care in the
 design of our compilers for lazy languages. We must have compilers that are
@@ -66,13 +65,12 @@ continued to be developed at \url{https://github.com/stelleg/cem} and
 code compiler for pedagogical purposes available at
 \url{https://github.com/stelleg/cem\_pearl}. 
 
-\section{Call-by-Need}
+\section{On Laziness}
 
 Because this work is focused on implementing call-by-need semantics, it is worth
-spending some time discussing why call-by-need semantics are important. That
-said, the purpose of this dissertation is not to justify the existence of
-call-by-need semantics. For a more technical coverage of the topic, including
-definitions, see Section~\ref{sec:eval_strat}, which defines and contrasts
+spending some time discussing why we care about lazy evaluation. The focus is on
+high level reasoning and opining here, leaving a more technical coverage of
+the topic for Section~\ref{sec:eval_strat}, which defines and contrasts
 different evaluation strategies.
 
 One easy argument for the importance of call-by-need is that it underlies the
@@ -83,24 +81,24 @@ prefer call-by-name, namely, when storing an intermediate value is more
 expensive than re-computing it. These cases are not limited to call-by-need;
 call-by-value suffers the same issue.  This implies that in theory, Haskell
 could switch between call-by-name and call-by-value depending on the situation.
-In practice, GHC effectively always chooses call-by-need, sometimes even
-performing compile-time transformations that increase memoization
+In practice, implementations effectively always chooses call-by-need, sometimes
+even performing compile-time transformations that increase sharing
 \cite{jones96floating}.  
 
 Even amongst the Haskell community, the advantages and disadvantages of
-non-strict evaluation are hotly debated. For example, there exist both
-strictness annotations, and even strict-by-default variants of Haskell. There
-are real reasons for preferring strict evaluation in some contexts. In
-particular, reasoning about time and space requirements for lazy programs is
-notoriously difficult.  
+lazy evaluation are hotly debated. For example, there exist both strictness
+annotations, and even strict-by-default variants of Haskell. There are real
+reasons for preferring strict evaluation in some contexts. In particular,
+reasoning about time and space requirements for lazy programs is notoriously
+difficult.  
 
-The advantages of non-strict semantics often show up especially when attempting
-to write high level, composable abstractions. This is a strong argument for code
+The advantages of lazy semantics often show up especially when attempting to
+write high level, composable abstractions. This is a strong argument for code
 re-use advantages in non-strict languages: by using laziness, one avoids work
 and non-termination where possible without additional programmer effort.
 
 There are also well-known cases of when composing lazy programs can result in
-better asymtotics than strict composition. Consider the well-known case for
+better asymptotics than strict composition. Consider the well-known case for
 finding the minimal value in a list. 
 \begin{verbatim}
   take 1 . sort
@@ -112,12 +110,12 @@ efficiencies gained by avoiding eager work.
 
 Finally, and perhaps most importantly, \emph{I just like lazy semantics}. I like
 the freedom it gives to not worry about evaluation order. I like that it avoids
-work where possible. In my opinion, it is the ideal default semantics for a
-high-level programming language.   
+work where possible. In my humble opinion, it is the ideal default semantics for
+a high-level programming language.   
 
 \section{Retrospective}
 
-This section tells the story of how this dissertation unfolded. The hope is to
+This section tells the story of how this dissertation came to be. The hope is to
 convey to the reader some context for the structure and approach that the
 dissertation takes. 
 

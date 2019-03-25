@@ -1,4 +1,4 @@
-\documentclass[botnum, fleqn]{unmeethesis}
+\documentclass[botnum]{unmeethesis}
 \usepackage{mathtools}
 \usepackage{tabularx}
 \usepackage{makeidx}  % allows for indexgeneration
@@ -18,6 +18,7 @@
 \usepackage{fontspec}
 \usepackage{amsmath}
 \usepackage{rotating}
+\usepackage{caption}
 
 \setmonofont[Scale=0.8]{DejaVu Sans Mono}
 
@@ -87,19 +88,19 @@ For Beth
   wisdom there is no question that this dissertation would not exist. Stephanie
   Forrest deserves a great deal of credit as well, both for bringing me into the
   department, and supporting and advising me selflessly through the challenging
-  task of finding a topic I love. Finally, I would not be here in New Mexico at
-  all without the mentorship of my friend Eric Vatikiotis-Bateson.
+  task of finding a topic I love. I would not be here in New Mexico at all
+  without the help of my friend Eric Vatikiotis-Bateson. 
 
   The papers that form this basis of this dissertation would not have been
   possible without the help of my extraordinary co-authors, Darko Stefanovic,
   Stephen Olivier, and Stephanie Forrest. Their ability to write clearly and
-  carefully continues to inspire me to be a better communicator. My co-authors,
-  Kei Davis, and Patrick Bridges all have my thanks for their role on my
-  committee.
+  carefully continues to inspire me to be a better communicator. My committee
+  members, which include the above co-authors, as well as Kei Davis and Patrick
+  Bridges, have my thanks.
 
-  I thank my wonderful wife, Beth, for truly being my life partner and always
-  inspiring me to be a better person. And to my children, Adelaide and Sullivan,
-  thank you for making life so much more.
+  I thank my wonderful wife, Beth, for being my partner in life and always
+  inspiring me to be better. And to my children, Adelaide and Sullivan, thank
+  you for making life so much more.
 \end{acknowledgments}
 
 \maketitleabstract %(required even though there's no abstract title anymore)
@@ -116,7 +117,7 @@ semantics that uses shared environments to enable good performance and formal
 reasoning. To demonstrate these properties, I first present an abstract machine,
 the \ce machine, which formalizes the approach. Second, I show that it can be
 implemented as a native code compiler with encouraging performance results.
-Second, we present a verified compiler, implemented in the Coq proof assistant,
+Finally, I present a verified compiler, implemented in the Coq proof assistant,
 demonstrating how the simplicity of the approach enables formal verification.  
 \clearpage %(required for 1-page abstract)
 \end{abstract}
@@ -133,7 +134,7 @@ excludes himself. You have only to push aside the curtain.}{\textit{Henry David
 Thoreau}}
 \input{intro}
 
-\chapter{Background and Motivation}\label{chap:background}
+\chapter{Background}\label{chap:background}
 \epigraph{Science is the belief in the ignorance of experts.}{\textit{Richard
 Feynman}}
 \input{background}
@@ -176,7 +177,7 @@ infinitesimal fraction of all I want to understand.}{\textit{Ada Lovelace}}
 
 \appendix
 \input{cem_appendix} \label{chap:cem_appendix}
-\input{coq_appendix}
+\input{coq_appendix} \label{chap:coq_appendix}
 
 \bibliographystyle{amsplain}
 \bibliography{annotated}

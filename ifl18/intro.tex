@@ -1,15 +1,15 @@
 \label{sec:introduction}
 As discussed in Chapter~\ref{chap:intro}, lazy functional programming languages
 like Haskell lend themselves particularly well to reasoning about correctness.
-It is for this reason we should be motivated to build a verified compiler for a
+It is for this reason I was motivated to build a verified compiler for a
 call-by-need semantics, the default semantics for lazy functional languages: we
 want this reasoning to be preserved.  Unfortunately, one of the challenges for
 formalization of non-strict compilers is that the semantics of call-by-need
 abstract machines tend to be complex, incorporating complex optimizations into
 the semantics, requiring preprocessing of terms, and closures of variable sizes
-\cite{jonesstg, TIM}.  In this chapter, we use the \ce machine \cite{cem},
-taking advantage of its simplicity to ease the formal reasoning burden that goes
-with building a verified compiler.
+\cite{jonesstg, TIM}.  In this chapter, I use the \ce machine, taking advantage
+of its simplicity to ease the formal reasoning burden that goes with building a
+verified compiler.
 
 Verified compilers provide powerful guarantees about the code they generate and
 its relation to the corresponding source code \cite{chlipala2007certified,
@@ -24,28 +24,28 @@ Existing verified compilers have focused on call-by-value semantics
 \cite{chlipala2007certified, leroy2012compcert, cakeml14}. This semantics has
 the property of being historically easier to implement than call-by-need, and
 therefore likely easier to reason about formally. In this chapter, formalize the
-\ce machine described in Chapter 2. We use the Coq proof assistant
-\cite{barras1997coq} to implement and prove the correctness of our compiler. We
+\ce machine described in Chapter 2. I use the Coq proof assistant
+\cite{barras1997coq} to implement and prove the correctness of our compiler. I 
 start with a source language of $\lambda$ calculus with de Bruijn indices:
 \begin{align*}
  t &::= t \; t \; | \; x \; | \;  \lambda \; t \\
  x &\in \mathbb{N}
 \end{align*}
-Our source semantics is the big-step operational semantics of the \ce 
+The source semantics is the big-step operational semantics of the \ce 
 machine, which uses shared environments to share results between instances of a
 bound variable. To strengthen the result, and relate it to a better-known
-semantics, we also show that the call-by-name \ce machine implements
+semantics, I also show that the call-by-name \ce machine implements
 Curien's call-by-name calculus of closures. 
 
-It may surprise the reader to see that we do not start with a better known
-call-by-need semantics; we address this concern in
-Section~\ref{sec:discussion}.  We hope that the proof of compiler correctness,
+It may surprise the reader to see that I do not start with a better known
+call-by-need semantics; I address this concern in
+Section~\ref{sec:discussion}. I hope that the proof of compiler correctness,
 along with the proof that our call-by-name version of the semantics implements
-Curien's call-by-name semantics, convinces the reader that we have indeed
+Curien's call-by-name semantics, convinces the reader that I have indeed
 implemented a call-by-need semantics, despite not using a better known
 definition of call-by-need. 
 
-For our target, we define a simple instruction machine, described in
+For our target, I define a simple instruction machine, described in
 Section~\ref{sec:im_semantics}. This simple target allows us to describe the
 compiler and proofs concisely for the chapter, while still allowing
 flexibility in eventually verifying a compiler down to machine code for some
@@ -53,27 +53,27 @@ set of real hardware, e.g., x86, ARM, or Power.
 
 Our main results is a proof that whenever the source semantics evaluates to a
 value, the compiled code evaluates to the same value. While there are stronger
-definitions of what qualifies as a verified compiler, we argue that this is
+definitions of what qualifies as a verified compiler, I argue that this is
 sufficient in Section~\ref{sec:discussion}. This main result, along with the
 proof that the call-by-name version of our semantics implements Curien's
-calculus of closures, are the primary contributions of this chapter. We are
+calculus of closures, are the primary contributions of this chapter. I am
 unaware of any existing verified non-strict compilers, much less a verified
 compiler of call-by-need. 
 
-The chapter is structured as follows. In Section~\ref{sec:background} we give the
-necessary background. In Section~\ref{sec:cem_big} we describe the source syntax
-and semantics (the big-step \ce semantics) in detail.  We also use
+The chapter is structured as follows. In Section~\ref{sec:background} I give the
+necessary background. In Section~\ref{sec:cem_big} I describe the source syntax
+and semantics (the big-step \ce semantics) in detail.  I also use
 this section to define a call-by-name version of the semantics, and
 show that it implements Curien's calculus of closures \cite{curien1991abstract}.  In
-Section~\ref{sec:cem_small} we describe the small-step \ce semantics
+Section~\ref{sec:cem_small} I describe the small-step \ce semantics
 and its relation to the big-step semantics. In Section~\ref{sec:im_semantics}
-we describe the instruction machine syntax and semantics. In
-Section~\ref{sec:compiler} we describe the compilation from machine terms to
-assembly language. In Section~\ref{sec:correctness} we describe how the evaluation
-of compiled programs is related to the small-step \ce semantics. We
+I describe the instruction machine syntax and semantics. In
+Section~\ref{sec:compiler} I describe the compilation from machine terms to
+assembly language. In Section~\ref{sec:correctness} I describe how the evaluation
+of compiled programs is related to the small-step \ce semantics. I 
 compose this proof with the proof that the small-step semantics implement the
 big-step semantics to show that the instruction machine implements the big-step
-semantics. In Section~\ref{sec:discussion} we discuss threats to validity,
+semantics. In Section~\ref{sec:discussion} I discuss threats to validity,
 future work, and related work. The Coq source code with all the definitions and
 proofs described in this document is available at
 \url{https://github.com/stelleg/cem\_coq}. 

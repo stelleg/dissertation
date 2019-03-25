@@ -18,18 +18,11 @@ properties include
 
 \section{Source Language}
 
-For a better grasp on what the cem native code compiler can do, this section
-provides a number of example programs and libraries. It highlights the fact that
-the compiler can handle machine literals and primitive operations, including
-system calls and a basic system for monadic side effects.  There are a number of
-non-standard design decisions worth mentioning. The first, and most significant
-one, is a non-standard use of parentheses. Instead of implicit applications, we
-use \texttt{()} parentheses to explicitly denote left-associative applications,
-and \texttt{[]} brackets to denote explicit right-associative applications. We
-use either the unicode $\lambda$ character or the forward slash \texttt{\\x.b}
-to denote lamdas, where \texttt{x} is a variable and \texttt{b} is the body of
-the lambda. This choice of explicit applications simplifies the syntax in a way
-that prevents ambiguity and simplifies parsing. 
+For a better grasp on what the \ce native code compiler can do, this section
+defines the syntax and core language, and provides a number of example programs
+and libraries. It highlights the fact that the compiler can handle machine
+literals and primitive operations, including system calls and a basic system for
+monadic side effects.  
 
 One way to view this section is as the results of an experiment in how simple we
 can make a call-by-need source language, and still have the ability to write
@@ -71,6 +64,64 @@ as literals \texttt{Lit}, which are just standard 32 bit machine words, machine
 operations \texttt{Op}, and world values \texttt{World}, which are used for
 reasoning about IO. 
 
+\subsection{Syntax}
+
+The source syntax for the compiler is also, to the best of my knowledge, unique.
+There are a number of non-standard design decisions worth mentioning. The first,
+and most significant one, is a non-standard use of parentheses. Instead of
+implicit applications, we use \texttt{()} parentheses to explicitly denote
+left-associative applications, and \texttt{[]} brackets to denote explicit
+right-associative applications. We use either the unicode $\lambda$ character or
+the forward slash \texttt{\\x.b} to denote lambdas, where \texttt{x} is a
+variable and \texttt{b} is the body of the lambda. This choice of explicit
+applications simplifies the syntax in a way that prevents ambiguity and
+simplifies parsing.  It is effectively standard notation but with explicit
+parenthesis, like Lisp, making it easier to parse. In addition, we add syntax
+for let bindings in the form of curly braces. Read left curly braces \texttt{\{}
+as \texttt{let} and right curly brace \texttt{\}} as \texttt{in}. The reason for
+this was to avoid any keywords in the language, and therefore we require no
+tokenizer. Finally, we support string and character literals in the standard
+way. Following Haskell, we also define a global binding scope, implementing the
+following structure (with the default compilation options): 
+\begin{verbatim}
+{
+<preludes>
+<program source>
+} (main Ω λv.λw.w) 
+\end{verbatim}
+This approach allows us to write programs, much like Haskell, with global
+bindings, including a requirement to bind the variable \texttt{main} as our
+outermost function. From a typed perspective, this results in an expression of
+type World, assuming the input of \texttt{Ω} (the input world value). The syntax
+is easy enough to parse that it's worth sharing the parser source directly as a
+kind of formal grammar: 
+
+\begin{verbatim}
+lc :: Parser SExpr
+lc =  Lam <$> ((char '\\' <|> char 'λ') *> word <* char '.') <^> lc
+  <|> Lit <$> literal
+  <|> Op  <$> op
+  <|> Var <$> word
+  <|> World <$ char 'Ω'
+  <|> char '(' ^> (foldl1 App <$> many1 (notCode *> lc <* notCode)) <^ 
+      char ')'
+  <|> char '[' ^> (foldr1 App <$> many1 (notCode *> lc <* notCode)) <^ 
+      char ']'
+  <|> char '\'' *> charLit <* char '\''
+  <|> char '\"' 
+      *> (foldr (\h t -> App (App cons h) t) nil <$> many charLit) <* 
+      char '\"'
+  <|> char '{' ^> 
+      (lets <$> many (notCode *> binding <* notCode) <^> 
+      (char '}' ^> lc))
+      where lets = flip $ foldr ($)
+            binding = mylet <$> word <^> (char '=' ^> lc)
+            mylet var term body = App (Lam var body) term
+\end{verbatim}
+
+Note that due to our avoidance of tokenization, we directly parse any
+non-numeral, parentheses, or whitespace string into a variable.
+
 \subsection{Prelude}
 An extremely useful tool for any language is a base set of functionality
 available in global namespace. I follow Haskell terminology and refer to this
@@ -80,8 +131,11 @@ I start with a pure fragment of the prelude: there are no partial functions
 modulo termination and type-safety. Note we have wrapper functions for our
 machine primitive operations that force evaluation of arguments. We also make
 heavy use of right-associative applications, wrapped with square brackets
-\texttt{[]}. This is in contrast to using an infix operator, e.g. the $\$$
-operator in Haskell.
+\texttt{[]}. By using this right associative operator, along with the
+implementation of literals, applying themselves to a continuation, we attain a
+method of forcing evaluation before applying a primitive operation. This is in
+contrast to using an infix operator, e.g. the $\$$ operator in Haskell. Note the
+\texttt{\_} prefix for primitive operations. 
 
 Also note that we define the y-combinator at the start of the prelude; this is
 the source of all recursion. Whether or not this is sufficient for all

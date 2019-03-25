@@ -1,8 +1,7 @@
 \section{Discussion and Related Work} \label{sec:disc}
 
-Some related work was discussed earlier to provide background and context. Here,
-we briefly and explicitly compare our approach with earlier work. We also discuss
-areas for future work.
+In this section I compare our the compiler presented in this chapter with
+earlier work. I also discuss areas for future work.
 
 \subsection{Closure Representation}
 Appel and Shao \cite{shao1994space} and Appel and Jim \cite{appel1988optimizing}
@@ -10,7 +9,7 @@ both cover the design space for closure representation, and develop an approach
 called \emph{safely linked closures}. It uses flat closures when
 there is no duplication, and links in a way that preserves liveness, to prevent
 violation of the \emph{safe for space complexity} (SSC) rule
-\cite{shao1994space}. While we do not address SSC or garbage collection in
+\cite{shao1994space}. While I do not address SSC or garbage collection in
 general, understanding the relationship between SSC and shared environment
 call-by-need is an interesting area for future work. In particular, hot
 environments with no sharing could benefit greatly from replacing shared
@@ -34,26 +33,26 @@ desirable because multiple adjacent update markers are always updated with the
 same value. They give examples showing that in some cases, these redundant
 update markers can cause an otherwise constant-space stack to grow unbounded.
 They implement an optimization that collapses update markers by adding a layer
-of indirection between heap locations and closures. We propose a similar
+of indirection between heap locations and closures. I propose a similar
 approach, but without the performance hit caused by an extra layer of
-indirection. Upon a variable dereference the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine checks if the
-top of the stack is an update. If it is, instead of pushing a redundant update
-marker onto the stack, it replaces the closure in the heap at the desired
-location with an update marker.  Then, the variable dereference rule checks for
-an update marker upon dereference, and will update accordingly. We have begun
-to implement this optimization, but leave the full implementation and
-description for future work.
+indirection. Upon a variable dereference the $\mathcal{\mathcal{C} \mskip -4mu
+\mathcal{E}}$ machine checks if the top of the stack is an update. If it is,
+instead of pushing a redundant update marker onto the stack, it replaces the
+closure in the heap at the desired location with an update marker.  Then, the
+variable dereference rule checks for an update marker upon dereference, and will
+update accordingly. I have begun to implement this optimization, but leave the
+full implementation and description for future work.
 
 \subsection{Register Allocation} \label{sec:alloc}
 One advantage of flat environments is that register allocation is
 straightforward \cite{appel1992compiling,jonesstg,terei2010llvm}. It is less
 obvious how to do register allocation with the $\mathcal{\mathcal{C} \mskip
--4mu \mathcal{E}}$ machine. We speculate that it should be possible to do a
+-4mu \mathcal{E}}$ machine. I speculate that it should be possible to do a
 sufficient job, particularly in the cases that matter most, e.g. unboxed
 machine literals, though certainly not easy. 
 
 One possible approach that could work well with our shared environment approach
-would be to only load strict free variables into registers. That is to say,
-some environment variables may not be used, and only the ones we know will be
+would be to only load strict free variables into registers. That is to say, some
+environment variables may not be used, so only the ones that will definitely be
 used should be loaded into registers, while the rest should be loaded on demand. 
 

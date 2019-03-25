@@ -1,8 +1,8 @@
 \subsection{Results} \label{sec:res}
 
-Figure~\ref{fig:res} gives the benchmark results.  In general, we are
-outperformed by GHC, sometimes significantly, and we outperform UHC. We
-spend the remainder of the section analyzing these performance differences.
+Figure~\ref{fig:res} gives the benchmark results.  In general, the compiler is
+outperformed by GHC, sometimes significantly, and outperforms UHC. I spend the
+remainder of the section analyzing these performance differences.
 
 \begin{figure*}
 \centering
@@ -44,11 +44,11 @@ Lack of register allocation is the primary current limitation of the $\mathcal{\
 machine. The STG machine pulls the free variables into registers, allowing tight
 loops with everything kept in registers. However, it is less clear how to
 effectively allocate registers in a fully shared environment setting.
-That said, we believe being lazier about register allocation, e.g., not loading
+That said, I believe being lazier about register allocation, e.g., not loading
 values into registers that may not be used, could have some performance benefits.
 
 To isolate the effect of register allocation and unpacked machine
-literals, we replace machine integers with Church numerals in a compatible
+literals, I replace machine integers with Church numerals in a compatible
 subset of the evaluation programs. Figure~\ref{fig:res-church}
 shows the performance results with this modification, which are much improved,
 with the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine occasionally
@@ -71,7 +71,7 @@ units are seconds. Times averaged over 5 runs.}
 \label{fig:res-church}
 \end{figure*}
 
-Next, we consider the disparity due to the Y-combinator, by running a simple
+Next, I consider the disparity due to the Y-combinator, by running a simple
 exponentiation example with Church numerals, calculating $3^8 - 3^8 = 0$. In
 this case, the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine
 significantly outperforms both GHC and UHC, as seen in
@@ -90,7 +90,7 @@ units are seconds. Times averaged over 5 runs.}
 
 These results give us confidence that by adding the optimizations mentioned
 above, among others, the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine has the potential to be the
-basis of a real-world compiler. We discuss how some of these optimizations can
+basis of a real-world compiler. I discuss how some of these optimizations can
 be applied to the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine in Section~\ref{sec:disc}.
 
 \subsection{The Cost of the Cactus}
@@ -100,10 +100,10 @@ pointers until the index is zero. As one might guess, the lookup cost is high.
 For example, for the queens benchmark without any optimizations, variable lookup
 took roughly $80-90\%$ of the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine runtime, as measured
 by profiling. Much of that cost was for lookups of known combinators, however,
-so for the benchmarks above we added the inlining mentioned in the previous
+so for the benchmarks above I added the inlining mentioned in the previous
 section. Still, even with this simple optimization, variable lookup takes
 roughly $50\%$ of execution time. There is some variation across benchmarks, but
-this is a rough approximation for the average cost. We discuss how this cost
+this is a rough approximation for the average cost. I discuss how this cost
 could be addressed in future work in Section~\ref{sec:disc}.
 
 

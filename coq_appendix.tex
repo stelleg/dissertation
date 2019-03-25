@@ -109,7 +109,7 @@ where " c1 '⇓' c2 " := (step c1 c2).
 \section{Small-Step \ce Semantics}
 
 Our small step semantics are a straightforward implementation of the big step
-semantics. The language is the same lambda calculus with deBrujn indices, while
+semantics. The language is the same lambda calculus with deBruijn indices, while
 we introduce a stack to match marker updates and argument bindings to variables.
 This is a formalization of Figure~\ref{fig:cesm}. 
 
@@ -518,7 +518,7 @@ know that the theorem is what we want.
 \section{Curien}
 
 To relate our implementation to a known semantics, we choose Curien's calculus
-of closures. We show that the call-by-name \ce semnatics implement Curien's
+of closures. We show that the call-by-name \ce semantics implement Curien's
 calculus of closures. We start by defining Curien's calculus of closures. 
 
 \begin{verbatim}

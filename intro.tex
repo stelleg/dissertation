@@ -38,14 +38,15 @@ instructions for access to artifacts and reproduction of results, a
 retrospective, and an overview of the contributions. In
 Chapter~\ref{chap:background}, I provide necessary background for understanding
 the dissertation, as well as further discussion of motivation. In
-Chapter~\ref{chap:ce}  In Chapter~\ref{chap:cem}, I describe the implementation
+Chapter~\ref{chap:ce}, I define and explain the \ce machine, in both big and
+small-step semantics. In Chapter~\ref{chap:cem}, I describe the implementation
 of a native code compiler based on the \ce machine, and analyze and discuss its
 performance. In Chapter~\ref{chap:verified}, I present the verified compiler,
 discussing the structure of the compiler and proofs. Finally, in
 Chapter~\ref{chap:conclusion}, I discuss threats to validity, future work, and
 conclusions. I then use appendices to give further implementation details, both
 for the native code compiler (Appendix~\ref{chap:cem_appendix}) and the verified
-compiler(Appendix~\ref{chap:coq_appendix}). In the case of the native code
+compiler (Appendix~\ref{chap:coq_appendix}). In the case of the native code
 compiler, our hope is to share some of the other interesting properties of the
 implementation.  For the verified compiler, the purpose of the appendix is to
 give the reader a more full understanding of the structure and definitions
@@ -68,9 +69,9 @@ code compiler for pedagogical purposes available at
 \section{On Laziness}
 
 Because this work is focused on implementing call-by-need semantics, it is worth
-spending some time discussing why we care about lazy evaluation. The focus is on
-high level reasoning and opining here, leaving a more technical coverage of
-the topic for Section~\ref{sec:eval_strat}, which defines and contrasts
+spending some time discussing why we care about lazy evaluation. The focus here
+is on high level reasoning and opining, leaving a more technical coverage
+of the topic for Section~\ref{sec:eval_strat}, which defines and contrasts
 different evaluation strategies.
 
 One easy argument for the importance of call-by-need is that it underlies the
@@ -98,15 +99,16 @@ re-use advantages in non-strict languages: by using laziness, one avoids work
 and non-termination where possible without additional programmer effort.
 
 There are also well-known cases of when composing lazy programs can result in
-better asymptotics than strict composition. Consider the well-known case for
+better asymptotics than strict composition. Consider the well-known example of
 finding the minimal value in a list. 
 \begin{verbatim}
   take 1 . sort
 \end{verbatim}
-With lazy semantics, this can result in an $O(n)$ implementation, where the
-strict implementation of compose will always result in a $O(n \log n)$
-implementation. This kind of asymptotic improvement is a direct result of the
-efficiencies gained by avoiding eager work. 
+With lazy semantics, this can result in an $O(n)$ implementation, while the
+strict implementation of compose will always result in a $O(n \log n)$ 
+implementation (assuming an $O(n \log n)$ sort). This kind of asymptotic
+improvement is a direct result of the efficiencies gained by avoiding eager
+work. 
 
 Finally, and perhaps most importantly, \emph{I just like lazy semantics}. I like
 the freedom it gives to not worry about evaluation order. I like that it avoids
@@ -147,15 +149,15 @@ easier, and build the first verified compiler for call-by-need. Saying this was
 easier said than done is an understatement. With very little training in formal
 reasoning, and no training in dependent types and machine-checked proofs, it
 took a long time working on my own to gain the skills to implement a verified
-compiler. Much of the effort was due to being too ambitious. It is a very easy
-thing to formalize and state powerful theorems. Even when you are certain of the
-truth of those theorems, it is an entirely different beast proving them in a
-machine-checked logic. Every proof, definition, and theorem included in the
+compiler. Much of the effort was due to being too ambitious. It is a relatively
+straightforward thing to formalize and state theorems. Even when you are certain
+of the truth of those theorems, it is an entirely different beast proving them
+in a machine-checked logic. Every proof, definition, and theorem included in the
 paper and in the Coq code was built on tens of aborted versions. Building the
 verified compiler was the hardest thing I've ever done, by far.
 
 Looking back, it would have been nice to have the two implementations be
-combined into one. While noble in nature, this combination would be a daunting
+combined into one. While nice in some respects, this combination is a daunting
 task. Implementing a full native code compiler is a challenge in itself, but
 specifying, implementing, and verifying a native code compiler is a massive
 undertaking. CompCert, a verified compiler that compiles the lower level

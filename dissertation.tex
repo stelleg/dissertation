@@ -73,7 +73,7 @@ For Beth
   few who played particularly important roles. 
 
   Starting at the beginning, I'd like to thank my parents and brothers, who gave
-  me a childhood rich in love and fun. In a sense, my decision to pursue a PhD
+  me a childhood rich in love and fun. In a sense, my decision to pursue a Ph.D.
   was driven by a need to continue having fun doing what I love.  
 
   Most of the fun I've had has not been sitting and thinking about hard
@@ -83,7 +83,7 @@ For Beth
   friendship. Also, thanks to my three amigos for life, Drake, Mike, and Larkin,
   for the much-needed breaks from work. 
 
-  I thank my PhD advisor, Darko Stefanovic, for his support and advice through
+  I thank my Ph.D. advisor, Darko Stefanovic, for his support and advice through
   my unconventional final years through the program. Without his help and
   wisdom there is no question that this dissertation would not exist. Stephanie
   Forrest deserves a great deal of credit as well, both for bringing me into the
@@ -108,19 +108,21 @@ For Beth
 
 \begin{abstract}
 Call-by-need semantics formalizes the wisdom that work should be done at most
-once. It is the default semantics for the popular programming language Haskell,
-and deserves much of the credit for Haskell's high-level abstractions performing
-well.  While correctness of Haskell code is easy to reason about, the
-correctness of existing Haskell compilers is not.  This prevents programmers
-from being confident their reasoning about Haskell is preserved through
-compilation. This thesis presents a novel technique for compiling call-by-need
-semantics that uses shared environments to enable good performance and formal
-reasoning. To demonstrate these properties, I first present an abstract machine,
-the \ce machine, which formalizes the approach. Second, I show that it can be
-implemented as a native code compiler with encouraging performance results.
-Finally, I present a verified compiler, implemented in the Coq proof assistant,
-demonstrating how the simplicity of the approach enables formal verification.  
-\clearpage %(required for 1-page abstract)
+once. It frees programmers to focus more on the correctness of their code, and
+less on the operational details. As a result, programmers of lazy functional
+languages rely particularly heavily on their compiler to preserve correctness,
+while also relying on the compiler to generate high performance code for high
+level abstractions. In this dissertation, I present a novel technique for
+compiling call-by-need semantics that uses shared environments to share
+results of computation. I show how the approach enables a compiler that
+generates high performance code, while staying simple enough to lend itself to
+formal reasoning. The dissertation is divided into three main contributions.
+First, I present an abstract machine, the \ce machine, which formalizes the
+approach.  Second, I show that it can be implemented as a native code compiler
+with encouraging performance results.  Finally, I present a verified compiler,
+implemented in the Coq proof assistant, demonstrating how the simplicity of
+the approach enables formal verification.
+\clearpage %(required for 1-pageabstract)
 \end{abstract}
 
 \tableofcontents
@@ -177,8 +179,11 @@ infinitesimal fraction of all I want to understand.}{\textit{Ada Lovelace}}
 \chapter*{Appendices}
 
 \appendix
-\input{cem_appendix} \label{chap:cem_appendix}
-\input{coq_appendix} \label{chap:coq_appendix}
+\chapter{Native Code Compiler Implementation Details}\label{chap:cem_appendix}
+\input{cem_appendix} 
+
+\chapter{Coq Implementation Details}\label{chap:coq_appendix}
+\input{coq_appendix} 
 
 \bibliographystyle{amsplain}
 \bibliography{annotated}

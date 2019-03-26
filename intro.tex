@@ -2,11 +2,11 @@ The strength of lazy functional programming languages is the freedom they give
 the programmer to focus on correctness instead of operational details. In a
 strict language, the programmer specifies what code will run, and when. In a
 lazy language, the programmer only specifies what the result should be, leaving
-what code should be executed up to the compiler. As a result of this freedom
-from operational concerns, there are two properties that lazy functional
-programers tend to have. First, they reason about the correctness of their code
-to a degree seen almost nowhere else in the programming community.  Second, they
-rely on compilers to generate efficient code in a way that programmers of strict
+what code should be executed up to the compiler. Due to this freedom from
+operational concerns, there are two properties that lazy functional programers
+tend to have. First, they reason about the correctness of their code to a degree
+seen almost nowhere else in the programming community.  Second, they rely on
+compilers to generate efficient code in a way that programmers of strict
 languages don't.  Essentially, they are leaving more operational decisions up to
 the compiler, and focusing their energy more on the correctness of their code. 
 
@@ -21,12 +21,13 @@ compiler.
 This dissertation presents a tool for attaining these two goals: a novel
 technique for implementing lazy semantics using shared environments, formalized
 as the \ce machine. Essentially, the \ce machine repurposes shared environments
-to share the results of computation. The insight of this dissertation is that
-this approach leads to a simple, efficient compiler. I exploit the efficiency of
-the approach by implementing a native code compiler with good performance. This
-addresses the goal of efficient compilation. To verify correctness, I take
-advantage simplicity of the approach to ease the proof burden, and implement a
-verified compiler. These two implementations provide ample evidence that the \ce
+to share the results of computation. The thesis of this dissertation is that
+this approach lends itself to compilers that achieve these two goals. I explore
+the performance of the approach by implementing a native code compiler with
+encouraging results. This addresses the goal of high performance code
+generation. To verify correctness, I take advantage simplicity of the approach
+to ease the proof burden, and implement a verified compiler using the Coq proof
+assistant. These two implementations provide ample evidence that the \ce
 machine is a powerful tool for implementing lazy functional programming
 languages.
 
@@ -41,17 +42,16 @@ the dissertation, as well as further discussion of motivation. In
 Chapter~\ref{chap:ce}, I define and explain the \ce machine, in both big and
 small-step semantics. In Chapter~\ref{chap:cem}, I describe the implementation
 of a native code compiler based on the \ce machine, and analyze and discuss its
-performance. In Chapter~\ref{chap:verified}, I present the verified compiler,
+performance. In Chapter~\ref{chap:verified}, I present a verified compiler,
 discussing the structure of the compiler and proofs. Finally, in
 Chapter~\ref{chap:conclusion}, I discuss threats to validity, future work, and
-conclusions. I then use appendices to give further implementation details, both
-for the native code compiler (Appendix~\ref{chap:cem_appendix}) and the verified
-compiler (Appendix~\ref{chap:coq_appendix}). In the case of the native code
-compiler, our hope is to share some of the other interesting properties of the
-implementation.  For the verified compiler, the purpose of the appendix is to
-give the reader a more full understanding of the structure and definitions
-involved in the proofs, so that she may convince herself that they are
-correct.
+conclusions. The appendices are used to give further implementation details,
+both for the native code compiler (Appendix~\ref{chap:cem_appendix}) and the
+verified compiler (Appendix~\ref{chap:coq_appendix}). In the case of the native
+code compiler, our hope is to share some of the other interesting properties of
+the implementation.  For the verified compiler, the purpose of the appendix is
+to give the reader a more full understanding of the structure and definitions
+involved in the proofs, so that she may convince herself that they are correct.
 
 \section{Reproducibility and Artifacts}
 
@@ -111,9 +111,9 @@ improvement is a direct result of the efficiencies gained by avoiding eager
 work. 
 
 Finally, and perhaps most importantly, \emph{I just like lazy semantics}. I like
-the freedom it gives to not worry about evaluation order. I like that it avoids
-work where possible. In my humble opinion, it is the ideal default semantics for
-a high-level programming language.   
+the freedom from worrying about evaluation order it provides. I like that it
+avoids work where possible. In my humble opinion, it is the ideal default
+semantics for a functional programming language.   
 
 \section{Retrospective}
 

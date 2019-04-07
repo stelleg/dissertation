@@ -5,17 +5,18 @@ implementations in formal logic.
 
 \section{Preliminaries} \label{sec:prelim}
 
-We begin with the simple lambda calculus ~\cite{barendregt1984lambda}:  $$ t::= x
+I begin with the simple lambda calculus ~\cite{barendregt1984lambda}:  $$ t::= x
 \; | \;  \lambda x.t \; | \;  t \; t $$ where $x$ is a variable, $\lambda x.t$
-is an abstraction, and $t \; t$ is an application. We also use lambda calculus
-with deBruijn indices, which replaces variables with a natural number indexing
-into the binding lambdas.  This calculus is given by the syntax: $$ t::= i \; |
-\; \lambda t \; | \; t \; t $$ where $i \in \mathbb{N}$. In both cases, we use
-the standard Barendregt syntax conventions, namely that applications are left
-associative and the bodies of abstractions extend as far as possible to the
-right ~\cite{barendregt1984lambda}.  A \emph{value} in lambda calculus refers to
-an abstraction. We are concerned only with evaluation to weak head normal form
-(WHNF), which terminates on an abstraction without entering its body.
+is an abstraction, and $t \; t$ is an application. I will primarily use lambda
+calculus with deBruijn indices, which replaces variables with a natural number
+indexing into the binding lambdas.  This calculus is given by the syntax: $$
+t::= i \; | \; \lambda t \; | \; t \; t $$ where $i \in \mathbb{N}$. In both
+cases, we use the standard Barendregt syntax conventions, namely that
+applications are left associative and the bodies of abstractions extend as far
+as possible to the right ~\cite{barendregt1984lambda}.  A \emph{value} in lambda
+calculus refers to an abstraction. We are concerned only with evaluation to weak
+head normal form (WHNF), which terminates on an abstraction without entering its
+body.
 
 In mechanical evaluation of expressions, it would be too inefficient to perform
 explicit substitution. To solve this, the standard approach uses closures
@@ -70,7 +71,7 @@ it is needed.  If an argument is needed more than once, call-by-name re-computes
 the value, whereas call-by-need memoizes the value, so it is computed at most once.
 Thus, call-by-need attempts to embody the best of both worlds---never repeat
 work (call-by-value), and never perform unnecessary work (call-by-name). These
-are intuitively good properties to have, and we illustrate the
+are intuitively good properties to have, and I illustrate the
 correctness of such an intuition with the following example, modified from
 ~\cite{danvy2013synthetic}:
 
@@ -85,8 +86,8 @@ takes exponential time, and call-by-need takes only polynomial time
 illustrates desirable properties of call-by-need.
 
 In practice, however, there are significant issues with call-by-need evaluation.
-We focus on the following: \emph{Delaying a computation is slower than
-performing it immediately.} This issue is well known
+We focus on the following: \emph{Delaying a computation and performing it later
+is slower than performing it immediately.} This issue is widely accepted 
 \cite{johnsson1984efficient,jonesstg}, and has become part of the motivation
 for \emph{strictness analysis}
 \cite{mycroft1982abstract,wadler1987projections}, which transforms non-strict
@@ -177,17 +178,17 @@ constructing such a proof monumentally tricky.
 
 One approach for getting around this issue is to try and capture the divergent
 behavior by defining a diverging semantics explicitly \cite{functionalbigstep}.
-Then we can safely say that \emph{if the source semantics diverges according to
+Then one can safely claim that \emph{if the source semantics diverges according to
 our diverging semantics, then the compiled code also diverges}. 
 
-For this dissertation, we choose to take the approach of \cite{chlipala2007certified}
+For this dissertation, I choose to take the approach of \cite{chlipala2007certified}
 and define verification as the first implication above, focusing on the case in
 which the source semantics evaluates to a value. This is still a strong
 result: any source program that has meaning compiles to an executable with
 equivalent meaning. In addition, if anyone ever chooses to augment the language
-with a type system that ensures termination, or some notion of progress, then we
-can use this proof in combination with our verification proof to prove the other
-direction. 
+with a type system that ensures termination, or some notion of progress, then
+they could use that in combination with our verification proof for a more
+complete verification.
 
 \section{Environment Representations} \label{sec:env}
 
@@ -199,7 +200,7 @@ value and call by need.\footnote{Some work refers to this space as
 \emph{closure} representation rather than \emph{environment}
 representation~\cite{shao1994space,appel1988optimizing}.  Because the term part
 of the closure is simply a code pointer and the interesting design choices are
-in the environment, we refer to the topic as environment representation.}
+in the environment, I refer to the topic as environment representation.}
 
 There are two common approaches to environment representation: \emph{flat}
 environments and \emph{shared} environments (also known as linked
@@ -239,7 +240,7 @@ machine~\cite{landin1964mechanical}.
 The drawbacks and advantages of each approach are well known. With a flat
 environment, variable lookup can be performed with a simple offset
 ~\cite{jonesstg,appel1992compiling}. On the other hand, significant
-duplication can occur, as we will discuss in Section~\ref{sec:exist}.
+duplication can occur, as I will discuss in Section~\ref{sec:exist}.
 With a shared environment, that duplication is removed, but at the cost of
 possible link traversal upon dereference. 
 
@@ -287,7 +288,7 @@ may not be evaluated. Therefore, it is possible that the work of creating the
 environment for that thunk will be wasted. This waste is well known, and
 existing approaches address it by avoiding thunks as much as possible
 ~\cite{jonesstg,johnsson1984efficient}. Unfortunately, in cases like the above
-example, thunks are necessary. We aim to minimize the cost of creating such
+example, thunks are necessary. I aim to minimize the cost of creating such
 thunks.
 
 Thunks are special in another way.  Recall that one advantage of flat
@@ -309,7 +310,7 @@ allocated location. These indirections are removed during garbage collection,
 but do impose some cost, both in runtime efficiency and implementation
 complexity~\cite{jonesstg}.
 
-We have thus far ignored a number of details with regard to current
+I have thus far ignored a number of details with regard to current
 implementations. For example, the STG machine can split the flat environment, so
 that part is allocated on the stack and part on the heap.  The TIM allocates its
 flat environments separately from its closures so that each closure is a code
@@ -321,14 +322,13 @@ indexing, but with an initial overhead.
 To summarize, the flat environment representation in a call by need language
 implies that whenever a term might be needed, the necessary environment is
 constructed from the current environment.  This operation can be expensive, and
-it is wasted if the variable is never dereferenced. In this work, we aim to
+it is wasted if the variable is never dereferenced. In this work, I aim to
 minimize this potentially unnecessary overhead.
 
 Figure~\ref{fig:designspace} depicts the design space relevant to this chapter.
 There are existing call by value machines with both flat and shared
-environments, and call by need machines with flat environments. As far as we are
-aware, we are the first to use a shared environment to implement lazy
-evaluation. 
+environments, and call by need machines with flat environments. As far as I am
+aware, I am the first to use a shared environment to implement lazy evaluation. 
 
 It is worth noting that there has been work on lazy machines that effectively use
 linked environments, which could potentially be implemented as a shared

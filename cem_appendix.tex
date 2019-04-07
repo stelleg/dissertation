@@ -1,4 +1,3 @@
-\chapter{Native Code Compiler Implementation Details}
 In this appendix we discuss details of the native code compiler. We focus on
 implementation details not included in Chapter~\ref{chap:cem}. This includes a
 complete definition of the language, as well as extensive examples of what
@@ -18,18 +17,11 @@ properties include
 
 \section{Source Language}
 
-For a better grasp on what the cem native code compiler can do, this section
-provides a number of example programs and libraries. It highlights the fact that
-the compiler can handle machine literals and primitive operations, including
-system calls and a basic system for monadic side effects.  There are a number of
-non-standard design decisions worth mentioning. The first, and most significant
-one, is a non-standard use of parentheses. Instead of implicit applications, we
-use \texttt{()} parentheses to explicitly denote left-associative applications,
-and \texttt{[]} brackets to denote explicit right-associative applications. We
-use either the unicode $\lambda$ character or the forward slash \texttt{\\x.b}
-to denote lamdas, where \texttt{x} is a variable and \texttt{b} is the body of
-the lambda. This choice of explicit applications simplifies the syntax in a way
-that prevents ambiguity and simplifies parsing. 
+For a better grasp on what the \ce native code compiler can do, this section
+defines the syntax and core language, and provides a number of example programs
+and libraries. It highlights the fact that the compiler can handle machine
+literals and primitive operations, including system calls and a basic system for
+monadic side effects.  
 
 One way to view this section is as the results of an experiment in how simple we
 can make a call-by-need source language, and still have the ability to write
@@ -67,9 +59,67 @@ data Op = Add
 \end{verbatim}
 
 The expressions include the three standard lambda calculus constructors, as well
-as literals \texttt{Lit}, which are just standard 32 bit machine words, machine
+as literals \texttt{Lit}, which are standard 32 bit machine words, machine
 operations \texttt{Op}, and world values \texttt{World}, which are used for
 reasoning about IO. 
+
+\subsection{Syntax}
+
+The source syntax for the compiler is also, to the best of my knowledge, unique.
+There are a number of non-standard design decisions worth mentioning. The first,
+and most significant one, is a non-standard use of parentheses. Instead of
+implicit applications, we use \texttt{()} parentheses to explicitly denote
+left-associative applications, and \texttt{[]} brackets to denote explicit
+right-associative applications. We use either the unicode character for lambda
+\texttt{λx.b} the forward slash \texttt{\textbackslash x.b} to denote lambdas,
+where \texttt{x} is a variable and \texttt{b} is the body of the lambda. This
+choice of explicit applications simplifies the syntax in a way that prevents
+ambiguity and simplifies parsing.  It is effectively standard notation but with
+explicit parenthesis, like Lisp, making it easier to parse. In addition, we add
+syntax for let bindings in the form of curly braces. Read left curly braces
+\texttt{\{} as \texttt{let} and right curly brace \texttt{\}} as \texttt{in}.
+The reason for this was to avoid any keywords in the language, and therefore we
+require no tokenizer. Finally, we support string and character literals in the
+standard way. Following Haskell, we also define a global binding scope,
+implementing the following structure (with the default compilation options): 
+\begin{verbatim}
+{
+<preludes>
+<program source>
+} (main Ω λv.λw.w) 
+\end{verbatim}
+This approach allows us to write programs, much like Haskell, with global
+bindings, including a requirement to bind the variable \texttt{main} as our
+outermost function. From a typed perspective, this results in an expression of
+type World, assuming the input of \texttt{Ω} (the input world value). The syntax
+is easy enough to parse that it's worth sharing the parser source directly as a
+kind of formal grammar: 
+
+\begin{verbatim}
+lc :: Parser SExpr
+lc =  Lam <$> ((char '\\' <|> char 'λ') *> word <* char '.') <^> lc
+  <|> Lit <$> literal
+  <|> Op  <$> op
+  <|> Var <$> word
+  <|> World <$ char 'Ω'
+  <|> char '(' ^> (foldl1 App <$> many1 (notCode *> lc <* notCode)) <^ 
+      char ')'
+  <|> char '[' ^> (foldr1 App <$> many1 (notCode *> lc <* notCode)) <^ 
+      char ']'
+  <|> char '\'' *> charLit <* char '\''
+  <|> char '\"' 
+      *> (foldr (\h t -> App (App cons h) t) nil <$> many charLit) <* 
+      char '\"'
+  <|> char '{' ^> 
+      (lets <$> many (notCode *> binding <* notCode) <^> 
+      (char '}' ^> lc))
+      where lets = flip $ foldr ($)
+            binding = mylet <$> word <^> (char '=' ^> lc)
+            mylet var term body = App (Lam var body) term
+\end{verbatim}
+
+Note that due to our avoidance of tokenization, we directly parse any
+non-numeral, parentheses, or white space string into a variable.
 
 \subsection{Prelude}
 An extremely useful tool for any language is a base set of functionality
@@ -80,8 +130,11 @@ I start with a pure fragment of the prelude: there are no partial functions
 modulo termination and type-safety. Note we have wrapper functions for our
 machine primitive operations that force evaluation of arguments. We also make
 heavy use of right-associative applications, wrapped with square brackets
-\texttt{[]}. This is in contrast to using an infix operator, e.g. the $\$$
-operator in Haskell.
+\texttt{[]}. By using this right associative operator, along with the
+implementation of literals, applying themselves to a continuation, we attain a
+method of forcing evaluation before applying a primitive operation. This is in
+contrast to using an infix operator, e.g. the $\$$ operator in Haskell. Note the
+\texttt{\_} prefix for primitive operations. 
 
 Also note that we define the y-combinator at the start of the prelude; this is
 the source of all recursion. Whether or not this is sufficient for all
@@ -485,7 +538,7 @@ system = (compose fork exec)
 \end{verbatim}
 
 Note the use of parentheses gets pretty hairy. Despite our right associative
-applications, the lack of infix operators and do-notation hurts the readiability
+applications, the lack of infix operators and do-notation hurts the readability
 of long imperative programs significantly. Still, it is certainly
 \emph{possible} to write programs in this style. Note also that our heavy use of
 newPage shows that our lack of stack allocated memory is a pain. Due to our use
@@ -500,7 +553,7 @@ programs in this source language to gauge the difficulty. These programs use the
 prelude described above to implement basic programs. 
 
 We start with a canonical example of using call-by-need to implement a
-dynamic programming linear time fibonacci. 
+dynamic programming linear time Fibonacci. 
 
 \begin{verbatim}
 fibs = (Y \fibs.[(1 :) (1 :) (zipWith + fibs (tail fibs))])
@@ -510,7 +563,7 @@ This is an interesting example, because unlike the similar Haskell
 implementation, this implementation is \emph{guaranteed} to run in linear time.
 Because Haskell is a \emph{non-strict} language, we rely on its use of
 call-by-need as an optimization technique, not a guaranteed property of the
-language. Note also the the infix use of \texttt{:}. This is possible due to the
+language. Note also the infix use of \texttt{:}. This is possible due to the
 implementation of machine integers. Recall that we don't have algebraic data
 types, so the technique used by Haskell of wrapping machine literals in a
 \texttt{newtype} is not an option. Instead, we use evaluation to force the
@@ -519,7 +572,7 @@ the code pointer to take the continuation and apply itself to it. In this case,
 that results in the cons constructor applying itself to the value 1. Note that
 this is the approach used in all the machine primitive operations in the prelude
 listed above as well. While this is operationally equivalent the Haskell
-approach, it does raise questions about referential transparancy.    
+approach, it does raise questions about referential transparency.    
 
 Another simple example shows how we can use the fork system call to implement
 parallel programs. This shows how easy it is to use the IO monad without the use

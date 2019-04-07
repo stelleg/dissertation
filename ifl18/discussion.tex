@@ -1,19 +1,19 @@
 \section{Discussion} \label{sec:discussion}
 
-Here we reflect on what we have accomplished, including threats to validity,
-future work, related work, and general discussion of the results.
+This section reflects on the chapter, including threats to validity, future
+work, related work, and general discussion of the results.
 
-One thing we'd like to communicate is the difficulty we had in writing
+One thing that is important to communicate is the difficulty of writing
 comprehensible proofs. The reader is discouraged from attempting to understand
-the proofs in any way by reading the Coq tactic source code. While we attempted
-to keep our definitions and lemmas as clean and comprehensible as possible, we
+the proofs in any way by reading the Coq tactic source code. While I attempted
+to keep our definitions and lemmas as clean and comprehensible as possible, I
 found it extremely difficult to do the same with tactics. Partially this may be
 a failure on our part to become more familiar with the tactic language of Coq,
-but we suspect that the imperative nature of tactic proofs prevents
-composability of tactic meta-programs. 
+but I suspect that the imperative nature of tactic proofs prevents composability
+of tactic meta-programs. 
 
 Another lesson was the importance of good induction principles. For example, in
-Section~\ref{sec:threats}, we will discuss the issue of only proving the
+Section~\ref{sec:threats}, I will discuss the issue of only proving the
 implication of correctness in one direction. This is effectively a product of
 the power of the inductive properties of high level semantics, which makes them
 so much easier to reason about. Indeed, this lesson resonates with the purpose
@@ -23,27 +23,27 @@ properties, and have that reasoning preserved through compilation.
 
 \subsection{Threats to Validity} \label{sec:threats}
 
-There are a few potential threats to validity that we address in this section. The
-first is the one mentioned in Section~\ref{sec:background}, that we only show
+There are a few potential threats to validity that I address in this section. The
+first is the one mentioned in Section~\ref{sec:background}, that I only show
 that our compiler is correct in the case of termination of the source semantics.
-In other words, if the source semantics doesn't terminate, we can say nothing
-about how the compiled code behaves. This means that we could have a compiled
-program that terminates when the source semantics does not terminate.
+In other words, if the source semantics doesn't terminate, the theorem says
+nothing about how the compiled code behaves. This means that we could have a
+compiled program that terminates when the source semantics does not terminate.
 
-One argument in defense of our verification is that \emph{we generally only care
-about preservation of semantics for preserving reasoning about our programs}. In
-other words, if we have a program that we can't reason about, and therefore may
-not terminate, we care less about having a proof that semantics are preserved.
-Of course, this is a claim about most uses of program analysis. There are
-possible analyses that could say things along the lines of \emph{if} the source
-program terminates, then we can conclude $x$. We claim these cases are rare, and
-therefore the provided proof of correctness can still be applied to most use
-cases.  
+One argument in defense of verification presented here is that \emph{we
+generally only care about preservation of semantics for preserving reasoning
+about our programs}. In other words, if we have a program that we can't reason
+about, and therefore may not terminate, we care less about having a proof that
+semantics are preserved.  Of course, this is a claim about most uses of program
+analysis. There are possible analyses that could say things along the lines of
+\emph{if} the source program terminates, then we can conclude $x$. I claim these
+cases are rare, and therefore the provided proof of correctness can still be
+applied to most use cases.  
 
 Another potential threat to validity is the use of a high level instruction
 machine language. While we claim that its high level and simplicity should make
 it possible to show that a set of real ISAs implement this instruction machine,
-we haven't formally verified this step. We believe that this would make
+we haven't formally verified this step. I believe that this would make
 for valuable future work, and hope that the reader agrees that nothing in the
 design of our high level instruction machine would prevent such work.
 
@@ -89,7 +89,7 @@ heap-reuse. For simplicity, we have assumed that our fresh locations are fresh
 with respect to all existing bindings in the heap. Of course, this is
 unsatisfactory when compared to real implementations. It would be preferable to
 have our freshness constraint relaxed to only be fresh with respect to live
-bindings on the heap. We believe that this modification should be possible, at
+bindings on the heap. I believe that this modification should be possible, at
 the cost of increased complexity in the proofs. 
 
 \subsection{Future Work}
@@ -219,7 +219,7 @@ also worth noting that like \cite{leroy2012compcert}, they are also formalizing
 a front end to the compiler. 
 
 As part of the DeepSpec project, Weirich et al. have been working on formalizing
-Haskell's core semantics \cite{weirich2017spec, spector2018total}. We believe
+Haskell's core semantics \cite{weirich2017spec, spector2018total}. I believe
 there is opportunity to use this effort in combination with the DeepSpec project
 to implement and verify a full-featured Haskell compiler.
 

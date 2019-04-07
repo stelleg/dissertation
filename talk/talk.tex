@@ -1,0 +1,630 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+\documentclass[17pt]{beamer} 
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{listings}
+\usepackage{amssymb,amsmath}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\usepackage{lmodern}
+\usepackage{natbib}
+\usepackage{listings}
+\usepackage{framed,graphicx,xcolor}
+\usepackage{fancyvrb}
+\usepackage{longtable,booktabs}
+\usepackage{caption}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage[normalem]{ulem}
+\usepackage{tikz}
+\usepackage{semantic}
+\usetikzlibrary{positioning,chains,fit,shapes,calc}
+\setmainfont{DejaVu Sans}
+\setmonofont{Inconsolata}
+\lstset{language=Haskell,basicstyle=\ttfamily}
+
+\usenavigationsymbolstemplate{}
+\setbeamertemplate{footline}{}
+\setbeamertemplate{headline}{}
+\graphicspath{ {pics/} }
+
+\definecolor{red}{RGB}{205,16,65}
+\definecolor{grey}{RGB}{109,111,113}
+
+\setbeamerfont{structure}{family=\ttfamily}
+\setbeamercolor{structure}{fg=red}
+\setbeamercolor{normal text}{fg=grey,bg=white}
+\setbeamerfont{normal text}{family=\sffamily}
+
+\def\ce{$\mathcal{\mathcal{C} \mskip -1mu \mathcal{E}} \mskip 4mu$}
+
+\title{Shared-Environment Call-by-Need}
+\author{George Stelle}
+      
+\institute{University of New Mexico}
+\date{}
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}
+\frametitle{Outline}
+\begin{itemize}
+\item Background
+\item \ce Machine
+\begin{itemize}
+\item Small Step
+\item Big Step
+\end{itemize}
+\item Native Code Compilation
+\begin{itemize}
+\item Performance 
+\item Results
+\end{itemize}
+\item Verified Compilation
+\begin{itemize}
+\item Specification
+\item Proofs
+\end{itemize}
+\item Future Work
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Call-by-need (Lazy)}
+\begin{itemize}
+\item Only evaluate when necessary
+\item Never evaluate more than once
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Example}
+\begin{lstlisting}[frame=single]
+doubleOrNothing b x = if b 
+  then x + x
+  else 0
+\end{lstlisting}
+\begin{lstlisting}[frame=single]
+doubleOrNothing 
+  (decisionProblem y) 
+  (expensiveComputation z)
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+\hspace*{-11.2mm}
+\includegraphics[width=\paperwidth]{cpumemory}
+\end{frame}
+
+\begin{frame}
+\hspace*{-11.2mm}
+\includegraphics[width=\paperwidth]{spj}
+\end{frame}
+
+\begin{frame}
+\hspace*{-11.2mm}
+\includegraphics[width=\paperwidth]{haskellcomittee}
+\end{frame}
+
+\begin{frame}
+\hspace*{-11.2mm}
+\includegraphics[width=\paperwidth]{time}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Strictness}
+\begin{lstlisting}[frame=single]
+doubleOrNothing b x = if b 
+  then x + x
+  else 0
+\end{lstlisting}
+\begin{lstlisting}[frame=single]
+doubleOrNothing 
+  (decisionProblem y) 
+  (expensiveComputation z)
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+\hspace*{-11.2mm}
+\includegraphics[width=\paperwidth]{whitechocolate}
+\end{frame}
+
+\begin{frame}
+\centering
+\Huge THUNKS
+\end{frame}
+
+\begin{frame}
+\vspace*{8mm}
+\centering
+\small thunks 
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Closure Representation}
+\begin{lstlisting}[frame=single]
+f (g x y z) 
+  (h w x y z)
+\end{lstlisting}
+\begin{figure}
+\begin{tikzpicture}[thick,->]
+\tikzstyle{every node}=[font=\tiny]
+% the vertices of U
+\begin{scope}[xshift=0cm]
+\node (g) {(g x y z)};
+\node[right of=g, node distance=2.2cm] (genv) {g x y z};
+\node[below of=g] (h) {(h w x y z)};
+\node[right of=h, node distance=2.7cm] (henv) {h w x y z};
+\draw (g) -- (genv);
+\draw (h) -- (henv);
+\end{scope}
+\node [fit=(g) (genv) (h) (henv),label=above:$Flat$,rectangle,draw] (flat) {};
+\begin{scope}[xshift=6cm]
+\node (g') {(g x y z)};
+\node[below of=g'] (h') {(h w x y z)};
+\node[right of=h', node distance=2.7cm, yshift=5mm](env) {g h w x y z ...};
+\end{scope}
+\draw (g') -- (env);
+\draw (h') -- (env);
+
+\node [fit=(g') (h') (env),label=above:$Shared$,rectangle,draw] {};
+
+\end{tikzpicture}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\centering
+\includegraphics[height=\paperheight]{gift} 
+\end{frame}
+
+\begin{frame}
+\hspace*{-11.2mm}
+\includegraphics[width=\paperwidth]{bookmark}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Tradeoff}
+\begin{center}
+\includegraphics[width=10cm]{tradeoffplot}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Semantics}
+\footnotesize
+\begin{align*}
+\tag{Closure} c &::= t [l] \\
+\tag{Heap} \mu &::= \epsilon \; | \; \mu [ l \mapsto \rho ] \\
+\tag{Environment} \rho &::= \bullet \; | \; c \cdot l \\
+\tag{Context} \sigma &::= \square \; | \; \sigma \; c \;  | \; u:=\sigma \\
+\langle v, u := \sigma, \mu[u \mapsto c \cdot l] \rangle 
+  &\rightarrow_{\mathcal{CE}}
+\langle v, \sigma, \mu[u \mapsto v \cdot l] \rangle  \\
+\langle \lambda t[l], \sigma \; c, \mu \rangle 
+  &\rightarrow_{\mathcal{CE}}
+\langle t[f], \sigma, \mu[f \mapsto c \cdot l]\rangle f \not \in \textnormal{dom}(\mu)  \\
+\langle t \; t'[l], \sigma, \mu \rangle
+  &\rightarrow_{\mathcal{CE}}
+\langle t[l], \sigma \; t'[l], \mu \rangle \\
+\langle 0[l], \sigma, \mu \rangle
+  &\rightarrow_{\mathcal{CE}}
+\langle c, l := \sigma, \mu \rangle 
+\; \textnormal{where} \; c \cdot l' = \mu(l)\\
+\langle i[l], \sigma, \mu \rangle
+  &\rightarrow_{\mathcal{CE}}
+\langle (i-1)[l'], \sigma, \mu \rangle
+\; \textnormal{where} \; c \cdot l' = \mu(l)
+\end{align*}
+\end{frame}
+
+\begin{frame}
+\frametitle{Implementation}
+\footnotesize
+\begin{align*}
+\langle v, u := \sigma, \mu[u \mapsto c \cdot l] \rangle 
+  &\rightarrow_{\mathcal{CE}}
+\langle v, \sigma, \mu[u \mapsto v \cdot l] \rangle  \\
+\langle \lambda t[l], \sigma \; c, \mu \rangle 
+  &\rightarrow_{\mathcal{CE}}
+\langle t[f], \sigma, \mu[f \mapsto c \cdot l]\rangle f \not \in \textnormal{dom}(\mu)  \\
+\langle t \; t'[l], \sigma, \mu \rangle
+  &\rightarrow_{\mathcal{CE}}
+\langle t[l], \sigma \; t'[l], \mu \rangle \\
+\langle 0[l], \sigma, \mu \rangle
+  &\rightarrow_{\mathcal{CE}}
+\langle c, l := \sigma, \mu \rangle 
+\; \textnormal{where} \; c \cdot l' = \mu(l)\\
+\langle i[l], \sigma, \mu \rangle
+  &\rightarrow_{\mathcal{CE}}
+\langle (i-1)[l'], \sigma, \mu \rangle
+\; \textnormal{where} \; c \cdot l' = \mu(l) \\ \\
+Upd &\rightarrow \texttt{5 x64 Instructions} \\
+Abs &\rightarrow \texttt{6 x64 Instructions} \\
+App &\rightarrow \texttt{2 x64 Instructions} \\
+Var1 &\rightarrow \texttt{6 x64 Instructions} \\
+Var2 &\rightarrow \texttt{2 x64 Instructions} 
+\end{align*}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Results}
+\centering
+\textbf{Hypothesis:} Some programs can benefit from having lightweight thunks
+despite the cost of slower variable dereferences.
+\end{frame}
+
+\begin{frame}
+\frametitle{Results}
+\begin{itemize}
+\item Nofib benchmark suite (Integers)
+\item Recursion: Y combinator
+\item ADTs: Scott encodings
+\item Times averaged over 5 runs
+\end{itemize}
+\end{frame}
+
+\definecolor{lightgreen}{rgb}{0.8,1,0.8}
+\definecolor{lightred}{rgb}{1,0.8,0.8}
+\definecolor{lightgray}{rgb}{0.8,0.8,0.8}
+\newcolumntype{g}{>{\columncolor{lightgray}}X}
+
+\begin{frame}[fragile]
+\frametitle{Results}
+\centering
+\small
+\begin{tabularx}{\textwidth}{l | X | g | X}
+& GHC & $\mathcal{CE}$ & UHC \\
+\hline
+\texttt{exp3 8} & 1.038 & 1.530 & 2.286 \\
+\rowcolor{lightred}
+\texttt{tak 16 8 0} & 0.006 & 0.366 & 1.416 \\
+\rowcolor{lightgreen}
+\texttt{primes 1500} & 0.230 & 0.256 & 1.532 \\
+\texttt{queens 9} & 0.012 & 0.206 & 0.598 \\
+\texttt{fib 35} &  0.110 & 2.234 & 8.342 \\
+\texttt{digits-of-e1 1000} & 0.118 & 3.576 & 22.010 \\
+\rowcolor{lightgreen}
+\texttt{digits-of-e2 1000} & 0.372 & 0.404 & 3.278 \\
+\texttt{fannkuch 8} & 0.048 & 0.560 & 2.196 
+\end{tabularx}
+\begin{center}
+Wall clock times in seconds \\
+\texttt{GHC} and \texttt{UHC} run with \texttt{-O3}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Church Numerals Results}
+\centering
+\small
+\begin{tabularx}{\textwidth}{l | X | g | X}
+& GHC & $\mathcal{CE}$ & UHC \\
+\hline
+\texttt{exp3 8} & N/A & N/A & N/A \\
+\texttt{tak 14 7 0} & 1.016 & 1.610 & 7.782 \\
+\texttt{primes 32} & 0.666 & 0.846 & 5.290 \\
+\texttt{queens 8} & 0.154 & 0.242 & 1.508 \\
+\texttt{fib 23} &  0.468 & 0.626 & 5.336 \\
+\texttt{digits-of-e1 } & N/A & N/A & N/A \\
+\rowcolor{lightgreen}
+\texttt{digits-of-e2 6} & 0.670 & 0.138 & 5.534 \\
+\texttt{fannkuch 7} & 0.040 & 0.142 & 0.808
+\end{tabularx}
+\begin{center}
+Wall clock times in seconds \\
+\texttt{GHC} and \texttt{UHC} run with \texttt{-O3}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{Future Work}
+\begin{itemize}
+\item Integration
+\item Parallelism 
+\item Verification
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Integration}
+\centering
+\includegraphics[width=5cm]{haskell}
+\begin{itemize}
+\item Shared + Flat
+\item GHC Modifications
+\item Optimizations 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Parallelism}
+\includegraphics[width=7cm]{trinity}
+\centering
+\begin{itemize}
+\item Lightweight threads
+\item Lower overhead
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Verification}
+\centering
+\includegraphics[width=2cm]{coq}
+\begin{itemize}
+\item Simplicity of compiler
+\item Lock-step equivalence
+\item ETA Summer 2016
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Conclusion}
+\begin{itemize}
+\item Lazier lazy evaluation
+\item Promising performance 
+\item Simple compiler
+\item Future applications
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Outline}
+\begin{itemize}
+\item Background
+\item Compiler
+\item Specification 
+\item Proof
+\item Discussion
+\end{itemize}
+\end{frame}
+\section{Background}
+
+\begin{frame}{Verified Compiler}
+Machine checked proof that behaviour is preserved through compilation.
+\end{frame}
+
+\begin{frame}{Evaluation Strategies}
+\begin{center}
+Call-by-Value: $\{1\}$ \\ 
+Call-by-Name: $\mathbb{N}$ \\ 
+Call-by-Need: $\{0,1\}$
+\end{center}
+\end{frame}
+
+\begin{frame}{A Call-by-Need Semantics} 
+\begin{center}
+\large{$\mathcal{CE}$ Machine}
+\end{center}
+\begin{align*}
+\tag{App} \inference
+{(m[l], \mu) \downarrow (\lambda b[l'], \mu') \quad f \not \in \textnormal{dom}(\mu') \\ 
+(b[f], \mu'[f \mapsto n[l] \cdot l']) \downarrow v}
+{(m \; n[l], \mu) \downarrow v}  
+\end{align*}
+\begin{align*}
+\tag{Var} \inference
+{\mu(l, i) = l_1 \mapsto c \cdot l_2 \quad (c, \mu) \downarrow (v, \mu')}
+{(i[l],\mu) \downarrow (v, \mu'[l_1 \mapsto v \cdot l_2])}
+\end{align*}
+\end{frame}
+
+\begin{frame}{Example}
+\begin{center}
+\begin{tikzpicture}
+  \node (tm) at (0,0) {$(\lambda (\lambda 0 \; 1) (\lambda 0 \; 1))((\lambda 0) \lambda 0)$};
+\end{tikzpicture}
+\vskip0pt plus 1fill
+\end{center}
+$$(\lambda (\lambda 0 \; 1) (\lambda 0 \; 1))((\lambda 0) \lambda 0)$$
+\end{frame}
+
+\begin{frame}{Example (cont.)}
+\begin{center}
+\begin{tikzpicture}
+  \node (tm) at (0,0) {$(\lambda 0 \; 1) (\lambda 0 \; 1)$}; 
+  \node (arg) at (3,0) {$(\lambda 0) \lambda 0$};
+  \draw [->] (tm) -- (arg); 
+  \node [style={rectangle, draw=black!50}, fit={(arg)}] {}; 
+\end{tikzpicture}
+\vskip0pt plus 1fill
+\end{center}
+$$(\lambda (\lambda 0 \; 1) (\lambda 0 \; 1))((\lambda 0) \lambda 0)$$
+\end{frame}
+
+\begin{frame}{Example (cont.)}
+\begin{center}
+\begin{tikzpicture}[->]
+  \node (tm) at (0,0) {$0 \; 1$}; 
+  \node (arg1) at (3,0) {$\lambda 0 \; 1$}; 
+  \node (arg) [right=of arg1.east] {$(\lambda 0) \lambda 0$};
+  \path (tm) edge node [] {} (arg1);
+  \path
+    (arg1) edge [bend left=10] node  {} (arg);
+  \path[dashed]
+    (arg1) edge [bend right=10] node {} (arg);
+  \node [style={rectangle, draw=black!50}, fit={(arg1) (arg)}] {}; 
+\end{tikzpicture}
+\vskip0pt plus 1fill
+\end{center}
+$$(\lambda (\lambda 0 \; 1) (\lambda 0 \; 1))((\lambda 0) \lambda 0)$$
+\end{frame}
+
+\begin{frame}{Example (cont.)}
+\begin{center}
+\begin{tikzpicture}[->]
+  \node (tm) at (0,0) {$0 \; 1$}; 
+  \node (arg2) at (3,0) {$1$}; 
+  \node (arg1) at (3,1) {$\lambda 0 \; 1$}; 
+  \node (arg) [right=of arg1.east] {$(\lambda 0) \lambda 0$};
+  \path (tm) edge node {} (arg2);
+  \path 
+    (arg2) edge node {} (arg1)
+    (arg1) edge [bend left=10]  node {} (arg);
+  \path[dashed]
+    (arg2) edge node {} (arg)
+    (arg1) edge [bend right=10] node {} (arg);
+  \node [style={rectangle, draw=black!50}, fit={(arg2) (arg1) (arg)}] {}; 
+\end{tikzpicture}
+\vskip0pt plus 1fill
+\end{center}
+$$(\lambda (\lambda 0 \; 1) (\lambda 0 \; 1))((\lambda 0) \lambda 0)$$
+\end{frame}
+
+\begin{frame}{Example (cont.)}
+\begin{center}
+\begin{tikzpicture}[->]
+  \node (tm) at (0,0) {$0$}; 
+  \node (arg3) at (3,0) {$1$}; 
+  \node (arg2) [right=of arg3.east] {$\lambda 0$}; 
+  \node (arg1) [above=of arg2.north] {$\lambda 0 \; 1$}; 
+  \node (arg) [right=of arg1.east] {$\lambda 0$};
+  \path (tm) edge node {} (arg3);
+  \path
+    (arg3) edge node {} (arg2) 
+    (arg2) edge node {} (arg1)
+    (arg1) edge [bend left=10] node {} (arg);
+  \path[dashed]
+    (arg3) edge node {} (arg1) 
+    (arg2) edge node {} (arg)
+    (arg1) edge [bend right=10] node {} (arg);
+  \node [style={rectangle, draw=black!50}, fit={(arg3) (arg2) (arg1) (arg)}] {}; 
+\end{tikzpicture}
+\vskip0pt plus 1fill
+\end{center}
+$$(\lambda (\lambda 0 \; 1) (\lambda 0 \; 1))((\lambda 0) \lambda 0)$$
+\end{frame}
+
+\begin{frame}{Example (cont.)}
+\begin{center}
+\begin{tikzpicture}[->]
+  \node (tm) at (0,0) {$\lambda 0$}; 
+  \node (arg3) at (3,0) {$\lambda 0$}; 
+  \node (arg2) [right=of arg3.east] {$\lambda 0$}; 
+  \node (arg1) [above=of arg2.north] {$\lambda 0 \; 1$}; 
+  \node (arg) [right=of arg1.east] {$\lambda 0$};
+  \path
+    (arg3) edge node {} (arg2) 
+    (arg2) edge node {} (arg1)
+    (arg1) edge [bend left=10] node {} (arg);
+  \path[dashed]
+    (arg3) edge node {} (arg1) 
+    (arg2) edge node {} (arg)
+    (arg1) edge [bend right=10] node {} (arg);
+  \node [style={rectangle, draw=black!50}, fit={(arg3) (arg2) (arg1) (arg)}] {}; 
+\end{tikzpicture}
+\vskip0pt plus 1fill
+\end{center}
+$$(\lambda (\lambda 0 \; 1) (\lambda 0 \; 1))((\lambda 0) \lambda 0)$$
+\end{frame}
+
+\section{Compiler}
+
+\begin{frame}[fragile]{Var}
+\begin{lstlisting}
+mov (EP%2) EP ; ... 
+push EP ;
+push 0 ;
+mov (EP%1) EP ;
+jump (EP%0)
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{App}
+\begin{lstlisting}
+push EP ;
+push n ;
+jump m 
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Upd}
+\begin{lstlisting}
+pop R1 ;
+mov v (R1%0) ;
+mov EP (R1%1) ;
+jump v 
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Take}
+\begin{lstlisting}
+new 3 R2 ;
+mov R1 (R2%0) ;
+pop (R2%1) ;
+mov EP (R2%2) ;
+mov R2 EP ;
+jump b
+\end{lstlisting}
+\end{frame}
+
+\section{Specification}
+\begin{frame}{Input Semantics}
+\begin{align*}
+\tag{App} \inference
+{(m[l], \mu) \downarrow (\lambda b[l'], \mu') \quad f \not \in \textnormal{dom}(\mu') \\ 
+(b[f], \mu'[f \mapsto n[l] \cdot l']) \downarrow v}
+{(m \; n[l], \mu) \downarrow v}  
+\end{align*}
+\begin{align*}
+\tag{Var} \inference
+{\mu(l, i) = l_1 \mapsto c \cdot l_2 \quad (c, \mu) \downarrow (v, \mu')}
+{(i[l],\mu) \downarrow (v, \mu'[l_1 \mapsto v \cdot l_2])}
+\end{align*}
+\end{frame}
+
+\begin{frame}{Specification}
+\begin{theorem} 
+If a term $t$ placed into the initial configuration for the big-step semantics
+evaluates to a value configuration $v$, then the instruction machine starting
+in the initial state with \texttt{compile 0 t} as its program will evaluate to a
+related state $v'$.  
+\end{theorem}
+\end{frame}
+
+\section{Proof}
+
+\begin{frame}{Lessons Learned}
+\begin{itemize}
+\item Preserving properties through heap mutation is hard.
+\item Choose your induction hypotheses to be as general as possible.
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+
+\begin{frame}[fragile]{Other Half?}
+\begin{center}
+\includegraphics[width=0.6\linewidth]{half-true}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Time and Space}
+\begin{center}
+\includegraphics[width=0.4\linewidth]{time}
+\includegraphics[width=0.4\linewidth]{space}
+\end{center}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Final Thoughts}
+\begin{itemize}
+\item First verified compiler for Call-by-Need
+\item Still a lot to prove!
+\end{itemize}
+\end{frame}
+
+\section{Thanks!}
+
+%\appendix
+%\begin{frame}{References}
+%\nocite{*}
+%\bibliography{demo_bibliography}
+%\bibliographystyle{plain}
+%\end{frame}
+
+\end{document}

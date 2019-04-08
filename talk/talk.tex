@@ -1,7 +1,7 @@
 %!TEX TS-program = xelatex
 %!TEX encoding = UTF-8 Unicode
 
-\documentclass[17pt]{beamer} 
+\documentclass[14pt]{beamer} 
 \usepackage[utf8]{inputenc}
 \usepackage{fontspec}
 \usepackage{listings}
@@ -22,30 +22,46 @@
 \usepackage[normalem]{ulem}
 \usepackage{tikz}
 \usepackage{semantic}
+\usepackage{verbatim}
+\usepackage{anyfontsize}
+\usepackage{epigraph}
 \usetikzlibrary{positioning,chains,fit,shapes,calc}
 \setmainfont{DejaVu Sans}
-\setmonofont{Inconsolata}
-\lstset{language=Haskell,basicstyle=\ttfamily}
+\setmonofont{DejaVu Sans Mono}
+
+\lstset{basicstyle=\ttfamily,frame=none}
 
 \usenavigationsymbolstemplate{}
 \setbeamertemplate{footline}{}
 \setbeamertemplate{headline}{}
 \graphicspath{ {pics/} }
 
-\definecolor{red}{RGB}{205,16,65}
-\definecolor{grey}{RGB}{109,111,113}
+\definecolor{red}{RGB}{186,12,47}
+\definecolor{grey}{RGB}{99,102,106}
 
-\setbeamerfont{structure}{family=\ttfamily}
+\setbeamerfont{structure}{family=\sffamily, shape=\scshape}
 \setbeamercolor{structure}{fg=red}
 \setbeamercolor{normal text}{fg=grey,bg=white}
 \setbeamerfont{normal text}{family=\sffamily}
 
+\defbeamertemplate{itemize item}{image}{$\circ$}
+\setbeamertemplate{itemize item}[image]
+
 \def\ce{$\mathcal{\mathcal{C} \mskip -1mu \mathcal{E}} \mskip 4mu$}
+
+\newcommand{\sectionslide}[3]{
+  \begin{frame}
+  \vspace{1cm}
+  \vfill
+  {\usebeamerfont{title} \color{red} #1}
+  \vfill
+  \epigraph{\footnotesize{#2}}{\footnotesize{\emph{#3}}}
+  \end{frame}}
 
 \title{Shared-Environment Call-by-Need}
 \author{George Stelle}
       
-\institute{University of New Mexico}
+\institute{\includegraphics[width=0.3\columnwidth]{unm.pdf}}
 \date{}
 \begin{document}
 \frame{\titlepage}
@@ -53,24 +69,34 @@
 \begin{frame}
 \frametitle{Outline}
 \begin{itemize}
-\item Background
+\item Introduction 
 \item \ce Machine
-\begin{itemize}
-\item Small Step
-\item Big Step
-\end{itemize}
 \item Native Code Compilation
-\begin{itemize}
-\item Performance 
-\item Results
-\end{itemize}
 \item Verified Compilation
-\begin{itemize}
-\item Specification
-\item Proofs
+\item Conclusion
 \end{itemize}
-\item Future Work
-\end{itemize}
+\end{frame}
+
+\sectionslide{Introduction}
+{Functional programming combines the flexibility and power of abstract
+mathematics with the intuitive clarity of abstract mathematics.}
+{Randall Munroe (xkcd)}
+
+\begin{frame}
+\frametitle{Lambda Calculus}
+$$t := x \; | \; \lambda x.t \; | \; t \; t$$
+\end{frame}
+
+\begin{frame}
+\frametitle{De Bruijn Indices}
+\begin{align*}
+i &\in \mathbb{N} \\
+t &:= i \; | \; \lambda t \; | \; t \; t
+\end{align*}
+\begin{align*}
+\lambda 0 &\equiv \lambda x.x \\
+\lambda \lambda 1 &\equiv \lambda x.\lambda y.x
+\end{align*}
 \end{frame}
 
 \begin{frame}
@@ -81,72 +107,38 @@
 \end{itemize}
 \end{frame}
 
+\begin{frame}{Evaluation Strategies}
+\begin{center}
+Call-by-Value: $\{1\}$ \\ 
+Call-by-Name: $\mathbb{N}$ \\ 
+Call-by-Need: $\{0,1\}$
+\end{center}
+\end{frame}
+
 \begin{frame}[fragile]
 \frametitle{Example}
-\begin{lstlisting}[frame=single]
+\begin{lstlisting}
 doubleOrNothing b x = if b 
   then x + x
   else 0
-\end{lstlisting}
-\begin{lstlisting}[frame=single]
+
 doubleOrNothing 
   (decisionProblem y) 
   (expensiveComputation z)
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}
-\hspace*{-11.2mm}
-\includegraphics[width=\paperwidth]{cpumemory}
+\begin{frame} 
+\frametitle{Laziness}
+[L]azy functional programming is too important to be relegated to second-class
+citizenship. It is perhaps the most powerful glue[.]
+
+\null\hfill \emph{John Hughes}
 \end{frame}
 
-\begin{frame}
-\hspace*{-11.2mm}
-\includegraphics[width=\paperwidth]{spj}
-\end{frame}
-
-\begin{frame}
-\hspace*{-11.2mm}
-\includegraphics[width=\paperwidth]{haskellcomittee}
-\end{frame}
-
-\begin{frame}
-\hspace*{-11.2mm}
-\includegraphics[width=\paperwidth]{time}
-\end{frame}
-
+\begin{comment}
 \begin{frame}[fragile]
-\frametitle{Strictness}
-\begin{lstlisting}[frame=single]
-doubleOrNothing b x = if b 
-  then x + x
-  else 0
-\end{lstlisting}
-\begin{lstlisting}[frame=single]
-doubleOrNothing 
-  (decisionProblem y) 
-  (expensiveComputation z)
-\end{lstlisting}
-\end{frame}
-
-\begin{frame}
-\hspace*{-11.2mm}
-\includegraphics[width=\paperwidth]{whitechocolate}
-\end{frame}
-
-\begin{frame}
-\centering
-\Huge THUNKS
-\end{frame}
-
-\begin{frame}
-\vspace*{8mm}
-\centering
-\small thunks 
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Closure Representation}
+\frametitle{Shared Environments}
 \begin{lstlisting}[frame=single]
 f (g x y z) 
   (h w x y z)
@@ -173,9 +165,50 @@ f (g x y z)
 \draw (h') -- (env);
 
 \node [fit=(g') (h') (env),label=above:$Shared$,rectangle,draw] {};
-
 \end{tikzpicture}
 \end{figure}
+\end{frame}
+\end{comment}
+
+\begin{frame}
+\frametitle{Motivation}
+\large
+\begin{center}
+Performance 
+\\
+\null\hfill
+\\
+Correctness
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Strictness}
+\begin{lstlisting}
+doubleOrNothing b x = if b 
+  then x + x
+  else 0
+
+doubleOrNothing 
+  (decisionProblem y) 
+  (expensiveComputation z)
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+\hspace*{-11.2mm}
+\includegraphics[width=\paperwidth]{whitechocolate}
+\end{frame}
+
+\begin{frame}
+\centering
+{\fontsize{60}{60}\selectfont THUNKS}
+\end{frame}
+
+\begin{frame}
+\vspace*{8mm}
+\centering
+\small thunks 
 \end{frame}
 
 \begin{frame}
@@ -195,211 +228,11 @@ f (g x y z)
 \end{center}
 \end{frame}
 
-\begin{frame}[fragile]
-\frametitle{Semantics}
-\footnotesize
-\begin{align*}
-\tag{Closure} c &::= t [l] \\
-\tag{Heap} \mu &::= \epsilon \; | \; \mu [ l \mapsto \rho ] \\
-\tag{Environment} \rho &::= \bullet \; | \; c \cdot l \\
-\tag{Context} \sigma &::= \square \; | \; \sigma \; c \;  | \; u:=\sigma \\
-\langle v, u := \sigma, \mu[u \mapsto c \cdot l] \rangle 
-  &\rightarrow_{\mathcal{CE}}
-\langle v, \sigma, \mu[u \mapsto v \cdot l] \rangle  \\
-\langle \lambda t[l], \sigma \; c, \mu \rangle 
-  &\rightarrow_{\mathcal{CE}}
-\langle t[f], \sigma, \mu[f \mapsto c \cdot l]\rangle f \not \in \textnormal{dom}(\mu)  \\
-\langle t \; t'[l], \sigma, \mu \rangle
-  &\rightarrow_{\mathcal{CE}}
-\langle t[l], \sigma \; t'[l], \mu \rangle \\
-\langle 0[l], \sigma, \mu \rangle
-  &\rightarrow_{\mathcal{CE}}
-\langle c, l := \sigma, \mu \rangle 
-\; \textnormal{where} \; c \cdot l' = \mu(l)\\
-\langle i[l], \sigma, \mu \rangle
-  &\rightarrow_{\mathcal{CE}}
-\langle (i-1)[l'], \sigma, \mu \rangle
-\; \textnormal{where} \; c \cdot l' = \mu(l)
-\end{align*}
-\end{frame}
+\sectionslide{\ce Machine}
+{Simplicity is the final achievement.}
+{Chopin}
 
-\begin{frame}
-\frametitle{Implementation}
-\footnotesize
-\begin{align*}
-\langle v, u := \sigma, \mu[u \mapsto c \cdot l] \rangle 
-  &\rightarrow_{\mathcal{CE}}
-\langle v, \sigma, \mu[u \mapsto v \cdot l] \rangle  \\
-\langle \lambda t[l], \sigma \; c, \mu \rangle 
-  &\rightarrow_{\mathcal{CE}}
-\langle t[f], \sigma, \mu[f \mapsto c \cdot l]\rangle f \not \in \textnormal{dom}(\mu)  \\
-\langle t \; t'[l], \sigma, \mu \rangle
-  &\rightarrow_{\mathcal{CE}}
-\langle t[l], \sigma \; t'[l], \mu \rangle \\
-\langle 0[l], \sigma, \mu \rangle
-  &\rightarrow_{\mathcal{CE}}
-\langle c, l := \sigma, \mu \rangle 
-\; \textnormal{where} \; c \cdot l' = \mu(l)\\
-\langle i[l], \sigma, \mu \rangle
-  &\rightarrow_{\mathcal{CE}}
-\langle (i-1)[l'], \sigma, \mu \rangle
-\; \textnormal{where} \; c \cdot l' = \mu(l) \\ \\
-Upd &\rightarrow \texttt{5 x64 Instructions} \\
-Abs &\rightarrow \texttt{6 x64 Instructions} \\
-App &\rightarrow \texttt{2 x64 Instructions} \\
-Var1 &\rightarrow \texttt{6 x64 Instructions} \\
-Var2 &\rightarrow \texttt{2 x64 Instructions} 
-\end{align*}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Results}
-\centering
-\textbf{Hypothesis:} Some programs can benefit from having lightweight thunks
-despite the cost of slower variable dereferences.
-\end{frame}
-
-\begin{frame}
-\frametitle{Results}
-\begin{itemize}
-\item Nofib benchmark suite (Integers)
-\item Recursion: Y combinator
-\item ADTs: Scott encodings
-\item Times averaged over 5 runs
-\end{itemize}
-\end{frame}
-
-\definecolor{lightgreen}{rgb}{0.8,1,0.8}
-\definecolor{lightred}{rgb}{1,0.8,0.8}
-\definecolor{lightgray}{rgb}{0.8,0.8,0.8}
-\newcolumntype{g}{>{\columncolor{lightgray}}X}
-
-\begin{frame}[fragile]
-\frametitle{Results}
-\centering
-\small
-\begin{tabularx}{\textwidth}{l | X | g | X}
-& GHC & $\mathcal{CE}$ & UHC \\
-\hline
-\texttt{exp3 8} & 1.038 & 1.530 & 2.286 \\
-\rowcolor{lightred}
-\texttt{tak 16 8 0} & 0.006 & 0.366 & 1.416 \\
-\rowcolor{lightgreen}
-\texttt{primes 1500} & 0.230 & 0.256 & 1.532 \\
-\texttt{queens 9} & 0.012 & 0.206 & 0.598 \\
-\texttt{fib 35} &  0.110 & 2.234 & 8.342 \\
-\texttt{digits-of-e1 1000} & 0.118 & 3.576 & 22.010 \\
-\rowcolor{lightgreen}
-\texttt{digits-of-e2 1000} & 0.372 & 0.404 & 3.278 \\
-\texttt{fannkuch 8} & 0.048 & 0.560 & 2.196 
-\end{tabularx}
-\begin{center}
-Wall clock times in seconds \\
-\texttt{GHC} and \texttt{UHC} run with \texttt{-O3}
-\end{center}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Church Numerals Results}
-\centering
-\small
-\begin{tabularx}{\textwidth}{l | X | g | X}
-& GHC & $\mathcal{CE}$ & UHC \\
-\hline
-\texttt{exp3 8} & N/A & N/A & N/A \\
-\texttt{tak 14 7 0} & 1.016 & 1.610 & 7.782 \\
-\texttt{primes 32} & 0.666 & 0.846 & 5.290 \\
-\texttt{queens 8} & 0.154 & 0.242 & 1.508 \\
-\texttt{fib 23} &  0.468 & 0.626 & 5.336 \\
-\texttt{digits-of-e1 } & N/A & N/A & N/A \\
-\rowcolor{lightgreen}
-\texttt{digits-of-e2 6} & 0.670 & 0.138 & 5.534 \\
-\texttt{fannkuch 7} & 0.040 & 0.142 & 0.808
-\end{tabularx}
-\begin{center}
-Wall clock times in seconds \\
-\texttt{GHC} and \texttt{UHC} run with \texttt{-O3}
-\end{center}
-\end{frame}
-
-\begin{frame}
-\frametitle{Future Work}
-\begin{itemize}
-\item Integration
-\item Parallelism 
-\item Verification
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Integration}
-\centering
-\includegraphics[width=5cm]{haskell}
-\begin{itemize}
-\item Shared + Flat
-\item GHC Modifications
-\item Optimizations 
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Parallelism}
-\includegraphics[width=7cm]{trinity}
-\centering
-\begin{itemize}
-\item Lightweight threads
-\item Lower overhead
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Verification}
-\centering
-\includegraphics[width=2cm]{coq}
-\begin{itemize}
-\item Simplicity of compiler
-\item Lock-step equivalence
-\item ETA Summer 2016
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Conclusion}
-\begin{itemize}
-\item Lazier lazy evaluation
-\item Promising performance 
-\item Simple compiler
-\item Future applications
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Outline}
-\begin{itemize}
-\item Background
-\item Compiler
-\item Specification 
-\item Proof
-\item Discussion
-\end{itemize}
-\end{frame}
-\section{Background}
-
-\begin{frame}{Verified Compiler}
-Machine checked proof that behaviour is preserved through compilation.
-\end{frame}
-
-\begin{frame}{Evaluation Strategies}
-\begin{center}
-Call-by-Value: $\{1\}$ \\ 
-Call-by-Name: $\mathbb{N}$ \\ 
-Call-by-Need: $\{0,1\}$
-\end{center}
-\end{frame}
-
-\begin{frame}{A Call-by-Need Semantics} 
-\begin{center}
-\large{$\mathcal{CE}$ Machine}
-\end{center}
+\begin{frame}{Big Step \ce} 
 \begin{align*}
 \tag{App} \inference
 {(m[l], \mu) \downarrow (\lambda b[l'], \mu') \quad f \not \in \textnormal{dom}(\mu') \\ 
@@ -410,6 +243,32 @@ Call-by-Need: $\{0,1\}$
 \tag{Var} \inference
 {\mu(l, i) = l_1 \mapsto c \cdot l_2 \quad (c, \mu) \downarrow (v, \mu')}
 {(i[l],\mu) \downarrow (v, \mu'[l_1 \mapsto v \cdot l_2])}
+\end{align*}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Small Step \ce}
+\footnotesize
+\begin{align*}
+\tag{Closure} c &::= t \left[l\right] \\
+\tag{Heap} \mu &::= \epsilon \; | \; \mu \left[ l \mapsto \rho \right] \\
+\tag{Environment} \rho &::= \bullet \; | \; c \cdot l \\
+\tag{Stack} \sigma &::= \square \; | \; \sigma \; c \;  | \; \sigma \; u \\
+\langle v,  \sigma \; u , \mu \rangle 
+  &\rightarrow
+\langle v, \sigma, \mu\left(u \mapsto v \cdot l\right) \rangle  
+\; \textnormal{where} \; c \cdot l = \mu\left(u\right) \\
+\langle \lambda t\left[l\right], \sigma \; c, \mu \rangle 
+  &\rightarrow
+\langle t\left[f\right], \sigma, \mu\left[f \mapsto c \cdot l\right]\rangle f
+\not \in \textnormal{dom}\left(\mu\right)  \\
+\langle t \; t'\left[l\right], \sigma, \mu \rangle
+  &\rightarrow
+\langle t\left[l\right], \sigma \; t'\left[l\right], \mu \rangle \\
+\langle i\left[l\right], \sigma, \mu \rangle
+  &\rightarrow
+\langle c, \sigma \; l'', \mu \rangle
+\; \textnormal{where} \; l'' \mapsto c \cdot l' = \mu\left(l, i\right)
 \end{align*}
 \end{frame}
 
@@ -522,6 +381,169 @@ $$(\lambda (\lambda 0 \; 1) (\lambda 0 \; 1))((\lambda 0) \lambda 0)$$
 $$(\lambda (\lambda 0 \; 1) (\lambda 0 \; 1))((\lambda 0) \lambda 0)$$
 \end{frame}
 
+\sectionslide{Native Code Compiler}
+{Yeah, I am lazy. There's no doubt about that.}
+{Usain Bolt}
+
+\begin{frame}
+\frametitle{Implementation}
+\footnotesize
+\begin{align*}
+\tag{Upd}
+\langle v,  \sigma \; u , \mu \rangle 
+  &\rightarrow
+\langle v, \sigma, \mu\left(u \mapsto v \cdot l\right) \rangle  
+\; \textnormal{where} \; c \cdot l = \mu\left(u\right) \\
+\tag{Abs}
+\langle \lambda t\left[l\right], \sigma \; c, \mu \rangle 
+  &\rightarrow
+\langle t\left[f\right], \sigma, \mu\left[f \mapsto c \cdot l\right]\rangle f
+\not \in \textnormal{dom}\left(\mu\right)  \\
+\tag{App}
+\langle t \; t'\left[l\right], \sigma, \mu \rangle
+  &\rightarrow
+\langle t\left[l\right], \sigma \; t'\left[l\right], \mu \rangle \\
+\tag{Var}
+\langle i\left[l\right], \sigma, \mu \rangle
+  &\rightarrow
+\langle c, \sigma \; l'', \mu \rangle
+\; \textnormal{where} \; l'' \mapsto c \cdot l' = \mu\left(l, i\right)
+\end{align*}
+
+\begin{align*}
+\textsf{Upd} &\rightarrow \texttt{5 x64 Instructions} \\
+\textsf{Abs} &\rightarrow \texttt{6 x64 Instructions} \\
+\textsf{App} &\rightarrow \texttt{2 x64 Instructions} \\
+\textsf{Var} &\rightarrow \texttt{6 x64 Instructions} \\
+\end{align*}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Extensions}
+\small
+\begin{lstlisting}
+data Expr a b = Var b 
+              | App (Expr a b) (Expr a b) 
+              | Lam a (Expr a b)
+              | Lit Literal
+              | Op Op
+              | World
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Machine Operations}
+\small
+\begin{lstlisting}
+data Op = Add | Sub | Mul | Div | Mod 
+        | Eq | Neq | Lt | Gt | Le | Ge 
+        | Write WordSize | Read WordSize 
+        | Call String Int | Syscall Int 
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Example Program}
+\small
+\begin{lstlisting}
+gcd = (Y \gcd.\a.\b.(b = 0 
+      a 
+      (gcd b (a % b))))
+
+main = (printf "%d" (gcd 25 10))
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Prelude Example}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Results}
+\centering
+\textbf{Hypothesis:} Some programs can benefit from having lightweight thunks
+despite the cost of slower variable dereferences.
+\end{frame}
+
+\begin{frame}
+\frametitle{Results}
+\begin{itemize}
+\item Nofib benchmark suite (Integers)
+\item Recursion: Y combinator
+\item ADTs: Scott encodings
+\item Times averaged over 5 runs
+\end{itemize}
+\end{frame}
+
+\definecolor{lightgreen}{rgb}{0.8,1,0.8}
+\definecolor{lightred}{rgb}{1,0.8,0.8}
+\definecolor{lightgray}{rgb}{0.8,0.8,0.8}
+\newcolumntype{g}{>{\columncolor{lightgray}}X}
+
+\begin{frame}[fragile]
+\frametitle{Results}
+\centering
+\small
+\begin{tabularx}{\textwidth}{l | X | g | X}
+& GHC & $\mathcal{CE}$ & UHC \\
+\hline
+\texttt{exp3 8} & 1.038 & 1.530 & 2.286 \\
+\rowcolor{lightred}
+\texttt{tak 16 8 0} & 0.006 & 0.366 & 1.416 \\
+\rowcolor{lightgreen}
+\texttt{primes 1500} & 0.230 & 0.256 & 1.532 \\
+\texttt{queens 9} & 0.012 & 0.206 & 0.598 \\
+\texttt{fib 35} &  0.110 & 2.234 & 8.342 \\
+\texttt{digits-of-e1 1000} & 0.118 & 3.576 & 22.010 \\
+\rowcolor{lightgreen}
+\texttt{digits-of-e2 1000} & 0.372 & 0.404 & 3.278 \\
+\texttt{fannkuch 8} & 0.048 & 0.560 & 2.196 
+\end{tabularx}
+\begin{center}
+Wall clock times in seconds \\
+\texttt{GHC} and \texttt{UHC} run with \texttt{-O3}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Church Numerals Results}
+\centering
+\small
+\begin{tabularx}{\textwidth}{l | X | g | X}
+& GHC & $\mathcal{CE}$ & UHC \\
+\hline
+\texttt{exp3 8} & N/A & N/A & N/A \\
+\texttt{tak 14 7 0} & 1.016 & 1.610 & 7.782 \\
+\texttt{primes 32} & 0.666 & 0.846 & 5.290 \\
+\texttt{queens 8} & 0.154 & 0.242 & 1.508 \\
+\texttt{fib 23} &  0.468 & 0.626 & 5.336 \\
+\texttt{digits-of-e1 } & N/A & N/A & N/A \\
+\rowcolor{lightgreen}
+\texttt{digits-of-e2 6} & 0.670 & 0.138 & 5.534 \\
+\texttt{fannkuch 7} & 0.040 & 0.142 & 0.808
+\end{tabularx}
+\begin{center}
+Wall clock times in seconds \\
+\texttt{GHC} and \texttt{UHC} run with \texttt{-O3}
+\end{center}
+\end{frame}
+
+\begin{frame}{Outline}
+\begin{itemize}
+\item Background
+\item Compiler
+\item Specification 
+\item Proof
+\item Discussion
+\end{itemize}
+\end{frame}
+\section{Background}
+
+\begin{frame}{Verified Compiler}
+Machine checked proof that behaviour is preserved through compilation.
+\end{frame}
+
 \section{Compiler}
 
 \begin{frame}[fragile]{Var}
@@ -577,7 +599,7 @@ jump b
 \end{align*}
 \end{frame}
 
-\begin{frame}{Specification}
+\begin{frame}{Correctness Specification}
 \begin{theorem} 
 If a term $t$ placed into the initial configuration for the big-step semantics
 evaluates to a value configuration $v$, then the instruction machine starting
@@ -586,9 +608,15 @@ related state $v'$.
 \end{theorem}
 \end{frame}
 
-\section{Proof}
+\begin{frame}{Relation to Existing Semantics}
+\begin{theorem}
+If a closure $c$ in Curien's call-by-name semantics is equivalent to a
+configuration $c'$, and $c$ steps to $v$, then there exists a $v'$ that our
+call-by-name semantics steps to from $c'$ that is equivalent to $v$.
+\end{theorem}
+\end{frame}
 
-\begin{frame}{Lessons Learned}
+\begin{frame}{Proof Thoughts}
 \begin{itemize}
 \item Preserving properties through heap mutation is hard.
 \item Choose your induction hypotheses to be as general as possible.
@@ -610,9 +638,32 @@ related state $v'$.
 \end{center}
 \end{frame}
 
+\begin{frame}
+\frametitle{Integration}
+\centering
+\includegraphics[width=5cm]{haskell}
+\begin{itemize}
+\item Shared + Flat
+\item GHC Modifications
+\item Optimizations 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Parallelism}
+\includegraphics[width=7cm]{trinity}
+\centering
+\begin{itemize}
+\item Lightweight threads
+\item Lower overhead
+\end{itemize}
+\end{frame}
+
 \section{Conclusion}
 \begin{frame}{Final Thoughts}
 \begin{itemize}
+\item Lazier lazy evaluation
+\item Promising performance 
 \item First verified compiler for Call-by-Need
 \item Still a lot to prove!
 \end{itemize}

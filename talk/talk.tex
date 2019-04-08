@@ -1,8 +1,10 @@
 %!TEX TS-program = xelatex
 %!TEX encoding = UTF-8 Unicode
 
-\documentclass[14pt]{beamer} 
+\documentclass[14pt,mathserif]{beamer} 
 \usepackage[utf8]{inputenc}
+\usepackage{concrete}
+%\usepackage{CormorantGaramond}
 \usepackage{fontspec}
 \usepackage{listings}
 \usepackage{amssymb,amsmath}
@@ -10,7 +12,7 @@
 \usepackage{colortbl}
 \usepackage{ifxetex,ifluatex}
 \usepackage{fixltx2e} % provides \textsubscript
-\usepackage{lmodern}
+%\usepackage{lmodern}
 \usepackage{natbib}
 \usepackage{listings}
 \usepackage{framed,graphicx,xcolor}
@@ -25,9 +27,16 @@
 \usepackage{verbatim}
 \usepackage{anyfontsize}
 \usepackage{epigraph}
+\usepackage{mathtools}
+\usepackage[T1]{fontenc}
+\let\oldnormalfont\normalfont
+\def\normalfont{\oldnormalfont\mdseries}
+
 \usetikzlibrary{positioning,chains,fit,shapes,calc}
-\setmainfont{DejaVu Sans}
-\setmonofont{DejaVu Sans Mono}
+\usefonttheme{serif}
+\setromanfont{CormorantGaramond}[Numbers={,Lining}]
+\setmathrm{CormorantGaramond}[Numbers={,Lining}]
+\setmonofont{Inconsolata}
 
 \lstset{basicstyle=\ttfamily,frame=none}
 
@@ -39,10 +48,10 @@
 \definecolor{red}{RGB}{186,12,47}
 \definecolor{grey}{RGB}{99,102,106}
 
-\setbeamerfont{structure}{family=\sffamily, shape=\scshape}
+\setbeamerfont{structure}{family=\rmfamily, shape=\scshape}
 \setbeamercolor{structure}{fg=red}
 \setbeamercolor{normal text}{fg=grey,bg=white}
-\setbeamerfont{normal text}{family=\sffamily}
+\setbeamerfont{normal text}{family=\rmfamily}
 
 \defbeamertemplate{itemize item}{image}{$\circ$}
 \setbeamertemplate{itemize item}[image]
@@ -84,14 +93,14 @@ mathematics with the intuitive clarity of abstract mathematics.}
 
 \begin{frame}
 \frametitle{Lambda Calculus}
-$$t := x \; | \; \lambda x.t \; | \; t \; t$$
+$$t \Coloneqq x \; | \; \lambda x.t \; | \; t \; t$$
 \end{frame}
 
 \begin{frame}
 \frametitle{De Bruijn Indices}
 \begin{align*}
 i &\in \mathbb{N} \\
-t &:= i \; | \; \lambda t \; | \; t \; t
+t &\Coloneqq i \; | \; \lambda t \; | \; t \; t
 \end{align*}
 \begin{align*}
 \lambda 0 &\equiv \lambda x.x \\
@@ -136,40 +145,6 @@ citizenship. It is perhaps the most powerful glue[.]
 \null\hfill \emph{John Hughes}
 \end{frame}
 
-\begin{comment}
-\begin{frame}[fragile]
-\frametitle{Shared Environments}
-\begin{lstlisting}[frame=single]
-f (g x y z) 
-  (h w x y z)
-\end{lstlisting}
-\begin{figure}
-\begin{tikzpicture}[thick,->]
-\tikzstyle{every node}=[font=\tiny]
-% the vertices of U
-\begin{scope}[xshift=0cm]
-\node (g) {(g x y z)};
-\node[right of=g, node distance=2.2cm] (genv) {g x y z};
-\node[below of=g] (h) {(h w x y z)};
-\node[right of=h, node distance=2.7cm] (henv) {h w x y z};
-\draw (g) -- (genv);
-\draw (h) -- (henv);
-\end{scope}
-\node [fit=(g) (genv) (h) (henv),label=above:$Flat$,rectangle,draw] (flat) {};
-\begin{scope}[xshift=6cm]
-\node (g') {(g x y z)};
-\node[below of=g'] (h') {(h w x y z)};
-\node[right of=h', node distance=2.7cm, yshift=5mm](env) {g h w x y z ...};
-\end{scope}
-\draw (g') -- (env);
-\draw (h') -- (env);
-
-\node [fit=(g') (h') (env),label=above:$Shared$,rectangle,draw] {};
-\end{tikzpicture}
-\end{figure}
-\end{frame}
-\end{comment}
-
 \begin{frame}
 \frametitle{Motivation}
 \large
@@ -180,6 +155,38 @@ Performance
 \\
 Correctness
 \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Environment Representation}
+\begin{lstlisting}[frame=single]
+f (g x y z) 
+  (h w x y z)
+\end{lstlisting}
+\begin{figure}
+\begin{tikzpicture}[thick,->]
+\tikzstyle{every node}=[font=\scriptsize\ttfamily]
+% the vertices of U
+\begin{scope}[xshift=0cm]
+\node (g) {(g x y z)};
+\node[right of=g, node distance=2.2cm] (genv) {g x y z};
+\node[below of=g] (h) {(h w x y z)};
+\node[right of=h, node distance=2.7cm] (henv) {h w x y z};
+\draw (g) -- (genv);
+\draw (h) -- (henv);
+\end{scope}
+\node [fit=(g) (genv) (h) (henv),label=above:Flat,rectangle,draw] (flat) {};
+\begin{scope}[xshift=6cm]
+\node (g') {(g x y z)};
+\node[below of=g'] (h') {(h w x y z)};
+\node[right of=h', node distance=2.7cm, yshift=5mm](env) {g h w x y z ...};
+\end{scope}
+\draw (g') -- (env);
+\draw (h') -- (env);
+
+\node [fit=(g') (h') (env),label=above:Shared,rectangle,draw] {};
+\end{tikzpicture}
+\end{figure}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -250,10 +257,10 @@ doubleOrNothing
 \frametitle{Small Step \ce}
 \footnotesize
 \begin{align*}
-\tag{Closure} c &::= t \left[l\right] \\
-\tag{Heap} \mu &::= \epsilon \; | \; \mu \left[ l \mapsto \rho \right] \\
-\tag{Environment} \rho &::= \bullet \; | \; c \cdot l \\
-\tag{Stack} \sigma &::= \square \; | \; \sigma \; c \;  | \; \sigma \; u \\
+\tag{Closure} c &\Coloneqq t \left[l\right] \\
+\tag{Heap} \mu &\Coloneqq \epsilon \; | \; \mu \left[ l \mapsto \rho \right] \\
+\tag{Environment} \rho &\Coloneqq \bullet \; | \; c \cdot l \\
+\tag{Stack} \sigma &\Coloneqq \square \; | \; \sigma \; c \;  | \; \sigma \; u \\
 \langle v,  \sigma \; u , \mu \rangle 
   &\rightarrow
 \langle v, \sigma, \mu\left(u \mapsto v \cdot l\right) \rangle  
@@ -411,10 +418,10 @@ $$(\lambda (\lambda 0 \; 1) (\lambda 0 \; 1))((\lambda 0) \lambda 0)$$
 \end{align*}
 
 \begin{align*}
-\textsf{Upd} &\rightarrow \texttt{5 x64 Instructions} \\
-\textsf{Abs} &\rightarrow \texttt{6 x64 Instructions} \\
-\textsf{App} &\rightarrow \texttt{2 x64 Instructions} \\
-\textsf{Var} &\rightarrow \texttt{6 x64 Instructions} \\
+\textmd{Upd} &\rightarrow \texttt{5 x64 Instructions} \\
+\textmd{Abs} &\rightarrow \texttt{6 x64 Instructions} \\
+\textmd{App} &\rightarrow \texttt{2 x64 Instructions} \\
+\textmd{Var} &\rightarrow \texttt{6 x64 Instructions} \\
 \end{align*}
 \end{frame}
 
@@ -423,6 +430,7 @@ $$(\lambda (\lambda 0 \; 1) (\lambda 0 \; 1))((\lambda 0) \lambda 0)$$
 \small
 \begin{lstlisting}
 data Expr a b = Var b 
+              | Tail b
               | App (Expr a b) (Expr a b) 
               | Lam a (Expr a b)
               | Lit Literal
@@ -431,8 +439,7 @@ data Expr a b = Var b
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}[fragile]
-\frametitle{Machine Operations}
+\begin{frame}[fragile]{Machine Operations}
 \small
 \begin{lstlisting}
 data Op = Add | Sub | Mul | Div | Mod 
@@ -442,8 +449,25 @@ data Op = Add | Sub | Mul | Div | Mod
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}[fragile]
-\frametitle{Example Program}
+\begin{frame}[fragile]{Data Types}
+\small
+\begin{lstlisting}
+# Booleans
+false = \t.\f.f
+true = \t.\f.t
+and = \a.\b.(a b false)
+
+# Lists
+cons = \h.\t.\n.\c.(c h t)
+nil = true
+
+# Either 
+Left = \v.\l.\r.(l v)
+Right = \v.\l.\r.(r v)
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Example Program}
 \small
 \begin{lstlisting}
 gcd = (Y \gcd.\a.\b.(b = 0 
@@ -454,9 +478,12 @@ main = (printf "%d" (gcd 25 10))
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}[fragile]
-\frametitle{Prelude Example}
-
+\begin{frame}[fragile]{System Calls}
+\begin{lstlisting}
+sys_exit = \code.\w.[w 60 code 
+  \a.\t.\w._!1]
+sys_getpid = \w.[w 39 \t.\w._!0]
+\end{lstlisting}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -529,18 +556,12 @@ Wall clock times in seconds \\
 \end{center}
 \end{frame}
 
-\begin{frame}{Outline}
-\begin{itemize}
-\item Background
-\item Compiler
-\item Specification 
-\item Proof
-\item Discussion
-\end{itemize}
-\end{frame}
-\section{Background}
+\sectionslide{Verified Compiler}
+{A program without a specification cannot be incorrect, it can only be
+surprising.}
+{J. J. Horning}
 
-\begin{frame}{Verified Compiler}
+\begin{frame}{Definition}
 Machine checked proof that behaviour is preserved through compilation.
 \end{frame}
 
@@ -623,9 +644,12 @@ call-by-name semantics steps to from $c'$ that is equivalent to $v$.
 \end{itemize}
 \end{frame}
 
-\section{Discussion}
+\sectionslide{Conclusion}
+{No book can ever be finished. While working on it we learn just enough to find
+it immature the moment we turn away from it.}
+{Karl Popper}
 
-\begin{frame}[fragile]{Other Half?}
+\begin{frame}[fragile]{Half Verified?}
 \begin{center}
 \includegraphics[width=0.6\linewidth]{half-true}
 \end{center}

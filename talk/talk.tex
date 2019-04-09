@@ -3,9 +3,7 @@
 
 \documentclass[14pt,mathserif]{beamer} 
 \usepackage[utf8]{inputenc}
-\usepackage{concrete}
 %\usepackage{CormorantGaramond}
-\usepackage{fontspec}
 \usepackage{listings}
 \usepackage{amssymb,amsmath}
 \usepackage{tabularx}
@@ -27,15 +25,20 @@
 \usepackage{verbatim}
 \usepackage{anyfontsize}
 \usepackage{epigraph}
-\usepackage{mathtools}
 \usepackage[T1]{fontenc}
+\usepackage{mathtools}
+\usepackage{fontspec}
+
 \let\oldnormalfont\normalfont
 \def\normalfont{\oldnormalfont\mdseries}
 
 \usetikzlibrary{positioning,chains,fit,shapes,calc}
+%\usefonttheme{serif}
 \usefonttheme{serif}
 \setromanfont{CormorantGaramond}[Numbers={,Lining}]
-\setmathrm{CormorantGaramond}[Numbers={,Lining}]
+\def\cormorantgaramond@figurestyle{Lining}
+\AtBeginEnvironment{math}{\liningnums}
+
 \setmonofont{Inconsolata}
 
 \lstset{basicstyle=\ttfamily,frame=none}
@@ -73,6 +76,7 @@
 \institute{\includegraphics[width=0.3\columnwidth]{unm.pdf}}
 \date{}
 \begin{document}
+\def\cormorantgaramond@figurestyle{Lining}
 \frame{\titlepage}
 
 \begin{frame}
@@ -92,6 +96,18 @@ mathematics with the intuitive clarity of abstract mathematics.}
 {Randall Munroe (xkcd)}
 
 \begin{frame}
+\frametitle{Motivation}
+\large
+\begin{center}
+Performance 
+\\
+\null\hfill
+\\
+Correctness
+\end{center}
+\end{frame}
+
+\begin{frame}
 \frametitle{Lambda Calculus}
 $$t \Coloneqq x \; | \; \lambda x.t \; | \; t \; t$$
 \end{frame}
@@ -106,14 +122,6 @@ t &\Coloneqq i \; | \; \lambda t \; | \; t \; t
 \lambda 0 &\equiv \lambda x.x \\
 \lambda \lambda 1 &\equiv \lambda x.\lambda y.x
 \end{align*}
-\end{frame}
-
-\begin{frame}
-\frametitle{Call-by-need (Lazy)}
-\begin{itemize}
-\item Only evaluate when necessary
-\item Never evaluate more than once
-\end{itemize}
 \end{frame}
 
 \begin{frame}{Evaluation Strategies}
@@ -140,7 +148,8 @@ doubleOrNothing
 \begin{frame} 
 \frametitle{Laziness}
 [L]azy functional programming is too important to be relegated to second-class
-citizenship. It is perhaps the most powerful glue[.]
+citizenship. It is perhaps the most powerful glue functional programmers
+possess.
 
 \null\hfill \emph{John Hughes}
 \end{frame}
@@ -189,43 +198,14 @@ f (g x y z)
 \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]
-\frametitle{Strictness}
-\begin{lstlisting}
-doubleOrNothing b x = if b 
-  then x + x
-  else 0
-
-doubleOrNothing 
-  (decisionProblem y) 
-  (expensiveComputation z)
-\end{lstlisting}
-\end{frame}
-
-\begin{frame}
-\hspace*{-11.2mm}
-\includegraphics[width=\paperwidth]{whitechocolate}
-\end{frame}
-
-\begin{frame}
+\begin{frame}{Performance Opportunity}
 \centering
-{\fontsize{60}{60}\selectfont THUNKS}
+\includegraphics[width=0.4\paperwidth]{gift}
 \end{frame}
 
-\begin{frame}
-\vspace*{8mm}
+\begin{frame}{Performance Opportunity}
 \centering
-\small thunks 
-\end{frame}
-
-\begin{frame}
-\centering
-\includegraphics[height=\paperheight]{gift} 
-\end{frame}
-
-\begin{frame}
-\hspace*{-11.2mm}
-\includegraphics[width=\paperwidth]{bookmark}
+\includegraphics[width=0.6\paperwidth]{bookmarkbrown}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -235,49 +215,14 @@ doubleOrNothing
 \end{center}
 \end{frame}
 
+\begin{frame}[fragile]{Correctness Opportunity}
+\centering
+\includegraphics[width=0.8\paperwidth]{equation-chalkboard.jpg}
+\end{frame}
+
 \sectionslide{\ce Machine}
 {Simplicity is the final achievement.}
 {Chopin}
-
-\begin{frame}{Big Step \ce} 
-\begin{align*}
-\tag{App} \inference
-{(m[l], \mu) \downarrow (\lambda b[l'], \mu') \quad f \not \in \textnormal{dom}(\mu') \\ 
-(b[f], \mu'[f \mapsto n[l] \cdot l']) \downarrow v}
-{(m \; n[l], \mu) \downarrow v}  
-\end{align*}
-\begin{align*}
-\tag{Var} \inference
-{\mu(l, i) = l_1 \mapsto c \cdot l_2 \quad (c, \mu) \downarrow (v, \mu')}
-{(i[l],\mu) \downarrow (v, \mu'[l_1 \mapsto v \cdot l_2])}
-\end{align*}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Small Step \ce}
-\footnotesize
-\begin{align*}
-\tag{Closure} c &\Coloneqq t \left[l\right] \\
-\tag{Heap} \mu &\Coloneqq \epsilon \; | \; \mu \left[ l \mapsto \rho \right] \\
-\tag{Environment} \rho &\Coloneqq \bullet \; | \; c \cdot l \\
-\tag{Stack} \sigma &\Coloneqq \square \; | \; \sigma \; c \;  | \; \sigma \; u \\
-\langle v,  \sigma \; u , \mu \rangle 
-  &\rightarrow
-\langle v, \sigma, \mu\left(u \mapsto v \cdot l\right) \rangle  
-\; \textnormal{where} \; c \cdot l = \mu\left(u\right) \\
-\langle \lambda t\left[l\right], \sigma \; c, \mu \rangle 
-  &\rightarrow
-\langle t\left[f\right], \sigma, \mu\left[f \mapsto c \cdot l\right]\rangle f
-\not \in \textnormal{dom}\left(\mu\right)  \\
-\langle t \; t'\left[l\right], \sigma, \mu \rangle
-  &\rightarrow
-\langle t\left[l\right], \sigma \; t'\left[l\right], \mu \rangle \\
-\langle i\left[l\right], \sigma, \mu \rangle
-  &\rightarrow
-\langle c, \sigma \; l'', \mu \rangle
-\; \textnormal{where} \; l'' \mapsto c \cdot l' = \mu\left(l, i\right)
-\end{align*}
-\end{frame}
 
 \begin{frame}{Example}
 \begin{center}
@@ -388,6 +333,59 @@ $$(\lambda (\lambda 0 \; 1) (\lambda 0 \; 1))((\lambda 0) \lambda 0)$$
 $$(\lambda (\lambda 0 \; 1) (\lambda 0 \; 1))((\lambda 0) \lambda 0)$$
 \end{frame}
 
+
+\begin{frame}{Big Step \ce} 
+\footnotesize
+\begin{align*}
+\tag{Closure} c &\Coloneqq t \left[l\right] \\
+\tag{Heap} \mu &\Coloneqq \epsilon \; | \; \mu \left[ l \mapsto \rho \right] \\
+\tag{Environment} \rho &\Coloneqq \bullet \; | \; c \cdot l \\
+\end{align*}
+\begin{align*}
+\tag{App} \inference
+{(m[l], \mu) \downarrow (\lambda b[l'], \mu') \quad f \not \in \textnormal{dom}(\mu') \\ 
+(b[f], \mu'[f \mapsto n[l] \cdot l']) \downarrow v}
+{(m \; n[l], \mu) \downarrow v}  
+\end{align*}
+\begin{align*}
+\tag{Var} \inference
+{\mu(l, i) = l_1 \mapsto c \cdot l_2 \quad (c, \mu) \downarrow (v, \mu')}
+{(i[l],\mu) \downarrow (v, \mu'[l_1 \mapsto v \cdot l_2])}
+\end{align*}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Small Step \ce}
+\footnotesize
+\begin{align*}
+\tag{Closure} c &\Coloneqq t \left[l\right] \\
+\tag{Heap} \mu &\Coloneqq \epsilon \; | \; \mu \left[ l \mapsto \rho \right] \\
+\tag{Environment} \rho &\Coloneqq \bullet \; | \; c \cdot l \\
+\tag{Stack} \sigma &\Coloneqq \square \; | \; \sigma \; c \;  | \; \sigma \; u \\
+\end{align*}
+\begin{align*}
+\tag{Upd}
+\langle v,  \sigma \; u , \mu \rangle 
+  &\rightarrow
+\langle v, \sigma, \mu\left(u \mapsto v \cdot l\right) \rangle  
+\; \textnormal{where} \; c \cdot l = \mu\left(u\right) \\
+\tag{Abs}
+\langle \lambda t\left[l\right], \sigma \; c, \mu \rangle 
+  &\rightarrow
+\langle t\left[f\right], \sigma, \mu\left[f \mapsto c \cdot l\right]\rangle f
+\not \in \textnormal{dom}\left(\mu\right)  \\
+\tag{App}
+\langle t \; t'\left[l\right], \sigma, \mu \rangle
+  &\rightarrow
+\langle t\left[l\right], \sigma \; t'\left[l\right], \mu \rangle \\
+\tag{Var}
+\langle i\left[l\right], \sigma, \mu \rangle
+  &\rightarrow
+\langle c, \sigma \; l'', \mu \rangle
+\; \textnormal{where} \; l'' \mapsto c \cdot l' = \mu\left(l, i\right)
+\end{align*}
+\end{frame}
+
 \sectionslide{Native Code Compiler}
 {Yeah, I am lazy. There's no doubt about that.}
 {Usain Bolt}
@@ -449,7 +447,8 @@ data Op = Add | Sub | Mul | Div | Mod
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}[fragile]{Data Types}
+\begin{frame}[fragile]{Data Types} 
+\vspace{-0.5cm}
 \small
 \begin{lstlisting}
 # Booleans
@@ -479,7 +478,10 @@ main = (printf "%d" (gcd 25 10))
 \end{frame}
 
 \begin{frame}[fragile]{System Calls}
+\small
 \begin{lstlisting}
+sys_write = \fd.\buf.\cnt.\w.[w 1 cnt buf fd 
+  \a.\b.\c.\t.\w._!3]
 sys_exit = \code.\w.[w 60 code 
   \a.\t.\w._!1]
 sys_getpid = \w.[w 39 \t.\w._!0]
@@ -565,7 +567,21 @@ surprising.}
 Machine checked proof that behaviour is preserved through compilation.
 \end{frame}
 
-\section{Compiler}
+\section{Specification}
+\begin{frame}{Input Semantics}
+\begin{align*}
+\tag{App} \inference
+{(m[l], \mu) \downarrow (\lambda b[l'], \mu') \quad f \not \in \textnormal{dom}(\mu') \\ 
+(b[f], \mu'[f \mapsto n[l] \cdot l']) \downarrow v}
+{(m \; n[l], \mu) \downarrow v}  
+\end{align*}
+\begin{align*}
+\tag{Var} \inference
+{\mu(l, i) = l_1 \mapsto c \cdot l_2 \quad (c, \mu) \downarrow (v, \mu')}
+{(i[l],\mu) \downarrow (v, \mu'[l_1 \mapsto v \cdot l_2])}
+\end{align*}
+\end{frame}
+
 
 \begin{frame}[fragile]{Var}
 \begin{lstlisting}
@@ -605,21 +621,6 @@ jump b
 \end{lstlisting}
 \end{frame}
 
-\section{Specification}
-\begin{frame}{Input Semantics}
-\begin{align*}
-\tag{App} \inference
-{(m[l], \mu) \downarrow (\lambda b[l'], \mu') \quad f \not \in \textnormal{dom}(\mu') \\ 
-(b[f], \mu'[f \mapsto n[l] \cdot l']) \downarrow v}
-{(m \; n[l], \mu) \downarrow v}  
-\end{align*}
-\begin{align*}
-\tag{Var} \inference
-{\mu(l, i) = l_1 \mapsto c \cdot l_2 \quad (c, \mu) \downarrow (v, \mu')}
-{(i[l],\mu) \downarrow (v, \mu'[l_1 \mapsto v \cdot l_2])}
-\end{align*}
-\end{frame}
-
 \begin{frame}{Correctness Specification}
 \begin{theorem} 
 If a term $t$ placed into the initial configuration for the big-step semantics
@@ -641,6 +642,7 @@ call-by-name semantics steps to from $c'$ that is equivalent to $v$.
 \begin{itemize}
 \item Preserving properties through heap mutation is hard.
 \item Choose your induction hypotheses to be as general as possible.
+\item Machine Checked Proofs are \emph{hard}
 \end{itemize}
 \end{frame}
 
@@ -649,7 +651,7 @@ call-by-name semantics steps to from $c'$ that is equivalent to $v$.
 it immature the moment we turn away from it.}
 {Karl Popper}
 
-\begin{frame}[fragile]{Half Verified?}
+\begin{frame}[fragile]{Fully Verified?}
 \begin{center}
 \includegraphics[width=0.6\linewidth]{half-true}
 \end{center}
@@ -670,6 +672,7 @@ it immature the moment we turn away from it.}
 \item Shared + Flat
 \item GHC Modifications
 \item Optimizations 
+\item Coq Extraction
 \end{itemize}
 \end{frame}
 
@@ -689,7 +692,7 @@ it immature the moment we turn away from it.}
 \item Lazier lazy evaluation
 \item Promising performance 
 \item First verified compiler for Call-by-Need
-\item Still a lot to prove!
+\item Abundance of future work 
 \end{itemize}
 \end{frame}
 

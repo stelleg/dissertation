@@ -109,12 +109,12 @@ For Beth
 \begin{abstract}
 Call-by-need semantics formalizes the wisdom that work should be done at most
 once. It frees programmers to focus more on the correctness of their code, and
-less on the operational details. As a result, programmers of lazy functional
-languages rely particularly heavily on their compiler to preserve correctness,
-while also relying on the compiler to generate high performance code for high
-level abstractions. In this dissertation, I present a novel technique for
-compiling call-by-need semantics that uses shared environments to share
-results of computation. I show how the approach enables a compiler that
+less on the operational details. Because of this property, programmers of lazy
+functional languages rely particularly heavily on their compiler to preserve
+correctness, while also relying on the compiler to generate high performance
+code for high level abstractions. In this dissertation I present a novel
+technique for compiling call-by-need semantics that uses shared environments to
+share results of computation. I show how the approach enables a compiler that
 generates high performance code, while staying simple enough to lend itself to
 formal reasoning. The dissertation is divided into three main contributions.
 First, I present an abstract machine, the \ce machine, which formalizes the

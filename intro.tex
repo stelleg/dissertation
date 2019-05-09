@@ -2,21 +2,22 @@ The strength of lazy functional programming languages is the freedom they give
 the programmer to focus on correctness instead of operational details. In a
 strict language, the programmer specifies what code will run, and when. In a
 lazy language, the programmer only specifies what the result should be, leaving
-what code should be executed up to the compiler. Due to this freedom from
-operational concerns, there are two properties that lazy functional programers
+what code should be executed up to the compiler. Because of this freedom from
+operational concerns, there are two properties that lazy functional programmers
 tend to have. First, they reason about the correctness of their code to a degree
-seen almost nowhere else in the programming community.  Second, they rely on
-compilers to generate efficient code in a way that programmers of strict
-languages don't.  Essentially, they are leaving more operational decisions up to
-the compiler, and focusing their energy more on the correctness of their code. 
+seen almost nowhere else in the programming community \cite{totalhaskell}.
+Second, they rely on compilers to generate efficient code in a way that
+programmers of strict languages don't. Essentially, they are leaving more
+operational decisions up to the compiler, and focusing their energy more on the
+correctness of their code. 
 
 It is for this reason that we compiler implementors must take great care in the
-design of our compilers for lazy languages. We must have compilers that are
-efficient: our programmers are relying particularly heavily on our ability to
-generate efficient code. We also must ensure that our compilers are correct:
-because the programmers are free to reason about the correctness of their code,
-we must ensure that this additional reasoning is not invalidated by bugs in the
-compiler. 
+design of our compilers for lazy languages. We must build compilers that
+generate efficient code: our programmers are relying particularly heavily on
+our ability to generate efficient code. We also must ensure that our compilers
+are correct: because the programmers are free to reason about the correctness of
+their code, we must ensure that this additional reasoning is not invalidated by
+bugs in the compiler.
 
 This dissertation presents a tool for attaining these two goals: a novel
 technique for implementing lazy semantics using shared environments, formalized
@@ -27,9 +28,8 @@ the performance of the approach by implementing a native code compiler with
 encouraging results. This addresses the goal of high performance code
 generation. To verify correctness, I take advantage simplicity of the approach
 to ease the proof burden, and implement a verified compiler using the Coq proof
-assistant. These two implementations provide ample evidence that the \ce
-machine is a powerful tool for implementing lazy functional programming
-languages.
+assistant. These two implementations provide evidence that the \ce machine is a
+powerful tool for implementing lazy functional programming languages.
 
 \section{Outline}
 
@@ -51,7 +51,7 @@ verified compiler (Appendix~\ref{chap:coq_appendix}). In the case of the native
 code compiler, our hope is to share some of the other interesting properties of
 the implementation.  For the verified compiler, the purpose of the appendix is
 to give the reader a more full understanding of the structure and definitions
-involved in the proofs, so that she may convince herself that they are correct.
+involved in the proofs.
 
 \section{Reproducibility and Artifacts}
 

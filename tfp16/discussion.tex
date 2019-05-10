@@ -53,7 +53,17 @@ obvious how to do register allocation with the $\mathcal{\mathcal{C} \mskip
 -4mu \mathcal{E}}$ machine.  
 
 One possible approach that could work well with our shared environment approach
-would be to only load "strict" free variables into registers, i.e. environment
-variables may not be used, so only the ones that will definitely be used should
-be loaded into registers, while the rest should be loaded on demand. 
+would be to only load free variables into registers that are statically known to
+be needed. In other words, some environment variables may not be used, so only
+the ones that will definitely be used should be loaded into registers when a
+closure is entered, while the rest could be loaded on demand from memory.
+
+\subsection{Characterizing Performance}
+While we have provided a few benchmarks and some intuition for why the shared
+environments would be preferable in some situations, we haven't really
+characterized when programs will benefit from the approach.  This, along with
+the joining of shared and flat environments, is left for future work. It will
+likely require a combination of careful performance profiling, static analysis
+tools, and a deeper understanding of the performance tradeoffs discussed in the
+Chapter.
 

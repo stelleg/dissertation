@@ -18,23 +18,22 @@ dissertation is tagged with \texttt{dissertation}, which at the time of writing
 enables it to be downloaded as a GitHub release tarball. Inevitably, we will use
 definitions from both the Coq standard libraries, or generic definitions
 implemented throughout the project. In these cases, if the reader has questions,
-I encourage them to refer to the source code. In general, this section attempts
-to cover the most important definitions and theorems for the 
+I encourage them to refer to the source code. This appendix attempts to cover
+only the most imporant definitions and theorems. 
 
 It's also worth noting that the reader will find many definitions, lemmas,
 algorithms, and proofs in the repository that are unused in the final proof.
-This is a byproduct of the process of proving. Often, when one starts a proof it
-seems like a certain property or lemma will be required, so one proves that
-lemma, only to discover later that it was not necessary. Such helper lemmas
-sometimes come in useful later, during a different proof. It is for this reason
-there are so much unused Coq code in the repository. Hopefully, if the project
-is continued, some of them will prove useful.
+This is a byproduct of the process of proving in a computer logic. Often, when
+one starts a proof it seems like a certain property or lemma will be required,
+so one proves that lemma, only to discover later that it was not necessary. Such
+helper lemmas sometimes prove useful later, during a different proof. Hopefully
+some of the unsed code will prove useful in future work.
 
 Another point worth noting is that the Coq code makes heavy use of Unicode
 characters and notations. In hindsight, the heavy use of fancy notations was
 almost always a mistake, and a refactoring to remove them would likely improve
-readability. The one forgivable exception is the occasional infix operator, for
-which I make no apologies.
+readability. Limiting use of notations to the occasional infix operator is
+likely a good middle ground.
 
 \section{Big-Step \ce Semantics}
 Here we define the big step syntax and semantics, which we use as our input
@@ -443,9 +442,9 @@ This states that if we have related small step and instruction machine states,
 and we take a small step, then the instruction machine will take a step to a
 state that is related to the new state of the small-step machine.  While we
 don't discuss the proof in detail, it's worth mentioning that even with many
-supporting definitions and lemmas, it took on the order of 2000 Ltac statements
-to prove. Note that is a single step, but the reflexive transitive closure
-version follows trivially. 
+supporting definitions and lemmas, it took on the order of 2000 Ltac (Coq's
+tactic language) statements to prove. Note that is a single step, but the
+reflexive transitive closure version follows trivially. 
 
 \section{Compiler and Correctness}
 
@@ -556,9 +555,8 @@ of an updated heap in the \texttt{Id} rule (and we don't require nonzero heap
 locations, but this is unimportant). With these two semantics defined, we can
 relate them by first relating environments and closures. We start by defining an
 inductive relation on what it means for environments to be equivalent.
-Effectively, a cactus environment is equivalent a Curien environment if
-following the following the environment pointers results in equivalent closures
-at each location. 
+A cactus environment is equivalent a Curien environment if following the
+environment pointers results in equivalent closures at each location. 
 
 \begin{verbatim}
 Inductive env_eq (h : heap) : curien.env → cem.env → Type := 
@@ -579,8 +577,8 @@ With this relation, we can define and prove a helper lemma that takes advantage
 of the monotonicity of the cactus environment to implement a cactus environment
 to prove that if an environment is equivalent to a Curien environment, and the
 call-by-name \ce semantics take a step, it will stay equivalent. This is
-noteworthy due to being one of the few places in the proof structures that would
-need to be changed to incorporate a notion of heap reuse/garbage collection.
+noteworthy as one of the few places in the proof structures that would need to
+be changed to incorporate a notion of heap reuse/garbage collection.
 
 \begin{verbatim}
 Lemma env_eq_step : ∀ h h' c v e l, 

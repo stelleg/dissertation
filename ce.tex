@@ -1,10 +1,10 @@
-In this chapter I define the \ce machine semantics, both big-step and small-step
-versions. I try and convey some intuition for why the shared environment
+This chapter defines the \ce machine semantics, both big-step and small-step
+versions. It attempts to convey some intuition for why the shared environment
 structure works as a technique for sharing results of computation. The
 definitions here are the core of both implementations, the native code compiler
 in Chapter~\ref{chap:cem} and the verified compiler in
-Chapter~\ref{chap:verified}. More specifically, I formalize the connection
+Chapter~\ref{chap:verified}. More specifically, it formalize the connection
 between call-by-need evaluation and shared environments in a big-step semantics
 (Section~\ref{sec:calc}).  Section~\ref{sec:mach} implements the big-step with a
-small-step semantics by adding a context (or stack). I leave the proof that it
-is a correct implementation for Chapter~\ref{chap:verified}.
+small-step semantics by adding a context (or stack). The proof that it is a
+correct implementation is left for Chapter~\ref{chap:verified}.

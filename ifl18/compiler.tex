@@ -71,14 +71,13 @@ Being able to define the full compiler this simply is crucial to this
 verification project. Other, more sophisticated implementations of call-by-need,
 such as the STG machine, are much harder to implement and reason about. It is
 worth noting that despite this simplicity, initial tests suggest that performance
-is not as horrible as one might suspect, and is often competitive with state of
-the art \cite{cem}.
+is reasonable, and is often competitive with state of the art \cite{cem}.
 
 As with the relation discussed in Section~\ref{sec:cem_big}, a term does not
 have to be closed to compile it. Indeed, we will happily generate code that if
 entered, will attempt to dereference the null pointer, leaving the machine
 stuck. Because I am only concerned with proving that the source semantics are
 implemented in the case that it evaluates to a value, this is not a problem. If
-I wanted to strengthen our proof further, I would try to show that if the source
+we wanted a more general thoerem, we could try to show that if the source
 semantics gets stuck trying to dereference a free variable, the implementation
-would get stuck in the same way, both failing to dereference a null pointer.    
+would get stuck in the same way, both failing to dereference a null pointer.  

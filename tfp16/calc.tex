@@ -1,19 +1,19 @@
 \section{Big-Step \ce} \label{sec:calc}
 
 This section shows how the shared environment approach can be applied to
-call-by-need evaluation. I start with a big step semantics that abstracts away
-environment representation, Curien's calculus of closures, and I show how it
+call-by-need evaluation. It starts with a big step semantics that abstracts away
+environment representation, Curien's calculus of closures, and then shows how it
 can be modified to force sharing. See Curien's call-by-name calculus of closures
 in Figure~\ref{fig:curien}. \footnote{Curien calls it a ``lazy'' evaluator, and
-there is some ambiguity with the term lazy, but I use the term only to mean
-call-by-need. I also remove the condition checking that $i < m$ because I are
-only concerned with evaluation of closed terms.}
+there is some ambiguity with the term lazy, but here the term is used only to
+mean call-by-need. The condition checking that $i < m$ is omitted as the
+semantics is only defined for closed terms.}
 
-The App rule pushes a closure onto the environment, and the Id rule indexes
-into the environment, entering the corresponding closure. I show in this
-section that by removing ambiguity about how the environments are represented,
-and forcing them to be represented in a \emph{cactus stack}
-~\cite{stenstrom1988vlsi}, I can define our novel call-by-need big step semantics.
+The App rule pushes a closure onto the environment, and the Id rule indexes into
+the environment, entering the corresponding closure. This section shows that by
+removing ambiguity about how the environments are represented, and forcing them
+to be represented in a \emph{cactus stack} ~\cite{stenstrom1988vlsi}, we can
+define a novel call-by-need big step semantics.
 
 To start, consider again the example from Section~\ref{sec:env}, this time with
 deBruijn indices: $(\lambda(\lambda t) \; (\lambda t_1)) t_2$.  The terms $t$
@@ -46,7 +46,7 @@ keeping call-by-need evaluation in mind:
 \end{center}
 This inverted tree structure seen earlier with the leaves pointing toward the
 root is called a \emph{cactus stack} (sometimes called a spaghetti stack or
-saguaro stack) when used as to implement stacks
+saguaro stack) when used to implement stacks
 \cite{hauck1968burroughs,ichbiah1991rationale}, or a parent pointer tree in
 general. In this use case, every node defines an environment as the sequence of
 closures in the path to the root.  If $t_2[\bullet]$ is a thunk, and is updated
@@ -58,29 +58,29 @@ call-by-need evaluator. This is the essence of the \ce machine.
 Curien's calculus of closures does not differentiate between flat and shared
 environment representations; it has no need to. Therefore, we must derive a new
 semantics, forcing the environment to be shared. Because we can hold the closure
-directly in the environment, I choose to replace the standard heap of closures
-with a \emph{heap of environments}. To enforce sharing, we extend Curien's
-calculus of closures to explicitly include the heap of environments, which we
-refer to as a \emph{cactus environment}. This is simply a parent pointer tree in
-which the contained objects are closures. 
+directly in the environment, the standard approach of a heap of closures is
+replaced with a \emph{heap of environments}. To enforce sharing, we extend
+Curien's calculus of closures to explicitly include the heap of environments,
+which we refer to as a \emph{cactus environment}. This is effectively a parent
+pointer tree in which the contained objects are closures. 
 
 See Figure~\ref{fig:bigstep} for the syntax and semantics of the \ce big step
-semantics. Recall that I am only concerned with evaluation of closed terms.
+semantics. Recall that we are only concerned with evaluation of closed terms.
 The initial closed term $t$ is placed in a $(t[0],\epsilon[0 \mapsto \bullet])$
-tuple, and evaluation terminates on a value. I use some shorthand to make heap
-notation more palatable, for both the big-step semantics presented here and the
-small step semantics presented in the next section. $\mu(l,i)=l' \mapsto c \cdot
-l''$ denotes that looking up the $i$'th element in the linked
+configuration, and evaluation terminates on a value. Some shorthand is used to
+make heap notation more palatable for both the big-step semantics presented here
+and the small step semantics presented in the next section. $\mu(l,i)=l' \mapsto
+c \cdot l''$ denotes that looking up the $i$'th element in the linked
 environment structure starting at $l$ results in location $l'$, where closure
 $c$ and continuing environment $l''$ reside. $\mu(l) = c \cdot l'$ is the
 statement that $l \mapsto c \cdot l' \in \mu$, and $\mu(u \mapsto c \cdot l')$
-is $\mu$ with location $u$ updated to map to $c \cdot e$. I define two
-different semantics, one for call-by-name (Figure~\ref{fig:bigstepname}) and one
-for call-by-need (Figure~\ref{fig:bigstep}), which makes the connection to Curien's
-call-by-name calculus more straightfoward. The rule for application is
-identical for both semantics: each evaluates the left hand side to a function,
-then binds the variable in the cactus environment, extending the current
-environment.
+is $\mu$ with location $u$ updated to map to $c \cdot e$. Two 
+different semantics are defined, one for call-by-name
+(Figure~\ref{fig:bigstepname}) and one for call-by-need
+(Figure~\ref{fig:bigstep}), which makes the connection to Curien's call-by-name
+calculus more straightfoward. The rule for application is identical for both
+semantics: each evaluates the left hand side to a function, then binds the
+variable in the cactus environment, extending the current environment.
 
 \begin{figure}
 \textbf{Syntax}

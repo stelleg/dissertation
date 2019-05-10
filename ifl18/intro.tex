@@ -16,17 +16,17 @@ its relation to the corresponding source code \cite{chlipala2007certified,
 leroy2012compcert, cakeml14}.  In particular, for higher order functional
 languages, they ensure that the non-trivial task of compiling lambda
 calculus and its extensions to machine code is implemented correctly,
-preserving source semantics. The amortized return on investment for verified
-compilers is high: any reasoning about any program which is compiled with a
-verified compiler is provably preserved. 
+preserving source semantics. The return on investment for verified compilers is
+high: any reasoning about any program which is compiled with a verified compiler
+is provably preserved. 
 
 Existing verified compilers have focused on call-by-value semantics
 \cite{chlipala2007certified, leroy2012compcert, cakeml14}. This semantics has
 the property of being historically easier to implement than call-by-need, and
-therefore likely easier to reason about formally. In this chapter, formalize the
-\ce machine described in Chapter 2. I use the Coq proof assistant
-\cite{barras1997coq} to implement and prove the correctness of our compiler. I 
-start with a source language of $\lambda$ calculus with de Bruijn indices:
+therefore likely easier to reason about formally. This chapter formalizes the
+\ce machine described in Chapter 2. The Coq proof assistant~\cite{barras1997coq}
+is used to implement and prove the correctness of our compiler. We start with a
+source language of $\lambda$ calculus with de Bruijn indices: 
 \begin{align*}
  t &::= t \; t \; | \; x \; | \;  \lambda \; t \\
  x &\in \mathbb{N}
@@ -34,14 +34,14 @@ start with a source language of $\lambda$ calculus with de Bruijn indices:
 The source semantics is the big-step operational semantics of the \ce 
 machine, which uses shared environments to share results between instances of a
 bound variable. To strengthen the result, and relate it to a better-known
-semantics, I also show that the call-by-name \ce machine implements
-Curien's call-by-name calculus of closures. 
+semantics, we also show that the call-by-name \ce machine implements Curien's
+call-by-name calculus of closures. 
 
 It may surprise the reader to see that I do not start with a better known
-call-by-need semantics; I address this concern in
-Section~\ref{sec:discussion}. I hope that the proof of compiler correctness,
-along with the proof that our call-by-name version of the semantics implements
-Curien's call-by-name semantics, convinces the reader that I have indeed
+call-by-need semantics; this concern is addressed in
+Section~\ref{sec:discussion}. The proof of compiler correctness, along with the
+proof that our call-by-name version of the semantics implements Curien's
+call-by-name semantics, hopefully convinces the reader that I have indeed
 implemented a call-by-need semantics, despite not using a better known
 definition of call-by-need. 
 
@@ -51,7 +51,7 @@ compiler and proofs concisely for the chapter, while still allowing
 flexibility in eventually verifying a compiler down to machine code for some
 set of real hardware, e.g., x86, ARM, or Power. 
 
-Our main results is a proof that whenever the source semantics evaluates to a
+Our main result is a proof that whenever the source semantics evaluates to a
 value, the compiled code evaluates to the same value. While there are stronger
 definitions of what qualifies as a verified compiler, I argue that this is
 sufficient in Section~\ref{sec:discussion}. This main result, along with the

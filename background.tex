@@ -53,7 +53,7 @@ denote unique syntax elements, e.g., $t', t_1 \in \textnormal{Term}$.
 \begin{align*}
 \inference
 {c_i \Downarrow v}
-{i \left[c_0 \cdot c_1 \cdot ... c_i \cdot \rho\right] \Downarrow v}
+{i \left[c_0 \cdot c_1 \cdot ... \cdot c_i \cdot \rho\right] \Downarrow v}
 \end{align*}
 \begin{align*}
 \inference{}{\lambda t\left[\rho\right] \Downarrow \lambda t\left[\rho\right]}
@@ -71,9 +71,8 @@ it is needed.  If an argument is needed more than once, call-by-name re-computes
 the value, whereas call-by-need memoizes the value, so it is computed at most once.
 Thus, call-by-need attempts to embody the best of both worlds---never repeat
 work (call-by-value), and never perform unnecessary work (call-by-name). These
-are intuitively good properties to have, and I illustrate the
-correctness of such an intuition with the following example, modified from
-~\cite{danvy2013synthetic}:
+are intuitively good properties to have, illustrated by the following example,
+modified from Danvy et al. ~\cite{danvy2013synthetic}:
 
 $$ \overbrace{c_m (c_m (\cdots(c_m}^{m} \; \mathit{id} \;
 \overbrace{\mathit{id})\cdots) \mathit{id})}^{m} \; \mathit{true} \;
@@ -85,29 +84,29 @@ takes exponential time, and call-by-need takes only polynomial time
 ~\cite{danvy2013synthetic}. Of course, this is a contrived example, but it
 illustrates desirable properties of call-by-need.
 
-In practice, however, there are significant issues with call-by-need evaluation.
-We focus on the following: \emph{Delaying a computation and performing it later
-is slower than performing it immediately.} This issue is widely accepted 
-\cite{johnsson1984efficient,jonesstg}, and has become part of the motivation
-for \emph{strictness analysis}
+In practice, however, there are significant performance issues with call-by-need
+evaluation.  We focus on the following: \emph{Delaying a computation and
+performing it later is slower than performing it immediately.} This deficiency
+is well understood \cite{johnsson1984efficient,jonesstg}, and has become part of
+the motivation for \emph{strictness analysis}
 \cite{mycroft1982abstract,wadler1987projections}, which transforms non-strict
 evaluation to strict when possible.
 
 When compiling applications, there are two general implementation approaches.
 The first, \emph{eval/apply}, the caller first \emph{evaluates} the function,
-then \emph{applies} the arguments. In the second, \emph{push/enter}, the caller
-\emph{pushes} the arguments onto the stack, then \emph{enters} the code for the
-function \cite{marlow2006making}.  
+then \emph{applies} the arguments to it by knowing its arity. In the second,
+\emph{push/enter}, the caller \emph{pushes} the arguments onto the stack, then
+\emph{enters} the code that will evaluate to a function \cite{marlow2006making}.  
 
 \section{Existing Call-by-Need Machines}
 
-Diehl et al. ~\cite{diehl2000abstract} review the call-by-need
+Diehl et al.~\cite{diehl2000abstract} review the call-by-need
 literature in detail.  Here I summarize the most relevant points.
 
-The best known machine for lazy evaluation is the Spineless Tagless
-G-Machine (STG machine), which underlies the Glasgow Haskell Compiler (GHC). 
-STG uses flat environments that can be allocated on the stack, the heap,
-or some combination ~\cite{jonesstg}.  
+The most well well known and widely used machine for lazy evaluation is the
+Spineless Tagless G-Machine (STG machine), which underlies the Glasgow Haskell
+Compiler (GHC).  STG uses flat environments that can be allocated on the stack,
+the heap, or some combination ~\cite{jonesstg}.  
 
 Two other influential lazy evaluation machines relevant to the \ce 
 machine are the call-by-need Krivine machines
@@ -138,57 +137,57 @@ prove that algorithms implement their specification for \emph{all} inputs.
 Implementing both the specification and the proof in a machine-checked logic
 removes the vast majority of bugs found in hand-written proofs, ensuring far
 higher confidence in correctness than other standard methods. Other approaches,
-such as fuzz testing, have confirmed that verified programs remove effectively
-all bugs \cite{yangfuzz}.
+such as fuzz testing, have confirmed empirically that verified programs remove
+all bugs~\cite{yangfuzz}.
 
 This approach applies particularly well to compilers. Often, the specification
 for a compiler is complete: source level semantics for some languages are
 exceedingly straightforward to specify, and target architectures have lengthy
 specifications that are amenable to mechanization. In addition, writing tests
 for compilers that cover all cases is even more hopeless than most domains, due
-to the size and complexity of the domain and codomain. The amortized return on
-investment is also high: all reasoning about programs compiled with a verified
-compiler is provably preserved. 
+to the size and complexity of the domain and codomain. The return on investment
+is also high: all reasoning about programs compiled with a verified compiler is
+provably preserved. 
 
-Due to the complexities discussed above involved in implementing lazy languages,
-existing work has focused on compiling strict languages
-\cite{chlipala2007certified, leroy2012compcert, cakeml14}. Here I use the
-simple \ce machine as a base for a verified compiler of a lazy language, using
-the Coq proof assistant. 
+Likely partially due to the complexities discussed above involved in
+implementing lazy languages, among other factors, existing work has focused on
+compiling strict languages~\cite{chlipala2007certified, leroy2012compcert,
+cakeml14}. Here I use the simple \ce machine as a base for a verified compiler
+of a lazy language, using the Coq proof assistant. 
 
 As with many areas of research, the devil is in the details. What exactly does
 it mean to claim a compiler is verified?  Essentially, a verified compiler of a
 functional language is one that preserves computation of values. That is, we
-have an implication: \emph{if the source semantics computes a
-value, then the compiled code computes an equivalent value}
-\cite{chlipala2007certified}. The important thing to note is that the
-implication is only in one direction. If the source semantics never terminates,
-this class of correctness theorem says nothing about the behavior of the
-compiled code. This has consequences for Turing-complete source languages. If we
-are unsure if a source program terminates, and wish to run it to check
-experimentally if it does, if we run the compiled code and it returns a value,
-we cannot be certain that it corresponds to a value computed in the source
-semantics. 
+have an implication: \emph{if the source semantics denotes a value, then the
+compiled code computes an equivalent value} \cite{chlipala2007certified}. The
+important thing to note is that the implication is only in one direction. If the
+source semantics never terminates, this class of correctness theorem says
+nothing about the behavior of the compiled code. This has consequences for
+Turing-complete source languages. If we are unsure if a source program
+terminates, and wish to run it to check experimentally if it does, if we run the
+compiled code and it returns a value, we cannot be certain that it corresponds
+to a value computed in the source semantics. 
 
 While in theory one could solve this by proving the implication the other
 direction, that is, \emph{if the compiled code computes a value then the source
 semantics computes an equivalent value}, in practice this is prohibitively
 difficult. Effectively, the induction rules for the abstract machine make
-constructing such a proof monumentally tricky. 
+constructing such a proof monumentally tricky, as we discuss further in
+Chapter~\ref{chap:verified}.
 
 One approach for getting around this issue is to try and capture the divergent
 behavior by defining a diverging semantics explicitly \cite{functionalbigstep}.
 Then one can safely claim that \emph{if the source semantics diverges according to
 our diverging semantics, then the compiled code also diverges}. 
 
-For this dissertation, I choose to take the approach of \cite{chlipala2007certified}
-and define verification as the first implication above, focusing on the case in
+This dissertation takes the approach of Chlipala~\cite{chlipala2007certified}
+and defines verification as the first implication above, focusing on the case in
 which the source semantics evaluates to a value. This is still a strong
 result: any source program that has meaning compiles to an executable with
 equivalent meaning. In addition, if anyone ever chooses to augment the language
 with a type system that ensures termination, or some notion of progress, then
-they could use that in combination with our verification proof for a more
-complete verification.
+they could use that in combination with our verification proof for a system that
+verifiably supports a wider range of reasoning.
 
 \section{Environment Representations} \label{sec:env}
 
@@ -196,11 +195,13 @@ As mentioned in Section~\ref{sec:prelim}, environments bind free variables to
 closures. While any implementation of an environment performs the same function,
 there is significant flexibility in how they can be represented. In this section
 we review this design space in the context of existing work, both for call by
-value and call by need.\footnote{Some work refers to this space as
+value and call-by-need.\footnote{Some work refers to this space as
 \emph{closure} representation rather than \emph{environment}
 representation~\cite{shao1994space,appel1988optimizing}.  Because the term part
 of the closure is simply a code pointer and the interesting design choices are
-in the environment, I refer to the topic as environment representation.}
+in the environment, I refer to the topic as environment representation. Note
+also that global variables are often omitted from environments in real
+implementations, we don't consider this implementation detail here.}
 
 There are two common approaches to environment representation: \emph{flat}
 environments and \emph{shared} environments (also known as linked
@@ -208,12 +209,12 @@ environments)~\cite{appel1988optimizing,shao1994space}. A flat environment is
 one in which each closure has its own record of the terms its free variables are
 bound to. A shared environment is one in which parts of that record can be
 shared among multiple closures~\cite{appel1988optimizing,shao1994space}. For
-example, consider the following term: $$(\lambda x.(\lambda y.t) (\lambda
-z.t_1)) t_2$$ Assuming the term $t$ has both $x$ and $y$ as free variables, we
+example, consider the following term: $$(\lambda x.(\lambda y.t_0) (\lambda
+z.t_1)) t_2$$ Assuming the term $t_0$ has both $x$ and $y$ as free variables, we
 must evaluate it in the environment binding both $x$ and $y$.  Similarly,
 assuming $t_1$ contains both $z$ and $x$ as free variables, we must evaluate it
 in an environment containing bindings for both $x$ and $z$. Thus, we can
-represent the closures for evaluating $t$ and $t_1$  as $$t[x=t_2[\bullet],
+represent the closures for evaluating $t_0$ and $t_1$  as $$t_0[x=t_2[\bullet],
 y=c]$$ and $$t_1[x=t_2[\bullet], z=c_1]$$ respectively, where $\bullet$ is the
 empty environment.  These are examples of \emph{flat} environments, where each
 closure comes with its own record of all of its free variables. Because of the
@@ -253,18 +254,18 @@ strategy further complicates the picture.
 
 \section{Existing Call-by-Need Environments} \label{sec:exist}
 
-Existing call by need machines use flat environments with a heap of
+Existing call-by-need machines use flat environments with a heap of
 closures~\cite{jonesstg,TIM,johnsson1984efficient,boquist1997grin}. These
 environments may contain some combination of primitive values and pointers into the
 heap ($p$ below). The pointers and heap implement the memoization of results
-required for call by need. Returning to the earlier example, $(\lambda
-x.(\lambda y.t) (\lambda z.t_1)) t_2$, we can view a simplified execution state
-for this approach when entering $t$ as follows:
+required for call-by-need. Returning to the earlier example, $(\lambda
+x.(\lambda y.t_0) (\lambda z.t_1)) t_2$, we can view a simplified execution state
+for this approach when entering $t_0$ as follows:
 
 \begin{center}
 \textbf{Closure}
 \begin{align*}
-t[x=p_0, y=p_1] \\
+t_0[x=p_0, y=p_1] \\
 \end{align*}
 \textbf{Heap}
 \begin{align*}
@@ -276,14 +277,14 @@ p_1 &\mapsto \lambda z.t_1[x=p_0]
 Consider $t_2[\bullet]$, the closure at $p_0$. If it is not in WHNF (this sort
 of unevaluated closure is called a
 \emph{thunk}~\cite{ingerman1961way,peyton1992implementing}), then if it is
-entered in either the evaluation of $t$ or $t_1$, the resulting value will
+entered in either the evaluation of $t_0$ or $t_1$, the resulting value will
 overwrite the closure at $p_0$. The result of the computation is then shared
-with all other instances of $x$ in $t$ and $t_1$. In the case that terms have a
+with all other instances of $x$ in $t_0$ and $t_1$. In the case that terms have a
 large number of shared variables, environment duplication can be expensive.
 Compile-time transformation ~\cite{peyton1992implementing} (tupling arguments)
 helps, but we show that the machine can avoid duplication completely.
 
-Depending on $t$, either or both of the closures created for its free variables
+Depending on $t_0$, either or both of the closures created for its free variables
 may not be evaluated. Therefore, it is possible that the work of creating the
 environment for that thunk will be wasted. This waste is well known, and
 existing approaches address it by avoiding thunks as much as possible
@@ -298,28 +299,28 @@ is overwritten with a value, so the next time that heap location is entered it
 is entered with a value and a different environment. Thus, the work to ensure
 that the variable lookup is fast is used for at most one evaluation of the
 thunk. This is in contrast to a call-by-value language, in which every closure
-is constructed for a value, and can be entered an arbitrary number of times. 
+is a value, and can therefore be entered an arbitrary number of times. 
 
 A more subtle drawback of the flat environment representation is that
 environments can vary in size, and thus a value in WHNF can be too large to fit
 in the space allocated for the thunk it is replacing. This problem is discussed
-in~\cite{jonesstg}, where the proposed solution is to put the value closure in
-a fresh location in the heap where there is sufficient room. The original
-thunk location is then replaced with an indirection to the value at the freshly
-allocated location. These indirections are removed during garbage collection,
-but do impose some cost, both in runtime efficiency and implementation
-complexity~\cite{jonesstg}.
+in Jones et al.~\cite{jonesstg}, where the proposed solution is to put the value
+closure in a fresh location in the heap where there is sufficient room. The
+original thunk location is then replaced with an indirection to the value at the
+freshly allocated location. These indirections are removed during garbage
+collection, but do impose some cost, both in runtime efficiency and
+implementation complexity.
 
 I have thus far ignored a number of details with regard to current
 implementations. For example, the STG machine can split the flat environment, so
 that part is allocated on the stack and part on the heap.  The TIM allocates its
 flat environments separately from its closures so that each closure is a code
 pointer, environment pointer pair~\cite{TIM} while the STG machine keeps
-environment and code co-located~\cite{jonesstg}. Still, the basic design
-principle holds: a flat environment for each closure allows quick variable
-indexing, but with an initial overhead.
+environment and code co-located. Still, the basic design principle holds: a flat
+environment for each closure allows quick variable indexing, but with an initial
+overhead.
 
-To summarize, the flat environment representation in a call by need language
+To summarize, the flat environment representation in a call-by-need language
 implies that whenever a term might be needed, the necessary environment is
 constructed from the current environment.  This operation can be expensive, and
 it is wasted if the variable is never dereferenced. In this work, I aim to
@@ -327,8 +328,8 @@ minimize this potentially unnecessary overhead.
 
 Figure~\ref{fig:designspace} depicts the design space relevant to this chapter.
 There are existing call by value machines with both flat and shared
-environments, and call by need machines with flat environments. As far as I am
-aware, I am the first to use a shared environment to implement lazy evaluation. 
+environments, and call-by-need machines with flat environments. This is the
+first work to use a shared environment to implement lazy evaluation. 
 
 It is worth noting that there has been work on lazy machines that effectively use
 linked environments, which could potentially be implemented as a shared
@@ -339,11 +340,11 @@ sharing of results, which is the primary contribution of this chapter.
 \begin{figure}
 \begin{tabularx}{\textwidth}{l | X | X}
                 & Flat Environment     & Shared Environment \\ \hline
-  Call by need  & STG~\cite{jonesstg}, 
+  Call-by-need  & STG~\cite{jonesstg}, 
                   TIM~\cite{TIM}, 
                   GRIN~\cite{boquist1997grin} 
                 & $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ Machine \\
-  Call by value & ZAM~\cite{leroy1990zinc}, 
+  Call-by-value & ZAM~\cite{leroy1990zinc}, 
                   SML/NJ~\cite{appel1991standard}
                 & ZAM,
                   SECD~\cite{landin1964mechanical}, 

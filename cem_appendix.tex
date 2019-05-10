@@ -7,8 +7,9 @@ properties include
 
 \begin{itemize}
 \item No first class recursion and let bindings. Replaced by use of Y combinator
-\item No algebraic data types: scott encoded data types. 
-\item World type: reasoning about IO in an untyped setting by passing 
+\item No algebraic data types: Scott encoded data types. 
+\item World type: reasoning about IO in an untyped setting by passing world
+values.
 \item No libc dependence: system calls as an explicit language construct
 \item Novel syntax: explicit parentheses, a merging of lambda calculus and lisp
 \end{itemize}
@@ -138,9 +139,9 @@ contrast to using an infix operator, e.g. the $\$$ operator in Haskell. Note the
 
 Also note that we define the y-combinator at the start of the prelude; this is
 the source of all recursion. Whether or not this is sufficient for all
-call-by-need recursion seems to be a topic for disagreement, but I am of the
-opinion that wherever possible, constructs should be removed from the core
-language when an equivalent semantics can be achieved without it.
+call-by-need recursion seems to be a topic for disagreement, but we have chosen,
+wherever feasible, to remove constructs from the core language when an
+equivalent semantics can be achieved without it.
 
 \begin{verbatim}
 # Recursion!
@@ -316,7 +317,7 @@ world, and have our side-effectful functions consume and generate a new
 real-world value. This allows us to implement and use the monad bind and return
 functions directly. While we don't have infix operators or Haskell's
 do-notation, writing imperative programs is still entirely possible, though
-certainly more clunky. 
+certainly more clunky.~\cite{wadler}
 
 \begin{verbatim}
 ## Memory read and write wrappers ##

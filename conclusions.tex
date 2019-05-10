@@ -3,25 +3,25 @@ to implementing call-by-need semantics. Chapter~\ref{chap:cem} investigated the
 runtime efficiency advantages by implementing a simple native code compiler.
 Despite the compilers lack of optimization framework, it was often competitive
 with the state of the art. From this, the conclusion is that this approach is a
-promising abstract machine for real-world compilers. In
-Chapter~\ref{chap:verified}, I showed how I could use the simplicity of the
-implementation to effectively reason formally about its correctness. While it
-was a significant undertaking, the success of the verified compiler provides
-strong evidence that the simplicity of the machine is a valuable property, and
-that property can be further exploited in future work.
+promising abstract machine for real-world compilers. Chapter~\ref{chap:verified}
+showed how to use the simplicity of the implementation to effectively reason
+formally about its correctness. While it was a significant undertaking, the
+success of the verified compiler provides strong evidence that the simplicity of
+the machine is a valuable property, and that property can be further exploited
+in future work.
 
-For the rest of this Chapter, I take a retrospective look at the work done for
+For the rest of this Chapter, we take a retrospective look at the work done for
 the dissertation, discussing both worked well and what didn't. The hope is that
 this deeper dive into the challenges and successes throughout the dissertation
 can better inform future work, both work that uses the \ce machine directly, and
 work that might take a different approach, but with similar goals. While some of
-what is discussed in this section has been covered in previous Chapters, I try
+what is discussed in this section has been covered in previous Chapters, we try
 and address big-picture conclusions here, accumulating the lessons learned along
 the way. In addition, through discussions with other experts and through further
 introspection, more conclusions and lessons learned have been discovered, and we
 use this section to bring those to light. 
 
-More Specifically, this chapter attempts to do a few things. First, it
+More specifically, this chapter attempts to do a few things. First, it
 summarizes the theses and conclusions of the dissertation. Second, it summarizes
 and addresses the threats to validity of the conclusions presented.  Largely
 motivated by addressing these threats to validity, it then discusses future
@@ -40,30 +40,12 @@ section we instead focus on more general threats to validity.
 
 The first, and most glaring, is that the verified compiler makes no claims about
 the behaviour of the compiled code in the case of non-termination in the source
-semantics. This was discussed thoroughly in Chapter~\ref{chap:verified}, but
-it is worth returning to here. It is a hole that I am comfortable, due largely
-to the belief that effectively everyone will be programming in total languages
-in the future, making this hole disappear. This belief was not represented in
-the dissertation in any way (we didn't incorporate a type system) but even if we
-accept that this work only applies to total languages, and they do exist (Agda,
-Coq, STLC, etc.), then in the context of those languages, this is a complete
-verified compiler. 
+semantics. One point to make is that even if we accept that this work only
+applies to total languages, and they do exist (Agda, Coq, STLC, etc.), then in
+the context of those languages, this is a complete verified compiler. 
 
-One potential complaint is that I haven't built a \emph{real} compiler yet, and
-therefore can make no claims about the performance or simplicity of such a
-beast. This threat comes from an unclear definition of what it means to be a
-\emph{real} compiler. To paraphrase Edwin Brady, the creator of the Idris
-programming language, a language should be "pacman-complete". That is, it should
-be practical to implement pacman in the language. From a compiler perspective, a
-compiler should be able to compile such a language. While I would claim that our
-source language for the native code compiler is indeed pacman-complete, 
-I also accept that a much better solution would be to have it compile full
-Haskell, as well as have a fully functional, high-performance garbage collector
-integrated into the generated code. While pacman-completeness is more about
-source language, there is also disagreement about what constitutes a real-world
-compiler in terms of what the internal languages implement. For example, many
-are inclined to dismiss a compiler, like the one presented here, that doesn't
-implement recursion and algebraic data types in the internal language. A
+Some readers may be inclined to dismiss a compiler, like the one presented here,
+that doesn't implement recursion and algebraic data types explicitly. A
 tangential goal of this dissertation is to open the reader to the possibility
 that those are not necessary for high performance code. Removing them certainly
 makes formal reasoning simpler, something that hopefully the reader is convinced
@@ -72,7 +54,7 @@ is an important property for a compiler to have.
 \section{Future Work}\label{sec:future}
 
 While Chapters~\ref{chap:cem} and \ref{chap:verified} have sections dedicated to
-future work specific to their topics, I expand on those here, discussing future
+future work specific to their topics, we expand on those here, discussing future
 work that could combine the approaches of both efforts. 
 
 The most obvious one would be to combine the efforts. By extracting the Coq
@@ -98,7 +80,7 @@ work is reasoning formally about performance. Reasoning about memory use of lazy
 functional programs is notoriously hard, so any help that the compiler can
 provide is extremely valuable. Unfortunately, heuristic approaches interacting
 with the many optimizations that exist already can lead to extreme difficulty in
-reasoning about memory consumption of a source program. I hope that in
+reasoning about memory consumption of a source program. We hope that in
 combination with future language tools, one could use the simplicity of the
 compiler presented here to better reason about time and space efficiencies, and
 help ensure that the compiler makes better decisions about how to preserve
@@ -130,23 +112,23 @@ extreme: expensive to create, but efficient to execute.
 The second thesis of the dissertation is that the simplicity of the compiler
 that implements the \ce machine lends itself to formal reasoning. This thesis is
 described in detail in Chapter~\ref{chap:verified}. The evidence for this thesis
-is provided in the form of a verified compiler. By implementing the first
-verified compiler of a call-by-need semantics, I have provided compelling
-support for this thesis. 
+is provided in the form of a verified compiler. Th implementation of the first
+verified compiler of a call-by-need semantics provides compelling support for
+this thesis. 
 
 The conclusion for this thesis is therefore that yes, the simplicity of the
 compiler indeed lends itself to formal reasoning. That said, there are still
 many open questions. For example, many of the proofs are excruciatingly complex.
 It is therefore not at all clear that the structure of the compiler and proofs
-is \emph{the best possible}. Indeed, we expect there is a lot of room for
-improvement, particularly in the implementation of the proofs. 
+is \emph{the best possible}. Indeed, we expect there is room for improvement,
+particularly in the implementation of the proofs. 
 
 \section{Conclusion}
 
-I have presented a novel technique for implementing call-by-need semantics using
-shared environments, the \ce machine, along with a pair of compilers that
-provide evidence for the primary thesis of this dissertation: the \ce machine
-lends itself to high performance, easy to reason about compilers. 
+This dissertation has presented a novel technique for implementing call-by-need
+semantics using shared environments, the \ce machine, along with a pair of
+compilers that provide evidence for the primary thesis of this dissertation: the
+\ce machine lends itself to high performance, easy to reason about compilers. 
 
 If the reader accepts the claims that those are desirable properties for a
 compiler to have, then she must conclude that the \ce machine and the compilers

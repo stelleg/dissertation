@@ -11,23 +11,23 @@ implementations, e.g., the STG machine\cite{jonesstg}, a closure with a flat
 environment will be constructed for $e$.  Doing so incurs a time and memory cost
 proportional to the number of free variables of $e$. \footnote{In some
 implementations, these are lambda-lifted to be formal parameters, but the
-principle is the same.} I minimize this packaging cost by recording a
+principle is the same.} We minimize this packaging cost by recording a
 location in a shared environment, which requires only two
 machine words (and two instructions) for the thunk: one for the code pointer,
 and one for the environment pointer. One way to think about the approach is that
 it is \emph{lazier} about lazy evaluation: in the case that $e$ is unneeded, the
 work to package it in a thunk is entirely wasted. In the spirit of lazy
-evaluation, I attempt to minimize this potentially unnecessary work.  
+evaluation, we attempt to minimize this potentially unnecessary work.  
 
-In this chapter I present a simple implementation of the \ce machine that
+This chapter presents a simple implementation of the \ce machine that
 compiles a simple lazy functional language to x86\_64 assembly. In addition, it
 presents a preliminary evaluation that shows performance comparable to existing
 implementations (Sections~\ref{sec:impl} and~\ref{sec:eval}). 
 
-I describe a straightforward implementation of \ce in Section~\ref{sec:impl},
+Section~\ref{sec:impl} describes a straightforward implementation of \ce,
 extended with machine literals and primitive operations, and compiling directly
-to native code. I evaluate the implementation in Section~\ref{sec:eval},
-showing that it is capable of performing comparably to existing implementations
-despite lacking several common optimizations, and I discuss the results. I
-discuss related work, the limitations of our approach, and some ideas for future
-work in Section~\ref{sec:disc}.
+to native code. Section~\ref{sec:eval} evaluates the implementation, showing
+that it is capable of performing comparably to existing implementations despite
+lacking several common optimizations, and discusses the results.
+Section~\ref{sec:disc} discusses related work, limitations of the approach, and
+some ideas for future work.

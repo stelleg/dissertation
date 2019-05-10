@@ -13,8 +13,8 @@ pointer$\rangle$ tuple. The
 Context is implemented as a stack, with updates represented as a $\langle$null pointer,
 environment pointer$\rangle$ tuple to differentiate them from closure arguments. The
 Heap, or cactus environment, is implemented as a heap containing $\langle$closure,
-environment pointer$\rangle$ structs. As a result, each cell in the heap takes 3
-machine words.
+environment pointer$\rangle$ structs. When implemented on an instruction
+machine, each cell in the heap takes 3 machine words.
 
 \subsection{Compilation}
 The three instructions are given below, with descriptions of their behavior. 
@@ -36,13 +36,11 @@ variables to \texttt{ENTER}. Each is compiled using a direct implementation of
 the transition functions of the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
 machine. The mapping from lambda terms can be seen in
 Figure~\ref{fig:cemcompile}, which defines the compiler. Unlike the TIM, our
-version of \texttt{TAKE} doesn't have an arity; I compile a sequence of
-lambdas as a sequence of \texttt{TAKE} instructions.  While I have not
-compared performance of the two approaches directly, I suspect that \texttt{n}
-inlined \texttt{TAKE} instructions should be roughly as fast as a \texttt{TAKE
-n} instruction.  Similarly, the \texttt{ENTER i} instruction can be implemented
-either as a loop or unrolled, depending on \texttt{i}, and more performance
-comparisons are needed to determine the trade-off between code size and speed.
+version of \texttt{TAKE} doesn't have an arity; it compiles a sequence of
+lambdas as a sequence of \texttt{TAKE} instructions. Similarly, the
+\texttt{ENTER i} instruction can be implemented either as a loop or unrolled,
+depending on \texttt{i}, and more performance comparisons are needed to
+determine the trade-off between code size and speed.
 
 \begin{figure}
 \begin{align*} C[\![t \; t']\!] &= \texttt{PUSH}\;label_{C[\![t']\!]}:C[\![t]\!] \concat C[\![t']\!] \\
@@ -56,18 +54,20 @@ sequence and $\concat$ denotes concatenating two sequences.}
 \label{fig:cemcompile}
 \end{figure}
 
-I compile to x86\_64 assembly. Each of the three instructions is mapped onto
-x86\_64 instructions with a macro. The \texttt{PUSH} instruction is particularly
+The compiler targets x86\_64 assembly. Each of the three instructions is mapped
+onto x86\_64 instructions with a macro. The \texttt{PUSH} instruction is
+particularly
 simple, consisting of only two x86\_64 instructions (two \texttt{push}es, one for
-the code pointer and one for the environment pointer). This is actually an
-important point: \emph{thunk creation is only two hardware instructions,
-regardless of environment size}.  
+the code pointer and one for the environment pointer). This is an important
+point: \emph{thunk creation is only two hardware instructions, regardless of
+environment size}.  
 
 \subsection{Machine Literals and Primitive Operations}
 
-Following Sestoft~\cite{sestoft}, I extend the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine to
-include machine literals and primitive operations. Figure~\ref{fig:extsyntax}
-shows the parts of syntax and semantics that are new or modified. 
+Following Sestoft~\cite{sestoft}, this section describes the extension of the
+\ce machine to include machine literals and primitive operations.
+Figure~\ref{fig:extsyntax} shows the parts of syntax and semantics that are new
+or modified. 
 
 \begin{figure}
 \textbf{Syntax}
@@ -93,27 +93,28 @@ shows the parts of syntax and semantics that are new or modified.
 \end{figure}
 
 To see a full definition of the language, see Appendix~\ref{chap:cem_appendix}.
-Data types are a common extension that I omit ~\cite{jonesstg,boquist1997grin}.
-I take the approach of Sestoft ~\cite{sestoft} that these can be efficiently
-implemented with pure lambda terms. For example, consider a list data type (in
-Haskell syntax): \texttt{data List a = Cons a (List a) | Nil}. This can be
-represented in pure lambda terms with $\mathit{Cons} = \lambda h.\lambda t.\lambda
-c.\lambda n.c \; h \; t$ and $\mathit{Nil} = \lambda c.\lambda n.n$. 
+Data types are a common extension that are omitted~\cite{jonesstg,boquist1997grin}.
+This work takes the approach of Sestoft~\cite{sestoft} that these can be
+efficiently implemented with pure lambda terms. For example, consider a list
+data type (in Haskell syntax): \texttt{data List a = Cons a (List a) | Nil}.
+This can be represented in pure lambda terms with $\mathit{Cons} = \lambda
+h.\lambda t.\lambda c.\lambda n.c \; h \; t$ and $\mathit{Nil} = \lambda
+c.\lambda n.n$. 
 
 Let bindings are another construct commonly included in functional
 language compilers, even in the internal representation
 ~\cite{boquist1997grin,jonesstg}.  Non-recursive let is syntactic sugar for a
-lambda binding and application, and I treat it as such. This approach helps
-ensure that I can compile arbitrary lambda terms without pre-processing, while
-other approaches generally require pre-processing ~\cite{sestoft,TIM}.
+lambda binding and application, and is treated as such. This approach helps
+ensure that arbitrary lambda terms can be compiled without pre-processing, while
+other approaches generally require pre-processing~\cite{sestoft,TIM}.
 
-Recursive let bindings are a third omission. Here I follow Rozas
-~\cite{rozas1992taming}: If it can be represented in pure lambda terms, it should
-be. Thus, I implement recursion using the standard Y combinator. In the case of
-mutual recursion, I use the Y combinator in conjunction with a church tuple of
-the mutually recursive functions. Without the appropriate optimizations
-~\cite{rozas1992taming}, this approach has high overhead, as I discuss in
-Section~\ref{sec:res}.
+Recursive let bindings are a third omission. Following
+Rozas~\cite{rozas1992taming}: If it can be represented in pure lambda terms, it
+should be. Recursion is implemented using the standard Y combinator. In the
+case of mutual recursion, the Y combinator is used in conjunction with a Church
+tuple of the mutually recursive functions. Without the appropriate
+optimizations~\cite{rozas1992taming}, this approach has high overhead, as
+discussed in Section~\ref{sec:res}.
 
 \subsection{Optimizations}
 

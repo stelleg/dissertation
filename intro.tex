@@ -2,22 +2,28 @@ The strength of lazy functional programming languages is the freedom they give
 the programmer to focus on correctness instead of operational details. In a
 strict language, the programmer specifies what code will run, and when. In a
 lazy language, the programmer only specifies what the result should be, leaving
-what code should be executed up to the compiler. Because of this freedom from
-operational concerns, there are two properties that lazy functional programmers
-tend to have. First, they reason about the correctness of their code to a degree
-seen almost nowhere else in the programming community \cite{totalhaskell}.
-Second, they rely on compilers to generate efficient code in a way that
-programmers of strict languages don't. Essentially, they are leaving more
-operational decisions up to the compiler, and focusing their energy more on the
-correctness of their code. 
+the compiler reponsible for ensuring that only code that is needed will be
+executed. Thanks to this freedom from operational concerns, there are two
+properties that lazy functional programmers tend to have. First, they reason
+about the correctness of their code to a degree seen almost nowhere else in the
+programming community \cite{hughes1989functional, spector2018total}.  Second,
+they rely on compilers to generate efficient code in a way that programmers of
+strict languages don't. Essentially, they are leaving more operational decisions
+up to the compiler, and focusing their energy more on the correctness of their
+code. To paraphrase John Hughes, laziness is an essential tool for modular
+programming, and modular programming is essential for reasoning about programs. 
 
 It is for this reason that we compiler implementors must take great care in the
 design of our compilers for lazy languages. We must build compilers that
 generate efficient code: our programmers are relying particularly heavily on
 our ability to generate efficient code. We also must ensure that our compilers
-are correct: because the programmers are free to reason about the correctness of
-their code, we must ensure that this additional reasoning is not invalidated by
-bugs in the compiler.
+are correct: because lazy functional programmers are free to reason about the
+correctness of their code, we must ensure that any additional reasoning is not
+invalidated by bugs in the compiler. To illustrate this point: if a lazy
+functional programmer has time to prove ten theorems about his programs, while
+the strict language programmer only has time to prove three, then a bug in the
+lazy compiler may invalidate ten theorems, while a bug in the strict compiler
+may only invalidate three.
 
 This dissertation presents a tool for attaining these two goals: a novel
 technique for implementing lazy semantics using shared environments, formalized
@@ -79,10 +85,9 @@ widely used programming language Haskell. Technically, Haskell is a non-strict
 language.  This implies that both call-by-name and call-by-need are valid
 implementation strategies. In practice, there are some situations when one would
 prefer call-by-name, namely, when storing an intermediate value is more
-expensive than re-computing it. These cases are not limited to call-by-need;
-call-by-value suffers the same issue.  This implies that in theory, Haskell
-could switch between call-by-name and call-by-value depending on the situation.
-In practice, implementations effectively always chooses call-by-need, sometimes
+expensive than re-computing it. This implies that in theory, Haskell could
+switch between call-by-name and call-by-value depending on the situation.  In
+practice, implementations effectively always choose call-by-need, sometimes
 even performing compile-time transformations that increase sharing
 \cite{jones96floating}.  
 
@@ -91,12 +96,14 @@ lazy evaluation are hotly debated. For example, there exist both strictness
 annotations, and even strict-by-default variants of Haskell. There are real
 reasons for preferring strict evaluation in some contexts. In particular,
 reasoning about time and space requirements for lazy programs is notoriously
-difficult.  
+difficult. As a result, there are cases when the time and space requirements can
+be surprisingly high.
 
 The advantages of lazy semantics often show up especially when attempting to
 write high level, composable abstractions. This is a strong argument for code
-re-use advantages in non-strict languages: by using laziness, one avoids work
-and non-termination where possible without additional programmer effort.
+re-use advantages in non-strict languages: by using laziness, one avoids work,
+non-termination, and work-buffering where possible without additional programmer
+effort \cite{hughes1989functional}.
 
 There are also well-known cases of when composing lazy programs can result in
 better asymptotics than strict composition. Consider the well-known example of
@@ -104,16 +111,11 @@ finding the minimal value in a list.
 \begin{verbatim}
   take 1 . sort
 \end{verbatim}
-With lazy semantics, this can result in an $O(n)$ implementation, while the
-strict implementation of compose will always result in a $O(n \log n)$ 
+With lazy semantics, this can result in an $O(n)$ time implementation, while the
+strict implementation of compose will always result in a $O(n \log n)$
 implementation (assuming an $O(n \log n)$ sort). This kind of asymptotic
 improvement is a direct result of the efficiencies gained by avoiding eager
 work. 
-
-Finally, and perhaps most importantly, \emph{I just like lazy semantics}. I like
-the freedom from worrying about evaluation order it provides. I like that it
-avoids work where possible. In my humble opinion, it is the ideal default
-semantics for a functional programming language.   
 
 \section{Retrospective}
 
@@ -127,32 +129,33 @@ currently implemented. Inspired by presentations of simple call-by-need
 approaches, such as the three instruction machine and the lazy Krivine machine,
 as well as sophisticated approaches such as the STG machine, I was afflicted
 with a nagging feeling that \emph{there must be a simpler, lazier way to
-implement call-by-need}. After a lot of experimenting and careful thought, I
-finally discovered the approach presented here. While I was optimistic about the
+implement call-by-need}. After a lot of experimenting and thought, I finally
+discovered the approach presented here. While I was optimistic about the
 performance of a compiler, I was most excited by the \emph{simplicity} of the
 approach. It was so easy to write a compiler! After a couple failed attempts at
 writing papers with the primary objective being to excite the reader about
 the simplicity of the approach, I decided to instead focus on more concrete
 properties. The first was performance: I hypothesized that the approach would
 lead to cases where I could beat the state of the art. This was confirmed by
-both a virtual machine the first native code compiler. It was also clear to me
+both a virtual machine and the a native code compiler. It was also clear to me
 that trying to build a high performance compiler to outperform GHC on real world
 code was likely to fail, and I explicitly avoided making that a goal of the
 dissertation. Instead, I focused on showing that there were cases that
-outperform flat environments, with the hope that eventually 
+outperform flat environments, leaving integrating shared and flat environments
+for future work.
 
 Once I had shown that there were performance benefits to the approach, I still
 wanted to somehow use the simplicity of the approach for some concrete benefit.
 Around this time, I became aware of the field of certified programming. I
 realized I could use the simplicity of the approach to make formal reasoning
-easier, and build the first verified compiler for call-by-need. Saying this was
-easier said than done is an understatement. With very little training in formal
-reasoning, and no training in dependent types and machine-checked proofs, it
-took a long time working on my own to gain the skills to implement a verified
-compiler. Much of the effort was due to being too ambitious. It is a relatively
-straightforward thing to formalize and state theorems. Even when you are certain
-of the truth of those theorems, it is an entirely different beast proving them
-in a machine-checked logic. Every proof, definition, and theorem included in the
+easier, and build the first verified compiler for call-by-need. This was
+monumentally difficult. With very little training in formal reasoning, and no
+training in dependent types and machine-checked proofs, it took a long time
+working on my own to gain the skills to implement a verified compiler. Much of
+the effort was due to being too ambitious. It is a relatively straightforward
+thing to formalize and state theorems. Even when you are certain of the truth of
+those theorems, it is an entirely different beast proving them in a
+machine-checked logic. Every proof, definition, and theorem included in the
 paper and in the Coq code was built on tens of aborted versions. Building the
 verified compiler was the hardest thing I've ever done, by far.
 
@@ -166,11 +169,11 @@ complete~\cite{leroy2012compcert}. That said, it would likely have worked to
 verify and export into Haskell fragments of the native code compiler.  For
 example, multiple times through the implementation process, the core language
 was extended. Making such core changes in the presence of proofs of correctness
-would make for a painful process, something that would have slowed down valuable
-time experimenting with the implementation. Overall, I am content with the
-approach of this dissertation: two separate compilers, with one focused on
-performance and extensibility and the other focused on correctness. I leave
-combining the two for future work, as I discuss further in
+would make for a painful process, something that would have reduced the amount
+of time available for experimenting with the implementation. Overall, I am
+content with the approach of this dissertation: two separate compilers, with one
+focused on performance and extensibility and the other focused on correctness. I
+leave combining the two for future work, as I discuss further in
 Section~\ref{sec:future}.
 
 \section{Contributions}

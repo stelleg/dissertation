@@ -14,8 +14,6 @@ values.
 \item Novel syntax: explicit parentheses, a merging of lambda calculus and lisp
 \end{itemize}
 
-
-
 \section{Source Language}
 
 For a better grasp on what the \ce native code compiler can do, this section
@@ -636,3 +634,46 @@ twice, in two different scopes. The cactus structure ensures that the value is
 correctly shared between the two instances, with the second dereference
 correctly dereferencing the evaluated identity function. 
 
+\subsection{Benchmarks}
+To convince the reader that the benchmarks are equivalent to the Haskell
+variants described in~\ref{sec:eval}, we share the source code of some of them
+here, along side their Haskell counterparts.
+
+First, we start with the primes example. In the our language, the implementation
+looks as follows.
+
+\begin{verbatim}
+divs = \n.\x.(x % n != 0)
+thefilter = \l.(filter [divs head l] (tail l))
+primes = [(map head) (iterate thefilter) from 2]
+
+main = (>>= getArgs \args.(args (error "usage: primes <n>") \n.\t.
+       (printf "%d" (!! (readInt n) primes))))
+\end{verbatim}
+
+The Haskell version is as follows:
+
+\begin{verbatim}
+import System.Environment
+
+suCC :: Int -> Int
+suCC x = x + 1
+
+isdivs :: Int  -> Int -> Bool
+isdivs n x = mod x n /= 0
+
+the_filter :: [Int] -> [Int]
+the_filter (n:ns) = filter (isdivs n) ns
+
+primes :: [Int]
+primes = map head (iterate the_filter (iterate suCC 2))
+
+main = do
+	[arg] <- getArgs
+	print $ primes !! (read arg)
+\end{verbatim}
+
+Note that we use the helper function \texttt{from} from the prelude which uses
+the partially applied \texttt{+ 1} directly, but otherwise the implementations
+are identical. This is characteristic of how each of the benchmarks differ in
+our version compared to the Haskell version. 

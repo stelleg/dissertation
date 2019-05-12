@@ -7,21 +7,20 @@ semantics and prove that it implements the big-step semantics, but by showing
 that our implementation preserves the big-step semantics, we prove preservation
 of any inductive reasoning on the structure of evaluation tree.  
 
-As discussed in Section~\ref{sec:introduction}, our source syntax is the lambda
-calculus with de Bruijn indices. De Bruijn indices count the number of
-intermediate lambdas between the occurrence of the variable and its binding
-lambda.  
+As in Chapter~\ref{chap:ce}, our source syntax is the lambda calculus with de
+Bruijn indices. De Bruijn indices count the number of intermediate lambdas
+between the occurrence of the variable and its binding lambda.  
 \begin{align*}
  t &::= t \; t \; | \; x \; | \;  \lambda \; t \\
  x &\in \mathbb{N}
 \end{align*}
 The essence of the \ce semantics (Figure~\ref{fig:bigstep}) is that it
-implements a shared environment, and use its structure to share results of
+implements a shared environment, and uses its structure to share results of
 computations. This makes possible a simple abstract machine that operates on the
 lambda calculus directly, which is uncommon among call-by-need abstract machines
 \cite{jonesstg,launchburynatural,TIM,johnsson1984efficient}. This simplifies
 formalization, as we do not need to prove that intermediate transformations,
-e.g. lambda lifting, are semantics-preserving. Another advantage of the \ce
+e.g., lambda lifting, are semantics-preserving. Another advantage of the \ce
 machine is that it has constant-sized closures, obviating the need to reason
 about re-allocating the results of computation and adding indirections required
 because of closure size changes from thunk to value \cite{jonesstg}. We operate
@@ -70,7 +69,7 @@ on the lambda calculus with named variables would likely be relating Curien's
 calculus of closures to call-by-name semantics implemented with substitution. We
 return to this discussion in Section~\ref{sec:discussion}.
 
-As mentioned in Section~\ref{sec:introduction}, these big-step semantics do not
+As mentioned in Section~\ref{chap:ce}, these big-step semantics do not
 explicitly include a notion of nontermination. Instead, nontermination would be
 implied by the negation of the existence of an evaluation relation. This
 prevents reasoning directly about nontermination in an inductive way, but for
@@ -109,7 +108,7 @@ also equivalent.  We say two closures are equivalent if their terms are
 identical and their environments are equivalent. 
 
 Given these definitions, we can prove that the call-by-name \ce semantics
-implement Curien's call by name semantics: 
+implements Curien's call by name semantics: 
 
 \begin{thm}
 If a closure $c$ in Curien's call-by-name semantics is equivalent to a

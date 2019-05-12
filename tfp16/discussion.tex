@@ -35,16 +35,17 @@ update markers can cause an otherwise constant-space stack to overflow.  They
 implement an optimization that collapses update markers by adding a layer of
 indirection between heap locations and closures. A similar approach,
 but without the performance hit caused by an extra layer of indirection should
-be possible, as follows: Upon a variable dereference the $\mathcal{\mathcal{C}
+be possible, as follows: upon a variable dereference the $\mathcal{\mathcal{C}
 \mskip -4mu \mathcal{E}}$ machine checks if the top of the stack is an update.
-If it is, instead of pushing a redundant update marker onto the stack, it
-replaces the closure in the heap at the marker location with an update marker
-pointing to the location specified by the marker on the top of the stack.  Then,
-the variable dereference rule checks for an update marker upon dereference, and
-will update accordingly, copying the value placed in the location on the top of
-the stack with the one we didn't push onto the stack. This effectively makes the
-update mechanism lazier, only updating one marker eagerly, and any equivalent
-markers on demand. We leave this optimization for future work.
+If it is, instead of pushing a redundant update marker onto the stack, the
+machine replaces the closure in the heap at the marker location with an update
+marker pointing to the location specified by the marker on the top of the stack.
+Then, the variable dereference rule checks if there is an update marker instead
+of a closure in the dereferenced cell, and if there is, then the value closure
+pointed to by that update marker will be copied, overwriting the update marker.
+This effectively makes the update mechanism lazier, only updating one marker
+eagerly, and any equivalent markers on demand.  We leave this optimization for
+future work.
 
 \subsection{Register Allocation} \label{sec:alloc}
 One advantage of flat environments is that register allocation is
@@ -55,7 +56,7 @@ obvious how to do register allocation with the $\mathcal{\mathcal{C} \mskip
 One possible approach that could work well with our shared environment approach
 would be to only load free variables into registers that are statically known to
 be needed. In other words, some environment variables may not be used, so only
-the ones that will definitely be used should be loaded into registers when a
+those that will definitely be used should be loaded into registers when a
 closure is entered, while the rest could be loaded on demand from memory.
 
 \subsection{Characterizing Performance}

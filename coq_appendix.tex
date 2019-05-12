@@ -12,14 +12,12 @@ discuss select Coq definitions and theorem statements in the implementation and
 proof of correctness of the verified compiler. We attempt to convey what worked
 well, and what posed significant challenges in the hope of informing future work
 in this area. The formalization is available at
-\url{https://github.com/stelleg/cem\_coq} and as of this dissertation has been
-successfully type-checked with Coq version 8.9.  The version used for this
-dissertation is tagged with \texttt{dissertation}, which at the time of writing
-enables it to be downloaded as a GitHub release tarball. Inevitably, we will use
-definitions from both the Coq standard libraries, or generic definitions
-implemented throughout the project. In these cases, if the reader has questions,
-I encourage them to refer to the source code. This appendix attempts to cover
-only the most imporant definitions and theorems. 
+\url{https://github.com/stelleg/cem\_coq} and has been successfully type-checked
+with Coq version 8.9.  The version used for this dissertation is tagged with
+\texttt{dissertation}, which at the time of writing enables it to be downloaded
+as a GitHub release tarball. Inevitably, we will use definitions from both the
+Coq standard libraries, or generic definitions implemented throughout the
+project. This appendix covers only the most imporant definitions and theorems. 
 
 It's also worth noting that the reader will find many definitions, lemmas,
 algorithms, and proofs in the repository that are unused in the final proof.
@@ -27,7 +25,7 @@ This is a byproduct of the process of proving in a computer logic. Often, when
 one starts a proof it seems like a certain property or lemma will be required,
 so one proves that lemma, only to discover later that it was not necessary. Such
 helper lemmas sometimes prove useful later, during a different proof. Hopefully
-some of the unsed code will prove useful in future work.
+some of the unused code will prove useful in future work.
 
 Another point worth noting is that the Coq code makes heavy use of Unicode
 characters and notations. In hindsight, the heavy use of fancy notations was
@@ -36,10 +34,10 @@ readability. Limiting use of notations to the occasional infix operator is
 likely a good middle ground.
 
 \section{Big-Step \ce Semantics}
-Here we define the big step syntax and semantics, which we use as our input
+Here we define the big-step syntax and semantics, which we use as our input
 language semantics. This is a formalization of the Figure~\ref{fig:bigstep}.
 
-We start with the lambda calculus with deBruijn indices.
+We start with the lambda calculus with de Bruijn indices.
 
 \begin{verbatim}
 Inductive tm : Type := 
@@ -106,8 +104,8 @@ where " c1 '⇓' c2 " := (step c1 c2).
 
 \section{Small-Step \ce Semantics}
 
-Our small step semantics are a straightforward implementation of the big step
-semantics. The language is the same lambda calculus with deBruijn indices, while
+Our small-step semantics is a straightforward implementation of the big step
+semantics. The language is the same lambda calculus with de Bruijn indices, while
 we introduce a stack to match marker updates and argument bindings to variables.
 This is a formalization of Figure~\ref{fig:cesm}. 
 
@@ -139,8 +137,8 @@ where " c1 '→_s' c2 " := (step c1 c2).
 
 \subsection{Relation to Big-Step}
 
-We prove that the small step semantics implement the big step semantics with the
-following lemma. The description of the proof can be found in
+We prove that the small-step semantics implements the big step semantics with
+the following lemma. The description of the proof can be found in
 Section~\ref{sec:cem_cesm}. 
 
 \begin{verbatim}
@@ -211,9 +209,9 @@ blocks. This eases reasoning about the relation to the small step \ce
 relation. This is a formalization of the semantics described in
 Figure~\ref{fig:im_semantics}. 
 
-We start with a our register file and machine state, along with a
-straightforward semantics for reading and writing from operands given a 
-machine state. We omit some uninteresting helper functions. 
+We start with a register file and machine state, along with a straightforward
+semantics for reading and writing from operands given a machine state. We omit
+some uninteresting helper functions. 
 
 \begin{verbatim}
 Inductive RegisterFile := mkrf {
@@ -383,7 +381,7 @@ equal if they are either both the empty environment or the first element of the
 environments are in the heap relation, and the tails are equal. Two heaps are
 equivalent if for every cell, the term portions are equivalent and the
 environment and environment continuations are equivalent. The inductive relation
-on the environments is crucial for inductive reasoning on deBruijn indices.
+on the environments is crucial for inductive reasoning on de Bruijn indices.
 
 Given our heap and environment relations, we can move to notions of closure,
 stack, and complete state equivalences.
@@ -505,7 +503,7 @@ Theorem compile_correct (t : db.tm) v : cem.step (cem.I t) v →
   sigT (λ v', refl_trans_clos im.step (im.I (compile t)) v' *
               state_rel (cesm.st (cem.conf_h v) nil (cem.conf_c v)) v').
 \end{verbatim}
-This theorem states that if a term steps in the big step semantics to a value,
+This theorem states that if a term steps in the big-step semantics to a value,
 then the instruction machine will step in zero or more steps to a related state.
 Knowledge of the \texttt{state\_rel} relation is crucial here: it would be
 trivial to define a meaningless relation, e.g. the relation defined by
@@ -525,7 +523,10 @@ Definition env := list closure.
 
 Inductive step : closure → closure → Type := 
   | Abs : ∀ b e, step (close (lam b) e) (close (lam b) e)
-  | Var : ∀ x e v c, nth_error e x = Some c → step c v → step (close (var x) e) v
+  | Var : ∀ x e v c, 
+      nth_error e x = Some c → 
+      step c v → 
+      step (close (var x) e) v
   | App : ∀ m n b e v mve, 
       step (close m e) (close (lam b) mve) → 
       step (close b (close n e::mve)) v → 

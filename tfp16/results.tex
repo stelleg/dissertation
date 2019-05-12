@@ -44,7 +44,7 @@ Lack of register allocation is the primary current limitation of the $\mathcal{\
 machine. The STG machine pulls the free variables into registers, allowing tight
 loops with effective register allocation. However, it is less clear how to
 effectively allocate registers in a fully shared environment setting.  That
-said, its possible that being lazier about register allocation, e.g., not
+said, it is possible that being lazier about register allocation, e.g., not
 loading values into registers that may not be used, could have some performance
 benefits.
 
@@ -100,7 +100,7 @@ pointers until the index is zero. As one might guess, the lookup cost is high.
 For example, for the queens benchmark without any optimizations, variable lookup
 took roughly $80-90\%$ of the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine runtime, as measured
 by profiling. Much of that cost was for lookups of known combinators, however,
-so for the benchmarks above the inlining mentioned in the previous section was
+so for the benchmarks above, the inlining mentioned in the previous section was
 incorporated. Still, even with this simple optimization, variable lookup takes
 roughly $50\%$ of execution time. There is some variation across benchmarks, but
 this is a rough approximation for the average cost. Section~\ref{sec:disc}

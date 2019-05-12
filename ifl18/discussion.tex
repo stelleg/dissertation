@@ -6,14 +6,14 @@ work, related work, and general discussion of the results.
 One thing that is important to communicate is the difficulty of writing
 comprehensible proofs. The reader is discouraged from attempting to understand
 the proofs in any way by reading the Coq tactic source code. While I attempted
-to keep our definitions and lemmas as clean and comprehensible as possible, I
+to keep the definitions and lemmas as clean and comprehensible as possible, I
 found it extremely difficult to do the same with tactics. Partially this may be
-a failure on our part to become more familiar with the tactic language of Coq,
+a failure on my part to become more familiar with the tactic language of Coq,
 but I suspect that the imperative nature of tactic proofs prevents composability
 of tactic meta-programs. 
 
 Another lesson was the importance of good induction principles. For example, in
-Section~\ref{sec:threats}, I will discuss the issue of only proving the
+Section~\ref{sec:threats}, we discuss the issue of only proving the
 implication of correctness in one direction. This is effectively a product of
 the power of the inductive properties of high level semantics, which makes them
 so much easier to reason about. Indeed, this lesson resonates with the purpose
@@ -23,8 +23,8 @@ properties, and have that reasoning preserved through compilation.
 
 \subsection{Threats to Validity} \label{sec:threats}
 
-There are a few potential threats to validity that I address in this section. The
-first is the one mentioned in Section~\ref{sec:background}, that I only show
+There are a few potential threats to validity that we address in this section. The
+first is the one mentioned in Section~\ref{sec:background}, that we only show
 that our compiler is correct in the case of termination of the source semantics.
 In other words, if the source semantics doesn't terminate, the theorem says
 nothing about how the compiled code behaves. This means that we could have a
@@ -36,23 +36,23 @@ about our programs}. In other words, if we have a program that we can't reason
 about, and therefore may not terminate, we care less about having a proof that
 semantics are preserved.  Of course, this is a claim about most uses of program
 analysis. There are possible analyses that could say things along the lines of
-\emph{if} the source program terminates, then we can conclude $x$. I claim these
-cases are rare, and therefore the provided proof of correctness can still be
-applied to most use cases.  
+\emph{if} the source program terminates, then we can conclude $x$. These cases
+are rare, and therefore the provided proof of correctness can still be applied
+to most use cases.  
 
 Another potential threat to validity is the use of a high level instruction
 machine language. While we claim that its high level and simplicity should make
 it possible to show that a set of real ISAs implement this instruction machine,
-we haven't formally verified this step. I believe that this would make
-for valuable future work, and hope that the reader agrees that nothing in the
-design of our high level instruction machine would prevent such work.
+we haven't formally verified this step. This would make for valuable future
+work, and nothing in the design of our high level instruction machine prevents
+such work.
 
 As a dual to the issue of a high level instruction machine language, some
 readers may take issue with calling lambda calculus with de Bruijn indices an
 "input language". Indeed, we do not advocate writing programs in such a
 language. Still, the conversion between lambda calculus with named variables and
-lambda calculus with de Bruijn indices is a well understood topic, and we
-believe it would distract from the presentation of the verified compiler
+lambda calculus with de Bruijn indices is a well understood topic, and 
+it would distract from the presentation of the verified compiler
 provided here. Indeed, as noted below, semantics using named variables and
 substitution can be hard to get right \cite{breitnerthesis, nakata2009small}, so
 we stand by our decision to use a semantics based on lambda calculus with de
@@ -70,10 +70,10 @@ call-by-need is correct. There are certainly well-established semantics
 prove that the $\mathcal{CE}$ semantics implements one of those existing
 semantics.  Unfortunately, recent work has shown that both of these have small
 issues that arise when formalized that require fixes. Indeed, we did stray down
-this path a good ways and discovered one of these issues which has been
-previously described in the literature \cite{nakata2009small}. This raises the
-question of whether or not semantics that aren't obviously correct are a good
-base for what it means to be a call-by-need semantics. Instead, we have chosen to
+this path and rediscovered one of these issues which has been previously described
+in the literature \cite{nakata2009small}. This raises the question of whether or
+not semantics that aren't obviously correct are a good base for what it means to
+be a call-by-need semantics. Instead, we have chosen to
 relate our call-by-name semantics formally to a semantics that is obviously
 correct, Curien's calculus of closures. Along with the small modification
 required for memoization of results, we hope that we have convinced the reader
@@ -89,8 +89,8 @@ heap-reuse. For simplicity, we have assumed that our fresh locations are fresh
 with respect to all existing bindings in the heap. Of course, this is
 unsatisfactory when compared to real implementations. It would be preferable to
 have our freshness constraint relaxed to only be fresh with respect to live
-bindings on the heap. I believe that this modification should be possible, at
-the cost of increased complexity in the proofs. 
+bindings on the heap. This modification should be possible, at the cost of
+increased complexity in the proofs. 
 
 \subsection{Future Work}
 
@@ -119,7 +119,7 @@ compilers, fully verified compilers like this one provide such a strong property
 that type-safety should fall out directly.
 
 One useful feature of Coq is the ability to extract Coq programs out to other
-implementations, e.g. Haskell. This raises the possibility of extracting the
+implementations, e.g., Haskell. This raises the possibility of extracting the
 verified compiler out to a Haskell implementation that could be incorporated
 into GHC, providing a path towards a verified Haskell compiler. 
 
@@ -128,7 +128,7 @@ into GHC, providing a path towards a verified Haskell compiler.
 As mentioned above, to improve the relation to existing work, we could relate
 the semantics to the operational semantics of Ariola et al., seen in
 Figure~\ref{fig:cbn} ~\cite{ariola1995call}. Because I spent a large amount of
-time attempting this, we use this section to discuss challenges to this
+time attempting this, I use this section to discuss challenges to this
 approach. 
 
 One approach I tried was to show bisimulation between $\rightarrow_{N}$ and
@@ -136,8 +136,10 @@ $\Downarrow$. Unfortunately, as mentioned in Section~\ref{sec:threats}, there is
 an issue I discovered when formalizing this semantics. Essentially, the rules
 for variable freshness are insufficient. To fix this, one has to modify the
 rules to ensure global freshness. This modification is shown in
-Figure~\ref{fig:cbn_fixed}. While it makes the semantics more complicated, the
-real challenge for proving bisimulation comes from the complexity of managing  
+Figure~\ref{fig:cbn_fixed}. While it makes the semantics more complicated, a
+significant challenge for proving bisimulation comes from the complexity of
+managing the relation between de Bruijn terms and standard named terms through a
+mutating heap. 
 
 \begin{figure}
 \begin{align*}
@@ -161,11 +163,10 @@ x.t_n \\ \langle \Psi, x' \mapsto t_m \rangle [x'/x]t_n \Downarrow \langle
 \Upsilon \rangle \lambda y.t'}
 {\langle \Phi \rangle t_l \; t_m \Downarrow \langle \Upsilon \rangle \lambda y.t'}
 \end{align*}
-\caption{Ariola et. al's Operational Semantics}
+\caption{Ariola et al.'s Operational Semantics}
 \label{fig:cbn}
 \end{figure}
 
-By retaining the whole heap, we ensure global freshness of new variables. 
 
 \begin{figure}
 \begin{align*}
@@ -219,7 +220,7 @@ also worth noting that like \cite{leroy2012compcert}, they are also formalizing
 a front end to the compiler. 
 
 As part of the DeepSpec project, Weirich et al. have been working on formalizing
-Haskell's core semantics \cite{weirich2017spec, spector2018total}. I believe
-there is opportunity to use this effort in combination with the DeepSpec project
-to implement and verify a full-featured Haskell compiler.
+Haskell's core semantics \cite{weirich2017spec, spector2018total}. There is
+opportunity to use my work in combination with the DeepSpec project to implement
+and verify a full-featured Haskell compiler.
 

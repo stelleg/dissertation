@@ -1,5 +1,5 @@
 \section{Small-Step \ce} \label{sec:mach}
-Using the big-step \ce from the previous section, I construct a small-step
+Using the big-step \ce from the previous section, we construct a small-step
 semantics by adding a stack.  The syntax and semantics are defined in
 Figure~\ref{fig:cesm}. 
 
@@ -59,10 +59,11 @@ an argument term in the current environment. The Var rule enters the closure
 pointed to by the \textit{i}'th environment location.  
 
 To get some intuition for the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
-machine and how it works, consider Figure~\ref{fig:state}, evaluation of the
-term $(\lambda a.(\lambda b.b \; a) \lambda c.c \; a) \; ((\lambda i.i)
-\lambda j.j)$, or $(\lambda(\lambda0\;1)\;\lambda0\;1)\;((\lambda0)\;
-\lambda0)$ with deBruijn indices.
+machine and how it works, please refer to Figure~\ref{fig:state}, which displays
+the steps in the evaluation of the term $(\lambda a.(\lambda b.b \; a) \lambda
+c.c \; a) \; ((\lambda i.i) \lambda j.j)$, or
+$(\lambda(\lambda0\;1)\;\lambda0\;1)\;((\lambda0)\; \lambda0)$ with deBruijn
+indices.
 
 \begin{sidewaysfigure}
 \begin{align*}

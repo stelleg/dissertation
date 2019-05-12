@@ -85,7 +85,7 @@ takes exponential time, and call-by-need takes only polynomial time
 illustrates desirable properties of call-by-need.
 
 In practice, however, there are significant performance issues with call-by-need
-evaluation.  We focus on the following: \emph{Delaying a computation and
+evaluation.  We focus on the following: \emph{delaying a computation and
 performing it later is slower than performing it immediately.} This deficiency
 is well understood \cite{johnsson1984efficient,jonesstg}, and has become part of
 the motivation for \emph{strictness analysis}
@@ -93,7 +93,7 @@ the motivation for \emph{strictness analysis}
 evaluation to strict when possible.
 
 When compiling applications, there are two general implementation approaches.
-The first, \emph{eval/apply}, the caller first \emph{evaluates} the function,
+In the first, \emph{eval/apply}, the caller first \emph{evaluates} the function,
 then \emph{applies} the arguments to it by knowing its arity. In the second,
 \emph{push/enter}, the caller \emph{pushes} the arguments onto the stack, then
 \emph{enters} the code that will evaluate to a function \cite{marlow2006making}.  
@@ -103,7 +103,7 @@ then \emph{applies} the arguments to it by knowing its arity. In the second,
 Diehl et al.~\cite{diehl2000abstract} review the call-by-need
 literature in detail.  Here I summarize the most relevant points.
 
-The most well well known and widely used machine for lazy evaluation is the
+The most well known and widely used machine for lazy evaluation is the
 Spineless Tagless G-Machine (STG machine), which underlies the Glasgow Haskell
 Compiler (GHC).  STG uses flat environments that can be allocated on the stack,
 the heap, or some combination ~\cite{jonesstg}.  
@@ -150,10 +150,10 @@ is also high: all reasoning about programs compiled with a verified compiler is
 provably preserved. 
 
 Likely partially due to the complexities discussed above involved in
-implementing lazy languages, among other factors, existing work has focused on
-compiling strict languages~\cite{chlipala2007certified, leroy2012compcert,
-cakeml14}. Here I use the simple \ce machine as a base for a verified compiler
-of a lazy language, using the Coq proof assistant. 
+implementing lazy languages, among other factors, existing work on verification
+has focused on compiling strict languages~\cite{chlipala2007certified,
+leroy2012compcert, cakeml14}. Here I use the simple \ce machine as a base for a
+verified compiler of a lazy language, using the Coq proof assistant. 
 
 As with many areas of research, the devil is in the details. What exactly does
 it mean to claim a compiler is verified?  Essentially, a verified compiler of a
@@ -168,7 +168,7 @@ terminates, and wish to run it to check experimentally if it does, if we run the
 compiled code and it returns a value, we cannot be certain that it corresponds
 to a value computed in the source semantics. 
 
-While in theory one could solve this by proving the implication the other
+While in theory one could solve this by proving the implication in the other
 direction, that is, \emph{if the compiled code computes a value then the source
 semantics computes an equivalent value}, in practice this is prohibitively
 difficult. Effectively, the induction rules for the abstract machine make
@@ -193,9 +193,9 @@ verifiably supports a wider range of reasoning.
 
 As mentioned in Section~\ref{sec:prelim}, environments bind free variables to
 closures. While any implementation of an environment performs the same function,
-there is significant flexibility in how they can be represented. In this section
-we review this design space in the context of existing work, both for call by
-value and call-by-need.\footnote{Some work refers to this space as
+there is significant flexibility in how environments can be represented. In this
+section we review this design space in the context of existing work, both for
+call by value and call-by-need.\footnote{Some work refers to this space as
 \emph{closure} representation rather than \emph{environment}
 representation~\cite{shao1994space,appel1988optimizing}.  Because the term part
 of the closure is simply a code pointer and the interesting design choices are
@@ -211,7 +211,7 @@ bound to. A shared environment is one in which parts of that record can be
 shared among multiple closures~\cite{appel1988optimizing,shao1994space}. For
 example, consider the following term: $$(\lambda x.(\lambda y.t_0) (\lambda
 z.t_1)) t_2$$ Assuming the term $t_0$ has both $x$ and $y$ as free variables, we
-must evaluate it in the environment binding both $x$ and $y$.  Similarly,
+must evaluate it in an environment that binds both $x$ and $y$.  Similarly,
 assuming $t_1$ contains both $z$ and $x$ as free variables, we must evaluate it
 in an environment containing bindings for both $x$ and $z$. Thus, we can
 represent the closures for evaluating $t_0$ and $t_1$  as $$t_0[x=t_2[\bullet],

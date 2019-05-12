@@ -4,18 +4,19 @@ Here we describe in full the instruction machine syntax and semantics. We choose
 simple stack machine with a Harvard architecture (with separate instruction and
 heap memory). We use natural numbers for pointers, though it shouldn't be too
 difficult to replace these with standard-sized machine words, e.g., 64 bits,
-making the stack and malloc operations partial. Our stack is represented as a
-list of pointers, though again it should be a relatively straightforward
-exercise to represent the stack in contiguous memory. We define our machine to
-have only four registers: an instruction pointer, an environment pointer, and
-two scratch registers. Our instruction set is minimal, consisting only of a
-conditional jump instruction, pop and push instructions, a move instruction, and
-a new instruction for allocating new memory. Note that for our program memory, I
-have pointers to basic blocks, but for simplicity of proofs we choose to not
-increment the instruction pointer within a basic block.  Instead, the
-instruction pointer is constant within a basic block, only changing between
-basic blocks. In fact, we represent the program as a list of basic blocks, with
-pointers indexing into the list. This has the advantage of letting us easily
+making the stack and malloc operations partial to better represent real-world
+hardware. Our stack is represented as a list of pointers, though again it should
+be a relatively straightforward exercise to represent the stack in contiguous
+memory. We define our machine to have only four registers: an instruction
+pointer, an environment pointer, and two scratch registers. Our instruction set
+is minimal, consisting only of a conditional jump instruction, pop and push
+instructions, a move instruction, and an instruction for allocating new
+memory. Note that for our program memory, we have pointers to basic blocks, but
+for simplicity of proofs we choose to not increment the instruction pointer
+within a basic block.  Instead, the instruction pointer is constant within a
+basic block, only changing between basic blocks. In fact, we represent the
+program as a list of basic blocks, with pointers indexing into the list. This
+has the advantage of letting us easily
 reason about sublists and their relation to terms. The full syntax of the
 machine is given in Figure~\ref{fig:im_syntax}. Note that curly brackets
 $\left\{\right\}$ denote optionality, while stars $*$ denote zero or more
@@ -23,8 +24,9 @@ elements, represented as a list. Note that we'll use some common list
 terminology, such as bracket notation for indexing, i.e., $l\left[i\right]$
 accesses the $i$'th element in $l$ (we don't worry about the partiality in this
 presentation of this operation; see the Coq implementation for a full
-treatment). We also use $\concat$ for list concatenation, and $::$ for consing an
-element onto the head of a list. 
+jreatment). In addition to the syntax defined in Figure~\ref{fig:im_syntax}, we
+use $\concat$ for list concatenation, and $::$ for consing an element onto the
+head of a list. 
 
 \begin{figure}
 \begin{align}
@@ -52,7 +54,7 @@ read from that read operand in that state. Similarly, a write relation is
 inhabited when writing the second argument into the first in a state defined by
 the third argument results in the state defined by the fourth argument.  
 
-The machine semantics should be fairly unsurprising. A State, consists of a
+The machine semantics should be fairly unsurprising. A State consists of a
 register file, program memory, a stack, and a heap. The push instruction takes a
 read operand and pushes it onto the stack. The pop instruction pops the
 top of the stack into a write operand. The mov instruction moves a machine word

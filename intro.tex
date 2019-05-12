@@ -2,7 +2,7 @@ The strength of lazy functional programming languages is the freedom they give
 the programmer to focus on correctness instead of operational details. In a
 strict language, the programmer specifies what code will run, and when. In a
 lazy language, the programmer only specifies what the result should be, leaving
-the compiler reponsible for ensuring that only code that is needed will be
+the compiler responsible for ensuring that only code that is needed will be
 executed. Thanks to this freedom from operational concerns, there are two
 properties that lazy functional programmers tend to have. First, they reason
 about the correctness of their code to a degree seen almost nowhere else in the
@@ -31,11 +31,12 @@ as the \ce machine. Essentially, the \ce machine repurposes shared environments
 to share the results of computation. The thesis of this dissertation is that
 this approach lends itself to compilers that achieve these two goals. I explore
 the performance of the approach by implementing a native code compiler with
-encouraging results. This addresses the goal of high performance code
-generation. To verify correctness, I take advantage simplicity of the approach
-to ease the proof burden, and implement a verified compiler using the Coq proof
-assistant. These two implementations provide evidence that the \ce machine is a
-powerful tool for implementing lazy functional programming languages.
+encouraging results. This addresses the goal of high-performance code
+generation. To verify correctness, I take advantage of the simplicity of the
+approach to ease the proof burden, and implement a verified compiler using the
+Coq proof assistant. These two implementations provide evidence that the \ce
+machine is a powerful tool for implementing lazy functional programming
+languages.
 
 \section{Outline}
 
@@ -56,27 +57,27 @@ both for the native code compiler (Appendix~\ref{chap:cem_appendix}) and the
 verified compiler (Appendix~\ref{chap:coq_appendix}). In the case of the native
 code compiler, our hope is to share some of the other interesting properties of
 the implementation.  For the verified compiler, the purpose of the appendix is
-to give the reader a more full understanding of the structure and definitions
+to give the reader a fuller understanding of the structure and definitions
 involved in the proofs.
 
 \section{Reproducibility and Artifacts}
 
 The implementations presented in this dissertation are available for download to
-allow the reader to reproduce any claims made. All of the software is bundled as
+allow the reader to verify any claims made. All of the software is bundled as
 a single tarball at \url{http://cs.unm.edu/\textasciitilde stelleg/cem.tgz}.
 Instructions are included for building, running, and proof-checking the code.
 For performance results, the hardware and operating system are listed in
-Chapter~\ref{chap:cem}. In addition to the above tarball, each implementation has been
-continued to be developed at \url{https://github.com/stelleg/cem} and
+Chapter~\ref{chap:cem}. In addition to the above tarball, each implementation
+continues to be developed at \url{https://github.com/stelleg/cem} and
 \url{https://github.com/stelleg/cem\_coq}. Finally, there is a simpler native
-code compiler for pedagogical purposes available at
+code compiler for pedagogical purposes, available at
 \url{https://github.com/stelleg/cem\_pearl}. 
 
 \section{On Laziness}
 
 Because this work is focused on implementing call-by-need semantics, it is worth
 spending some time discussing why we care about lazy evaluation. The focus here
-is on high level reasoning and opining, leaving a more technical coverage
+is on high-level reasoning and opining, leaving a more technical coverage
 of the topic for Section~\ref{sec:eval_strat}, which defines and contrasts
 different evaluation strategies.
 
@@ -99,20 +100,20 @@ reasoning about time and space requirements for lazy programs is notoriously
 difficult. As a result, there are cases when the time and space requirements can
 be surprisingly high.
 
-The advantages of lazy semantics often show up especially when attempting to
-write high level, composable abstractions. This is a strong argument for code
-re-use advantages in non-strict languages: by using laziness, one avoids work,
+The advantages of lazy semantics are most apparent when attempting to write
+high-level, composable abstractions. This is a strong argument for code re-use
+advantages in non-strict languages: by using laziness, one avoids work,
 non-termination, and work-buffering where possible without additional programmer
 effort~\cite{hughes1989functional}.
 
-There are also well-known cases of when composing lazy programs can result in
+There are also well-known cases where composing lazy programs can result in
 better asymptotics than strict composition. Consider the well-known example of
 finding the minimal value in a list. 
 \begin{verbatim}
   take 1 . sort
 \end{verbatim}
 With lazy semantics, this can result in an $O(n)$ time implementation, while the
-strict implementation of compose will always result in a $O(n \log n)$
+strict implementation of compose will always result in an $O(n \log n)$
 implementation (assuming an $O(n \log n)$ sort). This kind of asymptotic
 improvement is a direct result of the efficiencies gained by avoiding eager
 work. 
@@ -132,13 +133,13 @@ with a nagging feeling that \emph{there must be a simpler, lazier way to
 implement call-by-need}. After a lot of experimenting and thought, I finally
 discovered the approach presented here. While I was optimistic about the
 performance of a compiler, I was most excited by the \emph{simplicity} of the
-approach. It was so easy to write a compiler! After a couple failed attempts at
-writing papers with the primary objective being to excite the reader about
+approach. It was so easy to write a compiler! After a couple of failed attempts
+at writing papers with the primary objective being to excite the reader about
 the simplicity of the approach, I decided to instead focus on more concrete
 properties. The first was performance: I hypothesized that the approach would
 lead to cases where I could beat the state of the art. This was confirmed by
-both a virtual machine and the a native code compiler. It was also clear to me
-that trying to build a high performance compiler to outperform GHC on real world
+both a virtual machine and a native code compiler. It was also clear to me
+that trying to build a high-performance compiler to outperform GHC on real-world
 code was likely to fail, and I explicitly avoided making that a goal of the
 dissertation. Instead, I focused on showing that there were cases that
 outperform flat environments, leaving integrating shared and flat environments

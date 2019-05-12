@@ -60,20 +60,18 @@ calculus of closures, are the primary contributions of this chapter. I am
 unaware of any existing verified non-strict compilers, much less a verified
 compiler of call-by-need. 
 
-The chapter is structured as follows. In Section~\ref{sec:background} I give the
-necessary background. In Section~\ref{sec:cem_big} I describe the source syntax
-and semantics (the big-step \ce semantics) in detail.  I also use
-this section to define a call-by-name version of the semantics, and
-show that it implements Curien's calculus of closures \cite{curien1991abstract}.  In
-Section~\ref{sec:cem_small} I describe the small-step \ce semantics
-and its relation to the big-step semantics. In Section~\ref{sec:im_semantics}
-I describe the instruction machine syntax and semantics. In
-Section~\ref{sec:compiler} I describe the compilation from machine terms to
-assembly language. In Section~\ref{sec:correctness} I describe how the evaluation
-of compiled programs is related to the small-step \ce semantics. I 
-compose this proof with the proof that the small-step semantics implement the
-big-step semantics to show that the instruction machine implements the big-step
-semantics. In Section~\ref{sec:discussion} I discuss threats to validity,
-future work, and related work. The Coq source code with all the definitions and
-proofs described in this chapter is available at
-\url{https://github.com/stelleg/cem\_coq}. 
+The chapter is structured as follows. In Section~\ref{sec:cem_big} I describe
+the source syntax and semantics (the big-step \ce semantics) in detail.  I also
+use this section to define a call-by-name version of the semantics, and show
+that it implements Curien's calculus of closures \cite{curien1991abstract}.  In
+Section~\ref{sec:cem_small} I describe the small-step \ce semantics and its
+relation to the big-step semantics. In Section~\ref{sec:im_semantics} I describe
+the instruction machine syntax and semantics. In Section~\ref{sec:compiler} I
+describe the compilation from machine terms to assembly language. In
+Section~\ref{sec:correctness} I describe how the evaluation of compiled programs
+is related to the small-step \ce semantics. I compose this proof with the proof
+that the small-step semantics implement the big-step semantics to show that the
+instruction machine implements the big-step semantics. In
+Section~\ref{sec:discussion} I discuss threats to validity, future work, and
+related work. The Coq source code with all the definitions and proofs described
+in this chapter is available at \url{https://github.com/stelleg/cem\_coq}. 

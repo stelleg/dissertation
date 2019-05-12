@@ -1,7 +1,7 @@
 \section{Implementation} \label{sec:impl}
 
 This section describes how the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
-machine can be mapped directly to x86\_64 insructions. Specifically, I re-define
+machine can be mapped directly to x86\_64 instructions. Specifically, I re-define
 the three instructions given by the TIM~\cite{TIM}: \texttt{TAKE},
 \texttt{ENTER}, and \texttt{PUSH}, and implement them with x86\_64 assembly. I 
 also describe several design decisions, as well as some optimizations. All
@@ -22,7 +22,7 @@ The three instructions are given below, with descriptions of their behavior.
 \begin{itemize}
 \item \texttt{TAKE}: Pops a context item off the stack. If the item is an
 update $u$, the instruction updates the location $u$ with the current closure.
-If it is an argument $c$, the instruction binds the closure $c$ to the fresh
+If it is an argument $c$, the instruction binds the closure $c$ to a fresh
 location in the cactus environment.
 \item \texttt{ENTER i}: Enters the closure defined by variable index \texttt{i},
 the current environment pointer, and the current cactus environment.  \item
@@ -30,17 +30,16 @@ the current environment pointer, and the current cactus environment.  \item
 current environment pointer. 
 \end{itemize}
 
-Each of these instructions corresponds directly to a corresponding lambda term:
-abstraction compiles to \texttt{TAKE}, application to \texttt{PUSH}, and
-variables to \texttt{ENTER}. Each is compiled using a direct implementation of
-the transition functions of the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
-machine. The mapping from lambda terms can be seen in
-Figure~\ref{fig:cemcompile}, which defines the compiler. Unlike the TIM, our
-version of \texttt{TAKE} doesn't have an arity; it compiles a sequence of
-lambdas as a sequence of \texttt{TAKE} instructions. Similarly, the
-\texttt{ENTER i} instruction can be implemented either as a loop or unrolled,
-depending on \texttt{i}, and more performance comparisons are needed to
-determine the trade-off between code size and speed.
+Each of these instructions corresponds directly to a lambda term: abstraction
+compiles to \texttt{TAKE}, application to \texttt{PUSH}, and variables to
+\texttt{ENTER}. Each is compiled using a direct implementation of the transition
+functions of the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine. The
+mapping from lambda terms can be seen in Figure~\ref{fig:cemcompile}, which
+defines the compiler. Unlike the TIM, our version of \texttt{TAKE} doesn't have
+an arity; it compiles a sequence of lambdas as a sequence of \texttt{TAKE}
+instructions. Similarly, the \texttt{ENTER i} instruction can be implemented
+either as a loop or unrolled, depending on \texttt{i}, and more performance
+comparisons are needed to determine the trade-off between code size and speed.
 
 \begin{figure}
 \begin{align*} C[\![t \; t']\!] &= \texttt{PUSH}\;label_{C[\![t']\!]}:C[\![t]\!] \concat C[\![t']\!] \\
@@ -92,9 +91,9 @@ or modified.
 \label{fig:extsyntax}
 \end{figure}
 
-To see a full definition of the language, see Appendix~\ref{chap:cem_appendix}.
-Data types are a common extension that are omitted~\cite{jonesstg,boquist1997grin}.
-This work takes the approach of Sestoft~\cite{sestoft} that these can be
+For a full definition of the language, see Appendix~\ref{chap:cem_appendix}.
+Data types are a common extension which we omit~\cite{jonesstg,boquist1997grin};
+we take the approach of Sestoft~\cite{sestoft}, namely that data types can be
 efficiently implemented with pure lambda terms. For example, consider a list
 data type (in Haskell syntax): \texttt{data List a = Cons a (List a) | Nil}.
 This can be represented in pure lambda terms with $\mathit{Cons} = \lambda
@@ -109,7 +108,7 @@ ensure that arbitrary lambda terms can be compiled without pre-processing, while
 other approaches generally require pre-processing~\cite{sestoft,TIM}.
 
 Recursive let bindings are a third omission. Following
-Rozas~\cite{rozas1992taming}: If it can be represented in pure lambda terms, it
+Rozas~\cite{rozas1992taming}: if it can be represented in pure lambda terms, it
 should be. Recursion is implemented using the standard Y combinator. In the
 case of mutual recursion, the Y combinator is used in conjunction with a Church
 tuple of the mutually recursive functions. Without the appropriate

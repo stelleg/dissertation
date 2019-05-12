@@ -6,12 +6,13 @@ to a number of interesting properties that the implementation has. Some of those
 properties include
 
 \begin{itemize}
-\item No first class recursion and let bindings. Replaced by use of Y combinator
+\item No first class recursion and let bindings. Replaced by use of Y
+combinator.
 \item No algebraic data types: Scott encoded data types. 
 \item World type: reasoning about IO in an untyped setting by passing world
 values.
-\item No libc dependence: system calls as an explicit language construct
-\item Novel syntax: explicit parentheses, a merging of lambda calculus and lisp
+\item No libc dependence: system calls as an explicit language construct.
+\item Novel syntax: explicit parentheses, a merging of lambda calculus and Lisp.
 \end{itemize}
 
 \section{Source Language}
@@ -132,10 +133,10 @@ heavy use of right-associative applications, wrapped with square brackets
 \texttt{[]}. By using this right associative operator, along with the
 implementation of literals, applying themselves to a continuation, we attain a
 method of forcing evaluation before applying a primitive operation. This is in
-contrast to using an infix operator, e.g. the $\$$ operator in Haskell. Note the
+contrast to using an infix operator, e.g., the $\$$ operator in Haskell. Note the
 \texttt{\_} prefix for primitive operations. 
 
-Also note that we define the y-combinator at the start of the prelude; this is
+Also note that we define the Y-combinator at the start of the prelude; this is
 the source of all recursion. Whether or not this is sufficient for all
 call-by-need recursion seems to be a topic for disagreement, but we have chosen,
 wherever feasible, to remove constructs from the core language when an
@@ -303,7 +304,7 @@ elem = \val.\func.\list.(lookup val func list false true)
 \end{verbatim}
 
 \subsection{Side Effects and Partial Functions}
-A necessary feature of a real world programming language is the ability to have
+A necessary feature of a real-world programming language is the ability to have
 side effects. Here we define a small set of basic tools for implementing basic
 side effects, including memory reads and writes, and system calls. Note we take
 an approach that avoids depending on \texttt{libc}, implementing analogous
@@ -315,7 +316,7 @@ world, and have our side-effectful functions consume and generate a new
 real-world value. This allows us to implement and use the monad bind and return
 functions directly. While we don't have infix operators or Haskell's
 do-notation, writing imperative programs is still entirely possible, though
-certainly more clunky, much like Wadler's early work with
+certainly more cumbersome, much like Wadler's early work with
 monads~\cite{wadlermonad} but without infix operators.
 
 \begin{verbatim}
@@ -636,10 +637,10 @@ correctly dereferencing the evaluated identity function.
 
 \subsection{Benchmarks}
 To convince the reader that the benchmarks are equivalent to the Haskell
-variants described in~\ref{sec:eval}, we share the source code of some of them
-here, along side their Haskell counterparts.
+variants described in Section~\ref{sec:eval}, we share the source code of some
+of them here, alongside their Haskell counterparts.
 
-First, we start with the primes example. In the our language, the implementation
+First, we start with the primes example. In our language, the implementation
 looks as follows.
 
 \begin{verbatim}

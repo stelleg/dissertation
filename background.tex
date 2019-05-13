@@ -8,7 +8,7 @@ implementations in formal logic.
 I begin with the simple lambda calculus ~\cite{barendregt1984lambda}:  $$ t::= x
 \; | \;  \lambda x.t \; | \;  t \; t $$ where $x$ is a variable, $\lambda x.t$
 is an abstraction, and $t \; t$ is an application. I will primarily use lambda
-calculus with deBruijn indices, which replaces variables with a natural number
+calculus with de Bruijn indices, which replaces variables with a natural number
 indexing into the binding lambdas.  This calculus is given by the syntax: $$
 t::= i \; | \; \lambda t \; | \; t \; t $$ where $i \in \mathbb{N}$. In both
 cases, we use the standard Barendregt syntax conventions, namely that
@@ -25,11 +25,11 @@ Closures combine a term with an environment, which binds the free variables of
 the term to closures. \emph{Entering} a closure refers to the operational
 process of beginning to evaluate its term in its environment.
 
-Because of its use of deBruijn indices, I use Curien's calculus of
+Because of its use of de Bruijn indices, I use Curien's calculus of
 closures~\cite{curien1991abstract} as the formal basis for closures,
 defined in Figure~\ref{fig:curien}. It is a formalization of closures with an
-environment represented as a list of closures, indexed by deBruijn indices. We
-will occasionally modify this calculus by replacing the deBruijn indices with
+environment represented as a list of closures, indexed by de Bruijn indices. We
+will occasionally modify this calculus by replacing the de Bruijn indices with
 variables for readability, in which case variables are looked up in the
 environment instead of indexed, e.g., $t[x = c, y = c'])$
 ~\cite{barendregt1984lambda}. We also add superscript and subscript markers to

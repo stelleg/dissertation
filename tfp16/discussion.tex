@@ -9,7 +9,7 @@ both cover the design space for closure representation, and develop an approach
 called \emph{safely linked closures}. The approach uses flat closures when
 there is no duplication, and links in a way that preserves liveness, to prevent
 violation of the \emph{safe for space complexity} (SSC) rule
-\cite{shao1994space}. While I do not address SSC or garbage collection in
+\cite{shao1994space}. While we do not address SSC or garbage collection in
 general, understanding the relationship between SSC and shared environment
 call-by-need is an interesting area for future work. In particular, hot
 environments with no sharing could benefit greatly from replacing shared
@@ -65,6 +65,5 @@ environments would be preferable in some situations, we haven't really
 characterized when programs will benefit from the approach.  This, along with
 the joining of shared and flat environments, is left for future work. It will
 likely require a combination of careful performance profiling, static analysis
-tools, and a deeper understanding of the performance tradeoffs discussed in the
-Chapter.
+tools, and a deeper understanding of performance tradeoffs.
 

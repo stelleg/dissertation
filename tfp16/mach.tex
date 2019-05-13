@@ -50,13 +50,13 @@ t[0], \sigma, \epsilon[0\mapsto\bullet]\rangle$ . For the update rule, the
 current closure is a value, and there is an update marker as the outermost
 context.  This implies that a variable was entered and that the current closure
 represents the corresponding value for that variable. Thus, we update the
-location $u$ that the variable entered, replacing whatever term was entered with
-the current closure.  The Lam rule takes an argument off the context and binds
-it to a variable, allocating a fresh heap location for the bound variable. This
-ensures that every instance of the variable will point to this location, and
-thus the bound term will be evaluated at most once. The App rule simply pushes
-an argument term in the current environment. The Var rule enters the closure
-pointed to by the \textit{i}'th environment location.  
+location $u$ that the variable entered, replacing whatever closure was entered
+with the current closure.  The Lam rule takes an argument off the context and
+binds it to a variable, allocating a fresh heap location for the bound variable.
+This ensures that every instance of the variable will point to this location,
+and thus the bound closure will be evaluated at most once. The App rule simply
+pushes the argument term in the current environment. The Var rule enters the
+closure pointed to by the \textit{i}'th environment location.  
 
 \sloppy To get some intuition for the \ce machine and how it works, please refer
 to Figure~\ref{fig:state}, which displays the steps in the evaluation of the

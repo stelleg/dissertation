@@ -1,9 +1,9 @@
 \section{Implementation} \label{sec:impl}
 
 This section describes how the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
-machine can be mapped directly to x86\_64 instructions. Specifically, I re-define
+machine can be mapped directly to x86\_64 instructions. Specifically, we re-define
 the three instructions given by the TIM~\cite{TIM}: \texttt{TAKE},
-\texttt{ENTER}, and \texttt{PUSH}, and implement them with x86\_64 assembly. I 
+\texttt{ENTER}, and \texttt{PUSH}, and implement them with x86\_64 assembly.  We 
 also describe several design decisions, as well as some optimizations. All
 implementation and benchmark code is available at
 \texttt{http://cs.unm.edu/\textasciitilde stelleg/cem.tgz}.
@@ -96,9 +96,9 @@ Data types are a common extension which we omit~\cite{jonesstg,boquist1997grin};
 we take the approach of Sestoft~\cite{sestoft}, namely that data types can be
 efficiently implemented with pure lambda terms. For example, consider a list
 data type (in Haskell syntax): \texttt{data List a = Cons a (List a) | Nil}.
-This can be represented in pure lambda terms with $\mathit{Cons} = \lambda
-h.\lambda t.\lambda c.\lambda n.c \; h \; t$ and $\mathit{Nil} = \lambda
-c.\lambda n.n$. 
+In an untyped setting, this can be represented in pure lambda terms with
+$\mathit{Cons} = \lambda h.\lambda t.\lambda c.\lambda n.c \; h \; t$ and
+$\mathit{Nil} = \lambda c.\lambda n.n$. 
 
 Let bindings are another construct commonly included in functional
 language compilers, even in the internal representation
@@ -144,12 +144,10 @@ stack. This shortcut prevents unnecessary writes to the stack and heap
 \subsection{Garbage Collection}
 
 I have implemented a simple mark and sweep garbage collector with the property
-that it does not require two spaces because constant-sized closures in the
-heap allow a linked-list representation for the free cells. Indeed,
-while the abstract machine from Section~\ref{sec:mach} increments a free heap
-counter, the actual implementation uses the next free cell in the linked list.
+that it does not require two spaces, thanks to constant-sized closures in the
+heap allowing a linked-list representation for the free cells. 
 
 Because the focus of this dissertation is not on the performance of garbage
-collection, I ensure the benchmarks in Section~\ref{sec:eval} are not dominated
+collection, we ensure the benchmarks in Section~\ref{sec:eval} are not dominated
 by GC time.
 

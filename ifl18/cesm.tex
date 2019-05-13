@@ -1,9 +1,9 @@
 \section{Small-Step \ce} \label{sec:cem_small}
 
-In this section I review the small-step semantics of the \ce 
+In this section we review the small-step semantics of the \ce 
 machine, and show that it implements the big-step semantics of
 Section~\ref{sec:cem_big}. This is a fairly straightforward transformation implemented
-by adding a stack. The source language is the same, and I simply add a stack to
+by adding a stack. The source language is the same, and we simply add a stack to
 our configuration (and call it a state). The stack elements are either argument
 closures or update markers. Update markers are pushed onto the stack when a
 variable dereferences that location in the heap. When they are popped by an
@@ -20,9 +20,9 @@ environment structure. The semantics is defined formally in
 Figure~\ref{fig:cesm}.  
 
 \subsection{Relation to Big Step} \label{sec:cem_cesm}
-Here I prove that the small-step semantics implements the big-step semantics of
+Here we prove that the small-step semantics implements the big-step semantics of
 Section~\ref{sec:cem_big}. This requires first a notion of reflexive transitive closure,
-which I define in the standard way. We also make use of the fact that the
+which we define in the standard way. We also make use of the fact that the
 reflexive transitive closure can be defined equivalently to extend from the left
 or right. 
 
@@ -38,14 +38,14 @@ induction hypothesis so that it holds for all stacks, which gives us the
 desired case of the empty stack as a simple specialization. The rule for
 abstractions is the trivial base case. Var rule applies as the first step, and
 the induction hypothesis applies to the stack with the update marker on it. To
-ensure that the Upd rule applies I use the fact that the big-step semantics
+ensure that the Upd rule applies we use the fact that the big-step semantics
 only evaluates to abstraction configurations, and the fact that the reflexive
 transitive closure can be rewritten with steps on the right. For the Application
-rule, I take advantage of the fact that one can append two evaluations together,
+rule, we take advantage of the fact that one can append two evaluations together,
 as well as extend a reflexive transitive closure from the left or the right. As
-with the Var rule I use the fact that the induction rule is defined for all
+with the Var rule we use the fact that the induction rule is defined for all
 stacks to ensure evaluation of the left hand side to a value with the argument
-on the top of the stack. Finally, I extend the environment with the argument
+on the top of the stack. Finally, we extend the environment with the argument
 closure, and evaluate the result to a value by the second induction hypothesis.
 \end{proofoutline}
 

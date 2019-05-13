@@ -123,10 +123,10 @@ non-numeral, parentheses, or white space string into a variable.
 
 \subsection{Prelude}
 An extremely useful tool for any language is a base set of functionality
-available in global namespace. I follow Haskell terminology and refer to this
+available in global namespace. We follow Haskell terminology and refer to this
 set of bound variables as a Prelude. 
 
-I start with a pure fragment of the prelude: there are no partial functions
+We start with a pure fragment of the prelude: there are no partial functions
 modulo termination and type-safety. Note we have wrapper functions for our
 machine primitive operations that force evaluation of arguments. We also make
 heavy use of right-associative applications, wrapped with square brackets
@@ -594,7 +594,7 @@ check \texttt{=} will force it as well.
 In addition to the native code compiler, I have implemented a graphviz-based
 visualization tool that helps visualize how the heap changes over time. It uses
 variable names in the heap instead of de Bruijn indices to increase readability.
-It also shows the stack and current closure through steps of the small step \ce
+It also shows the stack and current closure through steps of the small-step \ce
 semantics. The primary use is just to see how the cactus structure evolves
 through evaluation, and how it ensures sharing. 
 

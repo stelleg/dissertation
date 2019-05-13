@@ -104,7 +104,7 @@ where " c1 '⇓' c2 " := (step c1 c2).
 
 \section{Small-Step \ce Semantics}
 
-Our small-step semantics is a straightforward implementation of the big step
+Our small-step semantics is a straightforward implementation of the big-step
 semantics. The language is the same lambda calculus with de Bruijn indices, while
 we introduce a stack to match marker updates and argument bindings to variables.
 This is a formalization of Figure~\ref{fig:cesm}. 
@@ -137,7 +137,7 @@ where " c1 '→_s' c2 " := (step c1 c2).
 
 \subsection{Relation to Big-Step}
 
-We prove that the small-step semantics implements the big step semantics with
+We prove that the small-step semantics implements the big-step semantics with
 the following lemma. The description of the proof can be found in
 Section~\ref{sec:cem_cesm}. 
 
@@ -205,7 +205,7 @@ architecture machine semantics should be relatively straightforward.
 Now that we have the language for our abstract instruction machine target, we
 can look at the formal semantics for it. Without loss of generality, we choose a
 step relation on instructions, wrapped by a step instruction on full basic
-blocks. This eases reasoning about the relation to the small step \ce
+blocks. This eases reasoning about the relation to the small-step \ce
 relation. This is a formalization of the semantics described in
 Figure~\ref{fig:im_semantics}. 
 
@@ -251,7 +251,7 @@ contained in that basic blocks. The \texttt{step} relation then wraps that
 relation and defines how the state changes given execution of the basic block
 pointed to by the instruction pointer. Note that we don't define an explicit
 halting relation. Instead, the machine will be stuck when the current code to be
-executed is a value and the stack is empty, which is where the small step
+executed is a value and the stack is empty, which is where the small-step
 \ce semantics also get stuck. In contrast, the native code implementation has a
 check to ensure the stack is non-empty. A full compiler with a sufficiently
 sophisticated type system could likely do away with this check, only terminating
@@ -436,7 +436,7 @@ Lemma cesm_im : ∀ v s s', state_rel s s' →
   cesm.step s v → 
   sigT (λ v', prod (refl_trans_clos im.step s' v') (state_rel v v')).
 \end{verbatim}
-This states that if we have related small step and instruction machine states,
+This states that if we have related small-step and instruction machine states,
 and we take a small step, then the instruction machine will take a step to a
 state that is related to the new state of the small-step machine.  While we
 don't discuss the proof in detail, it's worth mentioning that even with many

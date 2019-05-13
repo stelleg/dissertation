@@ -5,9 +5,9 @@ implementations in formal logic.
 
 \section{Preliminaries} \label{sec:prelim}
 
-I begin with the simple lambda calculus~\cite{barendregt1984lambda}:  $$ t::= x
+We begin with the simple lambda calculus~\cite{barendregt1984lambda}:  $$ t::= x
 \; | \;  \lambda x.t \; | \;  t \; t $$ where $x$ is a variable, $\lambda x.t$
-is an abstraction, and $t \; t$ is an application. I will primarily use lambda
+is an abstraction, and $t \; t$ is an application. We will primarily use lambda
 calculus with de Bruijn indices, which replaces variables with a natural number
 indexing into the binding lambdas.  This calculus is given by the syntax: $$
 t::= i \; | \; \lambda t \; | \; t \; t $$ where $i \in \mathbb{N}$. In both
@@ -19,19 +19,21 @@ head normal form (WHNF), which terminates on an abstraction without entering its
 body.
 
 In mechanical evaluation of expressions, it would be too inefficient to perform
-explicit substitution. To solve this, the standard approach uses closures~\cite{landin1964mechanical,curien1991abstract,jonesstg,biernacka2007concrete}.
+explicit substitution. To solve this, the standard approach uses
+closures~\cite{landin1964mechanical,curien1991abstract,jonesstg,biernacka2007concrete}.
 Closures combine a term with an environment, which binds the free variables of
 the term to closures. \emph{Entering} a closure refers to the operational
 process of beginning to evaluate its term in its environment.
 
-Because of its use of de Bruijn indices, I use Curien's calculus of
-closures~\cite{curien1991abstract} as the formal basis for closures,
+Because of its simplicity and its use of de Bruijn indices, we use Curien's
+calculus of closures~\cite{curien1991abstract} as the formal basis for closures,
 defined in Figure~\ref{fig:curien}. It is a formalization of closures with an
 environment represented as a list of closures, indexed by de Bruijn indices. We
 will occasionally modify this calculus by replacing the de Bruijn indices with
 variables for readability, in which case variables are looked up in the
-environment instead of indexed, e.g., $t[x = c, y = c'])$~\cite{barendregt1984lambda}. We also add superscript and subscript markers to
-denote unique syntax elements, e.g., $t', t_1 \in \textnormal{Term}$. 
+environment instead of indexed, e.g., $t[x = c, y =
+c'])$~\cite{barendregt1984lambda}. We also add superscript and subscript markers
+to denote unique syntax elements, e.g., $t', t_1 \in \textnormal{Term}$. 
 
 \begin{figure}
 \textbf{Syntax}
@@ -84,8 +86,8 @@ illustrates desirable properties of call-by-need.
 In practice, however, there are significant performance issues with call-by-need
 evaluation.  We focus on the following: \emph{delaying a computation and
 performing it later is slower than performing it immediately.} This deficiency
-is well understood~\cite{johnsson1984efficient,jonesstg}, and has become part of
-the motivation for \emph{strictness
+is well understood~\cite{johnsson1984efficient,jonesstg}, and is part of the
+motivation for \emph{strictness
 analysis}~\cite{mycroft1982abstract,wadler1987projections}, which transforms
 non-strict evaluation to strict when possible.
 
@@ -98,7 +100,7 @@ then \emph{applies} the arguments to it by knowing its arity. In the second,
 \section{Existing Call-by-Need Machines}
 
 Diehl et al.~\cite{diehl2000abstract} review the call-by-need
-literature in detail.  Here I summarize the most relevant points.
+literature in detail.  Here we summarize the most relevant points.
 
 The most well known and widely used machine for lazy evaluation is the
 Spineless Tagless G-Machine (STG machine), which underlies the Glasgow Haskell
@@ -106,16 +108,15 @@ Compiler (GHC).  STG uses flat environments that can be allocated on the stack,
 the heap, or some combination~\cite{jonesstg}.  
 
 Two other influential lazy evaluation machines relevant to the \ce 
-machine are the call-by-need Krivine
-machines~\cite{lkm,krivine2007call,sestoft}, and the three-instruction machine
-(TIM)~\cite{TIM}.  Krivine machines started as an approach to call-by-name
-evaluation, and were later extended to
+machine are the call-by-need Krivine machine~\cite{lkm,krivine2007call,sestoft},
+and the three-instruction machine (TIM)~\cite{TIM}.  Krivine machines started as
+implementing call-by-name evaluation, and were later extended to
 call-by-need~\cite{krivine2007call,sestoft,danvy2013synthetic,lkm}.  The \ce
 machine modifies the lazy Krivine machine to capture the environment sharing
 given by the cactus environment. The TIM is an implementation of call-by-need
 and call-by-name~\cite{TIM}.  It involves, as the name suggests, three machine
 instructions, \texttt{TAKE}, \texttt{PUSH}, and \texttt{ENTER}. In
-Section~\ref{sec:impl}, I follow Sestoft~\cite{sestoft} and
+Section~\ref{sec:impl}, We follow Sestoft~\cite{sestoft} and
 re-appropriate these instructions for the \ce machine.
 
 There has also been recent interest in \emph{heapless} abstract
@@ -139,36 +140,37 @@ all bugs~\cite{yangfuzz}.
 This approach applies particularly well to compilers. Often, the specification
 for a compiler is complete: source level semantics for some languages are
 exceedingly straightforward to specify, and target architectures have lengthy
-specifications that are amenable to mechanization. In addition, writing tests
-for compilers that cover all cases is even more hopeless than most domains, due
-to the size and complexity of the domain and codomain. The return on investment
-is also high: all reasoning about programs compiled with a verified compiler is
-provably preserved. 
+specifications that are amenable to implementation in a machine-checked logic.
+In addition, writing tests for compilers that cover all cases is even more
+hopeless than most domains, due to the size and complexity of the domain and
+codomain. The return on investment is also high: all reasoning about programs
+compiled with a verified compiler is provably preserved. 
 
-Likely partially due to the complexities discussed above involved in
-implementing lazy languages, among other factors, existing work on verification
-has focused on compiling strict languages~\cite{chlipala2007certified,
-leroy2012compcert, cakeml14}. Here I use the simple \ce machine as a base for a
+Likely due to the complexities discussed above involved in implementing lazy
+languages, among other factors, existing work on verification has focused on
+compiling strict languages~\cite{chlipala2007certified, leroy2012compcert,
+cakeml14}. In this dissertation we use the simple \ce machine as a base for a
 verified compiler of a lazy language, using the Coq proof assistant. 
 
-As with many areas of research, the devil is in the details. What exactly does
-it mean to claim a compiler is verified?  Essentially, a verified compiler of a
-functional language is one that preserves computation of values. That is, we
-have an implication: \emph{if the source semantics denotes a value, then the
-compiled code computes an equivalent value}~\cite{chlipala2007certified}. The
-important thing to note is that the implication is only in one direction. If the
-source semantics never terminates, this class of correctness theorem says
-nothing about the behavior of the compiled code. This has consequences for
-Turing-complete source languages. If we are unsure if a source program
-terminates, and wish to run it to check experimentally if it does, if we run the
-compiled code and it returns a value, we cannot be certain that it corresponds
-to a value computed in the source semantics. 
+As with many areas of research, the devil is in the details. The details, in
+this context, are the specification of a what it means to be a verified
+compiler. Generally speaking, a verified compiler of a functional language is
+one that preserves computation of values. That is, we have an implication:
+\emph{if the source semantics denotes a value, then the compiled code computes
+an equivalent value}~\cite{chlipala2007certified}. The important thing to note
+is that the implication is only in one direction. If the source semantics never
+terminates, this class of correctness theorem says nothing about the behavior of
+the compiled code. This has consequences for Turing-complete source languages.
+If we are unsure if a source program terminates and wish to run it to check
+experimentally if it does, then if we run the compiled code and it returns a
+value, we cannot be certain that it corresponds to a value computed in the
+source semantics. 
 
 While in theory one could solve this by proving the implication in the other
 direction, that is, \emph{if the compiled code computes a value then the source
 semantics computes an equivalent value}, in practice this is prohibitively
 difficult. Effectively, the induction rules for the abstract machine make
-constructing such a proof monumentally tricky, as we discuss further in
+constructing such a proof challenging, as we discuss further in
 Chapter~\ref{chap:verified}.
 
 One approach for getting around this issue is to try and capture the divergent
@@ -182,8 +184,7 @@ which the source semantics evaluates to a value. This is still a strong
 result: any source program that has meaning compiles to an executable with
 equivalent meaning. In addition, if anyone ever chooses to augment the language
 with a type system that ensures termination, or some notion of progress, then
-they could use that in combination with our verification proof for a system that
-verifiably supports a wider range of reasoning.
+they could use that in combination with our verification proof.
 
 \section{Environment Representations} \label{sec:env}
 
@@ -195,7 +196,7 @@ call by value and call-by-need.\footnote{Some work refers to this space as
 \emph{closure} representation rather than \emph{environment}
 representation~\cite{shao1994space,appel1988optimizing}.  Because the term part
 of the closure is simply a code pointer and the interesting design choices are
-in the environment, I refer to the topic as environment representation. Note
+in the environment, we refer to the topic as environment representation. Note
 also that global variables are often omitted from environments in real
 implementations, we don't consider this implementation detail here.}
 
@@ -237,9 +238,9 @@ machine~\cite{landin1964mechanical}.
 The drawbacks and advantages of each approach are well known. With a flat
 environment, variable lookup can be performed with a simple
 offset~\cite{jonesstg,appel1992compiling}. On the other hand, significant
-duplication can occur, as I will discuss in Section~\ref{sec:exist}.  With a
-shared environment, that duplication is removed, but at the cost of possible
-link traversal upon dereference. 
+duplication can occur, as we discuss in Section~\ref{sec:exist}.  With a shared
+environment, that duplication is removed, but at the cost of possible link
+traversal upon dereference. 
 
 As with most topics in compilers and abstract machines, the design space is
 actually more complex. For example, Appel and Jim show a wide range of
@@ -285,8 +286,8 @@ may not be evaluated. Therefore, it is possible that the work of creating the
 environment for that thunk will be wasted. This waste is well known, and
 existing approaches address it by avoiding thunks as much as
 possible~\cite{jonesstg,johnsson1984efficient}. Unfortunately, in cases like the
-above example, thunks are necessary. I aim to minimize the cost of creating such
-thunks.
+above example, thunks are necessary. We aim to minimize the cost of creating
+such thunks.
 
 Thunks are special in another way.  Recall that one advantage of flat
 environments is quick variable lookups. In a lazy language, this advantage is
@@ -307,7 +308,7 @@ freshly allocated location. These indirections are removed during garbage
 collection, but do impose some cost, both in runtime efficiency and
 implementation complexity.
 
-I have thus far ignored a number of details with regard to current
+We have thus far ignored a number of details with regard to current
 implementations. For example, the STG machine can split the flat environment, so
 that part is allocated on the stack and part on the heap.  The TIM allocates its
 flat environments separately from its closures so that each closure is a code
@@ -319,7 +320,7 @@ overhead.
 To summarize, the flat environment representation in a call-by-need language
 implies that whenever a term might be needed, the necessary environment is
 constructed from the current environment.  This operation can be expensive, and
-it is wasted if the variable is never dereferenced. In this work, I aim to
+it is wasted if the variable is never dereferenced. In this work, we aim to
 minimize this potentially unnecessary overhead.
 
 Figure~\ref{fig:designspace} depicts the design space relevant to this chapter.

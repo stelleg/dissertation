@@ -1,6 +1,6 @@
 \section{Compiler} \label{sec:compiler}
 
-In this section I describe the compiler, which compiles lambda terms with
+In this section we describe the compiler, which compiles lambda terms with
 de Bruijn indices to programs. The compiler proceeds by recursion on lambda
 terms, keeping a current index into the program to ensure correct linking
 without a separate pass. For variables, when we get to zero we push the current

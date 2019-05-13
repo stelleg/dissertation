@@ -1,19 +1,17 @@
 \section{Big-Step \ce} \label{sec:calc}
 
 This section shows how the shared environment approach can be applied to
-call-by-need evaluation. It starts with a big step semantics that abstracts away
+call-by-need evaluation. We start with a big step semantics that abstracts away
 environment representation, Curien's calculus of closures, and then shows how it
-can be modified to force sharing. See Curien's call-by-name calculus of closures
+can be modified to force sharing. Recall Curien's call-by-name calculus of closures
 in Figure~\ref{fig:curien}. \footnote{Curien calls it a ``lazy'' evaluator, and
 there is some ambiguity with the term lazy, but here the term is used only to
 mean call-by-need. Curien's condition checking that $i < m$ is omitted as the
-semantics is only defined for closed terms.}
-
-The App rule pushes a closure onto the environment, and the Id rule indexes into
-the environment, entering the corresponding closure. This section shows that by
-removing ambiguity about how the environments are represented, and forcing them
-to be represented in a \emph{cactus stack}~\cite{stenstrom1988vlsi}, we can
-define a novel call-by-need big step semantics.
+semantics is only defined for closed terms.} The App rule pushes a closure onto
+the environment, and the Id rule indexes into the environment, entering the
+corresponding closure. We show that by removing ambiguity about how the
+environments are represented, and forcing them to be represented in a
+\emph{parent pointer tree}, we can define a novel approach to call-by-need.
 
 To start, consider again the example from Section~\ref{sec:env}, this time with
 de Bruijn indices: $(\lambda(\lambda t_0) \; (\lambda t_1)) t_2$.  The terms $t_0$
@@ -22,20 +20,20 @@ following environments, respectively:
 
 \begin{center}
 \begin{tikzpicture}
-\node {$c \cdot t_2[\bullet] \cdot \bullet$};
+\node {$c_0 \cdot t_2[\bullet] \cdot \bullet$};
 \node [yshift=-0.5cm] {$c_1 \cdot t_2[\bullet] \cdot \bullet$};
 \end{tikzpicture}
 \end{center}
 
-Again, the second closure is identical in each environment.  And again,
-we can represent these environments with a shared environment, this time
-keeping call-by-need evaluation in mind:
+As with the named case, the second closure is identical in each environment.
+And again, we can represent these environments with a shared environment, this
+time keeping call-by-need evaluation in mind:
 \begin{center}
 \begin{tikzpicture}[ 
   edge from parent path={(\tikzchildnode\tikzchildanchor) edge [-latex] (\tikzparentnode\tikzparentanchor)},
   level distance=1cm
 ]
-\node (a) {$\bullet$} child{node (d) {$t_2[\bullet]$} child{node (b) {$c$}} child{node (c)
+\node (a) {$\bullet$} child{node (d) {$t_2[\bullet]$} child{node (b) {$c_0$}} child{node (c)
 {$c_1$}}};
 
 %\draw let \p1=(a), \p2 =(b), \n1={atan2(\y2-\y1,\x2-\x1)}, \n2={veclen(\y2-\y1,\x2-\x1)}
@@ -60,8 +58,8 @@ semantics, forcing the environment to be shared. Because we can hold the closure
 directly in the environment, the standard approach of a heap of closures is
 replaced with a \emph{heap of environments}. To enforce sharing, we extend
 Curien's calculus of closures to explicitly include the heap of environments,
-which we refer to as a \emph{cactus environment}. This is effectively a parent
-pointer tree in which the contained objects are closures. 
+which we refer to as a \emph{cactus environment} (\ce). This cactus environment
+structure is a parent pointer tree of closures. 
 
 See Figure~\ref{fig:bigstep} for the syntax and semantics of the \ce big step
 semantics. Recall that we are only concerned with evaluation of closed terms.
@@ -76,10 +74,10 @@ statement that $l \mapsto c \cdot l' \in \mu$, and $\mu(u \mapsto c \cdot l')$
 is $\mu$ with location $u$ updated to map to $c \cdot e$. Two 
 different semantics are defined, one for call-by-name
 (Figure~\ref{fig:bigstepname}) and one for call-by-need
-(Figure~\ref{fig:bigstep}), which makes the connection to Curien's call-by-name
-calculus more straightfoward. The rule for application is identical for both
-semantics: each evaluates the left hand side to a function, then binds the
-variable in the cactus environment, extending the current environment.
+(Figure~\ref{fig:bigstep}). Having both makes the connection to Curien's
+call-by-name calculus more straightfoward. The rule for application is identical
+for both semantics: each evaluates the left hand side to a function, then binds
+the variable in the cactus environment, extending the current environment.
 
 \begin{figure}
 \textbf{Syntax}
@@ -102,13 +100,13 @@ variable in the cactus environment, extending the current environment.
 \end{align*} 
 \begin{align*}
 \tag{App} \inference
-{\left(t\left[l\right], \mu\right) \Downarrow \left(\lambda t_2\left[l'\right], \mu'\right) 
+{\left(t_0\left[l\right], \mu\right) \Downarrow \left(\lambda t_2\left[l'\right], \mu'\right) 
    \quad f \not \in \textnormal{dom}\left(\mu'\right)
    \\ \left(t_2\left[f\right], \mu'\left[f \mapsto t_3\left[l\right] \cdot l'\right]\right)
          \Downarrow 
       \left(v, \mu'' \right) 
    }
-{\left(t \; t_3\left[l\right], \mu\right) \Downarrow \left(v, \mu'' \right)}  
+{\left(t_0 \; t_3\left[l\right], \mu\right) \Downarrow \left(v, \mu'' \right)}  
 \end{align*} 
 \begin{align*}
 \tag{Abs} \inference {} {\left(\lambda t\left[l\right], \mu\right) \Downarrow \left(\lambda t\left[l\right], \mu\right)}
@@ -146,13 +144,13 @@ value is shared correctly.
 \end{align*}
 \begin{align*}
 \tag{App} \inference
-{\left(t\left[l\right], \mu\right) \Downarrow \left(\lambda t_2\left[l'\right], \mu'\right) 
+{\left(t_0\left[l\right], \mu\right) \Downarrow \left(\lambda t_2\left[l'\right], \mu'\right) 
    \quad f \not \in \textnormal{dom}\left(\mu'\right)
    \\ \left(t_2\left[f\right], \mu'\left[f \mapsto t_3\left[l\right] \cdot l'\right]\right)
          \Downarrow 
       \left(v, \mu'' \right) 
    }
-{\left(t \; t_3\left[l\right], \mu\right) \Downarrow \left(v, \mu'' \right)}  
+{\left(t_0 \; t_3\left[l\right], \mu\right) \Downarrow \left(v, \mu'' \right)}  
 \end{align*}
 \begin{align*}
 \tag{Abs} \inference {} {\left(\lambda t\left[l\right], \mu\right) \Downarrow \left(\lambda t\left[l\right], \mu\right)}

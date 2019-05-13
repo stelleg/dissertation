@@ -11,7 +11,8 @@ they rely on compilers to generate efficient code in a way that programmers of
 strict languages don't. Essentially, they are leaving more operational decisions
 up to the compiler, and focusing their energy more on the correctness of their
 code. To paraphrase John Hughes, laziness is an essential tool for modular
-programming, and modular programming is essential for reasoning about programs. 
+programming. As anyone who has done formal reasoning about programs knows,
+modular programming is essential for reasoning about programs. 
 
 It is for this reason that we compiler implementors must take great care in the
 design of our compilers for lazy languages. We must build compilers that
@@ -27,9 +28,9 @@ may only invalidate three.
 
 This dissertation presents a tool for attaining these two goals: a novel
 technique for implementing lazy semantics using shared environments, formalized
-as the \ce machine. Essentially, the \ce machine repurposes shared environments
+as the \ce machine.  Essentially, the \ce machine repurposes shared environments
 to share the results of computation. The thesis of this dissertation is that
-this approach lends itself to compilers that achieve these two goals. I explore
+this approach helps to enable compilers that achieve these two goals. I explore
 the performance of the approach by implementing a native code compiler with
 encouraging results. This addresses the goal of high-performance code
 generation. To verify correctness, I take advantage of the simplicity of the
@@ -43,22 +44,22 @@ languages.
 This dissertation is organized into six chapters. In this chapter, I provide
 an introduction to the dissertation, including an outline of the structure,
 instructions for access to artifacts and reproduction of results, a
-retrospective, and an overview of the contributions. In
-Chapter~\ref{chap:background}, I provide necessary background for understanding
-the dissertation, as well as further discussion of motivation. In
-Chapter~\ref{chap:ce}, I define and explain the \ce machine, in both big and
-small-step semantics. In Chapter~\ref{chap:cem}, I describe the implementation
-of a native code compiler based on the \ce machine, and analyze and discuss its
-performance. In Chapter~\ref{chap:verified}, I present a verified compiler,
-discussing the structure of the compiler and proofs. Finally, in
-Chapter~\ref{chap:conclusion}, I discuss threats to validity, future work, and
+retrospective, and an overview of the contributions.
+Chapter~\ref{chap:background} provides necessary background for understanding
+the dissertation, as well as further discussion of motivation. 
+Chapter~\ref{chap:ce} defines and explains the \ce machine, in both big and
+small-step semantics. Chapter~\ref{chap:cem} describes the implementation
+of a native code compiler based on the \ce machine, and analyzes and discusses
+its performance. Chapter~\ref{chap:verified} presents a verified compiler,
+discussing the structure of the compiler and proofs. Finally, 
+Chapter~\ref{chap:conclusion} discusses threats to validity, future work, and
 conclusions. The appendices are used to give further implementation details,
 both for the native code compiler (Appendix~\ref{chap:cem_appendix}) and the
 verified compiler (Appendix~\ref{chap:coq_appendix}). In the case of the native
-code compiler, our hope is to share some of the other interesting properties of
-the implementation.  For the verified compiler, the purpose of the appendix is
-to give the reader a fuller understanding of the structure and definitions
-involved in the proofs.
+code compiler, the appendix shares some of the miscellaneous interesting
+properties of the implementation. For the verified compiler, the purpose of the
+appendix is to give the reader a fuller understanding of the structure and
+definitions involved in the proofs.
 
 \section{Reproducibility and Artifacts}
 
@@ -85,11 +86,12 @@ One easy argument for the importance of call-by-need is that it underlies the
 widely used programming language Haskell. Technically, Haskell is a non-strict
 language.  This implies that both call-by-name and call-by-need are valid
 implementation strategies. In practice, there are some situations when one would
-prefer call-by-name, namely, when storing an intermediate value is more
-expensive than re-computing it. This implies that in theory, Haskell could
-switch between call-by-name and call-by-value depending on the situation.  In
-practice, implementations effectively always choose call-by-need, sometimes
-even performing compile-time transformations that increase sharing~\cite{jones96floating}.  
+prefer call-by-name: when storing an intermediate value is more expensive than
+re-computing it. This implies that in theory, Haskell could switch between
+call-by-name and call-by-value depending on the situation. In practice,
+implementations effectively always choose call-by-need, sometimes even
+performing compile-time transformations that increase
+sharing~\cite{jones96floating}.  
 
 Even amongst the Haskell community, the advantages and disadvantages of
 lazy evaluation are hotly debated. For example, there exist both strictness

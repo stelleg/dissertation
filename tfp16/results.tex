@@ -1,7 +1,7 @@
 \subsection{Results} \label{sec:res}
 
 Figure~\ref{fig:res} gives the benchmark results.  In general, the compiler is
-outperformed by GHC, sometimes significantly, and outperforms UHC. I spend the
+outperformed by GHC, sometimes significantly, and outperforms UHC. We spend the
 remainder of the section analyzing these performance differences.
 
 \begin{figure*}
@@ -71,7 +71,7 @@ units are seconds. Times averaged over 5 runs ($\sigma < 20\%$).}
 \label{fig:res-church}
 \end{figure*}
 
-Next, I consider the disparity due to the Y-combinator, by running a simple
+Next, we consider the disparity due to the Y-combinator, by running a simple
 exponentiation example with Church numerals, calculating $3^8 - 3^8 = 0$. In
 this case, the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$ machine
 significantly outperforms both GHC and UHC, as seen in

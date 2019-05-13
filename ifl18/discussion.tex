@@ -136,10 +136,9 @@ $\Downarrow$. Unfortunately, as mentioned in Section~\ref{sec:threats}, there is
 an issue I discovered when formalizing this semantics. Essentially, the rules
 for variable freshness are insufficient. To fix this, one has to modify the
 rules to ensure global freshness. This modification is shown in
-Figure~\ref{fig:cbn_fixed}. While it makes the semantics more complicated, a
-significant challenge for proving bisimulation comes from the complexity of
+Figure~\ref{fig:cbn_fixed}. In addition to this complication, the complexity of
 managing the relation between de Bruijn terms and standard named terms through a
-mutating heap. 
+mutating heap makes this proof extremely challenging. 
 
 \begin{figure}
 \begin{align*}

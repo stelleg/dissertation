@@ -58,12 +58,11 @@ thus the bound term will be evaluated at most once. The App rule simply pushes
 an argument term in the current environment. The Var rule enters the closure
 pointed to by the \textit{i}'th environment location.  
 
-To get some intuition for the $\mathcal{\mathcal{C} \mskip -4mu \mathcal{E}}$
-machine and how it works, please refer to Figure~\ref{fig:state}, which displays
-the steps in the evaluation of the term $(\lambda a.(\lambda b.b \; a) \lambda
-c.c \; a) \; ((\lambda i.i) \lambda j.j)$, or
-$(\lambda(\lambda0\;1)\;\lambda0\;1)\;((\lambda0)\; \lambda0)$ with de Bruijn
-indices.
+\sloppy To get some intuition for the \ce machine and how it works, please refer
+to Figure~\ref{fig:state}, which displays the steps in the evaluation of the
+term \\ $(\lambda a.(\lambda b.b \; a) \lambda c.c \; a) \; ((\lambda i.i)
+\lambda j.j)$, or $(\lambda(\lambda0\;1)\;\lambda0\;1)\;((\lambda0)\; \lambda0)$
+with de Bruijn indices.
 
 \begin{sidewaysfigure}
 \begin{align*}

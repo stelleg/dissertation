@@ -89,8 +89,7 @@ prefer call-by-name, namely, when storing an intermediate value is more
 expensive than re-computing it. This implies that in theory, Haskell could
 switch between call-by-name and call-by-value depending on the situation.  In
 practice, implementations effectively always choose call-by-need, sometimes
-even performing compile-time transformations that increase sharing
-\cite{jones96floating}.  
+even performing compile-time transformations that increase sharing~\cite{jones96floating}.  
 
 Even amongst the Haskell community, the advantages and disadvantages of
 lazy evaluation are hotly debated. For example, there exist both strictness

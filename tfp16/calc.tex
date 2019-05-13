@@ -12,7 +12,7 @@ semantics is only defined for closed terms.}
 The App rule pushes a closure onto the environment, and the Id rule indexes into
 the environment, entering the corresponding closure. This section shows that by
 removing ambiguity about how the environments are represented, and forcing them
-to be represented in a \emph{cactus stack} ~\cite{stenstrom1988vlsi}, we can
+to be represented in a \emph{cactus stack}~\cite{stenstrom1988vlsi}, we can
 define a novel call-by-need big step semantics.
 
 To start, consider again the example from Section~\ref{sec:env}, this time with
@@ -46,8 +46,7 @@ keeping call-by-need evaluation in mind:
 \end{center}
 This inverted tree structure seen earlier with the leaves pointing toward the
 root is called a \emph{cactus stack} (sometimes called a spaghetti stack or
-saguaro stack) when used to implement stacks
-\cite{hauck1968burroughs,ichbiah1991rationale}, or a parent pointer tree in
+saguaro stack) when used to implement stacks~\cite{hauck1968burroughs,ichbiah1991rationale}, or a parent pointer tree in
 general. In this use case, every node defines an environment as the sequence of
 closures in the path to the root.  If $t_2[\bullet]$ is a thunk, and is updated
 in place with the value after its first reference, then both environments would

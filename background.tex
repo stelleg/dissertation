@@ -5,7 +5,7 @@ implementations in formal logic.
 
 \section{Preliminaries} \label{sec:prelim}
 
-I begin with the simple lambda calculus ~\cite{barendregt1984lambda}:  $$ t::= x
+I begin with the simple lambda calculus~\cite{barendregt1984lambda}:  $$ t::= x
 \; | \;  \lambda x.t \; | \;  t \; t $$ where $x$ is a variable, $\lambda x.t$
 is an abstraction, and $t \; t$ is an application. I will primarily use lambda
 calculus with de Bruijn indices, which replaces variables with a natural number
@@ -13,14 +13,13 @@ indexing into the binding lambdas.  This calculus is given by the syntax: $$
 t::= i \; | \; \lambda t \; | \; t \; t $$ where $i \in \mathbb{N}$. In both
 cases, we use the standard Barendregt syntax conventions, namely that
 applications are left associative and the bodies of abstractions extend as far
-as possible to the right ~\cite{barendregt1984lambda}.  A \emph{value} in lambda
+as possible to the right~\cite{barendregt1984lambda}.  A \emph{value} in lambda
 calculus refers to an abstraction. We are concerned only with evaluation to weak
 head normal form (WHNF), which terminates on an abstraction without entering its
 body.
 
 In mechanical evaluation of expressions, it would be too inefficient to perform
-explicit substitution. To solve this, the standard approach uses closures
-~\cite{landin1964mechanical,curien1991abstract,jonesstg,biernacka2007concrete}.
+explicit substitution. To solve this, the standard approach uses closures~\cite{landin1964mechanical,curien1991abstract,jonesstg,biernacka2007concrete}.
 Closures combine a term with an environment, which binds the free variables of
 the term to closures. \emph{Entering} a closure refers to the operational
 process of beginning to evaluate its term in its environment.
@@ -31,8 +30,7 @@ defined in Figure~\ref{fig:curien}. It is a formalization of closures with an
 environment represented as a list of closures, indexed by de Bruijn indices. We
 will occasionally modify this calculus by replacing the de Bruijn indices with
 variables for readability, in which case variables are looked up in the
-environment instead of indexed, e.g., $t[x = c, y = c'])$
-~\cite{barendregt1984lambda}. We also add superscript and subscript markers to
+environment instead of indexed, e.g., $t[x = c, y = c'])$~\cite{barendregt1984lambda}. We also add superscript and subscript markers to
 denote unique syntax elements, e.g., $t', t_1 \in \textnormal{Term}$. 
 
 \begin{figure}
@@ -72,7 +70,7 @@ the value, whereas call-by-need memoizes the value, so it is computed at most on
 Thus, call-by-need attempts to embody the best of both worlds---never repeat
 work (call-by-value), and never perform unnecessary work (call-by-name). These
 are intuitively good properties to have, illustrated by the following example,
-modified from Danvy et al. ~\cite{danvy2013synthetic}:
+modified from Danvy et al.~\cite{danvy2013synthetic}:
 
 $$ \overbrace{c_m (c_m (\cdots(c_m}^{m} \; \mathit{id} \;
 \overbrace{\mathit{id})\cdots) \mathit{id})}^{m} \; \mathit{true} \;
@@ -80,23 +78,22 @@ $$ \overbrace{c_m (c_m (\cdots(c_m}^{m} \; \mathit{id} \;
 \; (s \cdots (s}^{n} \; z) \cdots) $, $\mathit{true} = \lambda t.\lambda f.t$,
 $\mathit{id}=\lambda x.x$, and \\ $\mathit{bottom} = (\lambda x.x \; x) \lambda x.x \; x$.
 When evaluating this expression, call-by-value never terminates, call-by-name
-takes exponential time, and call-by-need takes only polynomial time
-~\cite{danvy2013synthetic}. Of course, this is a contrived example, but it
+takes exponential time, and call-by-need takes only polynomial time~\cite{danvy2013synthetic}. Of course, this is a contrived example, but it
 illustrates desirable properties of call-by-need.
 
 In practice, however, there are significant performance issues with call-by-need
 evaluation.  We focus on the following: \emph{delaying a computation and
 performing it later is slower than performing it immediately.} This deficiency
-is well understood \cite{johnsson1984efficient,jonesstg}, and has become part of
-the motivation for \emph{strictness analysis}
-\cite{mycroft1982abstract,wadler1987projections}, which transforms non-strict
-evaluation to strict when possible.
+is well understood~\cite{johnsson1984efficient,jonesstg}, and has become part of
+the motivation for \emph{strictness
+analysis}~\cite{mycroft1982abstract,wadler1987projections}, which transforms
+non-strict evaluation to strict when possible.
 
 When compiling applications, there are two general implementation approaches.
 In the first, \emph{eval/apply}, the caller first \emph{evaluates} the function,
 then \emph{applies} the arguments to it by knowing its arity. In the second,
 \emph{push/enter}, the caller \emph{pushes} the arguments onto the stack, then
-\emph{enters} the code that will evaluate to a function \cite{marlow2006making}.  
+\emph{enters} the code that will evaluate to a function~\cite{marlow2006making}.  
 
 \section{Existing Call-by-Need Machines}
 
@@ -106,26 +103,25 @@ literature in detail.  Here I summarize the most relevant points.
 The most well known and widely used machine for lazy evaluation is the
 Spineless Tagless G-Machine (STG machine), which underlies the Glasgow Haskell
 Compiler (GHC).  STG uses flat environments that can be allocated on the stack,
-the heap, or some combination ~\cite{jonesstg}.  
+the heap, or some combination~\cite{jonesstg}.  
 
 Two other influential lazy evaluation machines relevant to the \ce 
-machine are the call-by-need Krivine machines
-~\cite{lkm,krivine2007call,sestoft}, and the three-instruction machine (TIM)
-~\cite{TIM}.  Krivine machines started as an approach to call-by-name
-evaluation, and were later extended to call-by-need
-~\cite{krivine2007call,sestoft,danvy2013synthetic,lkm}.  The \ce machine
-modifies the lazy Krivine machine to capture the environment sharing given by
-the cactus environment. The TIM is an implementation of call-by-need and
-call-by-name ~\cite{TIM}.  It involves, as the name suggests, three machine
+machine are the call-by-need Krivine
+machines~\cite{lkm,krivine2007call,sestoft}, and the three-instruction machine
+(TIM)~\cite{TIM}.  Krivine machines started as an approach to call-by-name
+evaluation, and were later extended to
+call-by-need~\cite{krivine2007call,sestoft,danvy2013synthetic,lkm}.  The \ce
+machine modifies the lazy Krivine machine to capture the environment sharing
+given by the cactus environment. The TIM is an implementation of call-by-need
+and call-by-name~\cite{TIM}.  It involves, as the name suggests, three machine
 instructions, \texttt{TAKE}, \texttt{PUSH}, and \texttt{ENTER}. In
-Section~\ref{sec:impl}, I follow Sestoft ~\cite{sestoft} and
+Section~\ref{sec:impl}, I follow Sestoft~\cite{sestoft} and
 re-appropriate these instructions for the \ce machine.
 
 There has also been recent interest in \emph{heapless} abstract
-machines for lazy evaluation. Danvy et al. ~\cite{danvy2012inter} and
-Garcia et al. ~\cite{garcia2009lazy} independently derived similar
-machines from the call-by-need lambda calculus
-~\cite{ariola1995call}. These are interesting approaches, but it is not yet
+machines for lazy evaluation. Danvy et al.~\cite{danvy2012inter} and
+Garcia et al.~\cite{garcia2009lazy} independently derived similar
+machines from the call-by-need lambda calculus~\cite{ariola1995call}. These are interesting approaches, but it is not yet
 clear how these machines could be implemented efficiently.
 
 \section{Formal Logic} \label{sec:background}
@@ -159,7 +155,7 @@ As with many areas of research, the devil is in the details. What exactly does
 it mean to claim a compiler is verified?  Essentially, a verified compiler of a
 functional language is one that preserves computation of values. That is, we
 have an implication: \emph{if the source semantics denotes a value, then the
-compiled code computes an equivalent value} \cite{chlipala2007certified}. The
+compiled code computes an equivalent value}~\cite{chlipala2007certified}. The
 important thing to note is that the implication is only in one direction. If the
 source semantics never terminates, this class of correctness theorem says
 nothing about the behavior of the compiled code. This has consequences for
@@ -176,7 +172,7 @@ constructing such a proof monumentally tricky, as we discuss further in
 Chapter~\ref{chap:verified}.
 
 One approach for getting around this issue is to try and capture the divergent
-behavior by defining a diverging semantics explicitly \cite{functionalbigstep}.
+behavior by defining a diverging semantics explicitly~\cite{functionalbigstep}.
 Then one can safely claim that \emph{if the source semantics diverges according to
 our diverging semantics, then the compiled code also diverges}. 
 
@@ -233,24 +229,24 @@ represented by the following diagram:
 \end{tikzpicture}
 \end{center}
 Now each of the environments is represented by a linked list, with the binding
-of $x$ shared between them. This is an example of a \emph{shared} environment
-~\cite{appel1988optimizing}. This shared, linked structure dates back to the 
-first machine for evaluating expressions, Landin's SECD
+of $x$ shared between them. This is an example of a \emph{shared}
+environment~\cite{appel1988optimizing}. This shared, linked structure dates back
+to the first machine for evaluating expressions, Landin's SECD
 machine~\cite{landin1964mechanical}.
 
 The drawbacks and advantages of each approach are well known. With a flat
-environment, variable lookup can be performed with a simple offset
-~\cite{jonesstg,appel1992compiling}. On the other hand, significant
-duplication can occur, as I will discuss in Section~\ref{sec:exist}.
-With a shared environment, that duplication is removed, but at the cost of
-possible link traversal upon dereference. 
+environment, variable lookup can be performed with a simple
+offset~\cite{jonesstg,appel1992compiling}. On the other hand, significant
+duplication can occur, as I will discuss in Section~\ref{sec:exist}.  With a
+shared environment, that duplication is removed, but at the cost of possible
+link traversal upon dereference. 
 
 As with most topics in compilers and abstract machines, the design space is
-actually more complex. For example, Appel and Jim show a wide range of hybrids
-~\cite{appel1988optimizing} between the two, and Appel and Shao
-~\cite{shao1994space} show an optimized hybrid that aims to achieve the benefits
-of both approaches. And as shown in the next section, choice of evaluation
-strategy further complicates the picture.
+actually more complex. For example, Appel and Jim show a wide range of
+hybrids~\cite{appel1988optimizing} between the two, and Appel and
+Shao~\cite{shao1994space} show an optimized hybrid that aims to achieve the
+benefits of both approaches. And as shown in the next section, choice of
+evaluation strategy further complicates the picture.
 
 \section{Existing Call-by-Need Environments} \label{sec:exist}
 
@@ -281,15 +277,15 @@ entered in either the evaluation of $t_0$ or $t_1$, the resulting value will
 overwrite the closure at $p_0$. The result of the computation is then shared
 with all other instances of $x$ in $t_0$ and $t_1$. In the case that terms have a
 large number of shared variables, environment duplication can be expensive.
-Compile-time transformation ~\cite{peyton1992implementing} (tupling arguments)
+Compile-time transformation~\cite{peyton1992implementing} (tupling arguments)
 helps, but we show that the machine can avoid duplication completely.
 
 Depending on $t_0$, either or both of the closures created for its free variables
 may not be evaluated. Therefore, it is possible that the work of creating the
 environment for that thunk will be wasted. This waste is well known, and
-existing approaches address it by avoiding thunks as much as possible
-~\cite{jonesstg,johnsson1984efficient}. Unfortunately, in cases like the above
-example, thunks are necessary. I aim to minimize the cost of creating such
+existing approaches address it by avoiding thunks as much as
+possible~\cite{jonesstg,johnsson1984efficient}. Unfortunately, in cases like the
+above example, thunks are necessary. I aim to minimize the cost of creating such
 thunks.
 
 Thunks are special in another way.  Recall that one advantage of flat

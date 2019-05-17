@@ -461,7 +461,7 @@
    \clearpage%
    \mbox{\@resetpagesize}%
    \if@twoside%
-     \thispagestyle{empty}%
+     \thispagestyle{plain}%
      \mbox{}%
      \clearpage%
    \fi
@@ -488,13 +488,9 @@
 %
   \let\footnotesize\small
 %  \let\footnoterule\relax
-  \if@twoside%
-    \setcounter{page}{1}%
-  \else
-    \setcounter{page}{1}%
+  \setcounter{page}{2}%
     %\setcounter{page}{2}%
     %Rolled back counter from 2 to 1 to correct a page error D. Murrell
-  \fi
   \null\vfil%
   \begin{center}%
   \renewcommand\baselinestretch{0.75}
@@ -533,104 +529,53 @@
 %  The following commands define the copywrite page
 %::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 \newcommand\makecopyright{%
-
-  \thispagestyle{plain}
-  \if@botnum
-    \setlength{\headsep}{-50pt}
-    \setlength{\topmargin}{3pt}
-% extra:
-    \setlength{\footskip}{58pt}
-  \else
-     \setlength{\topmargin}{-8pt}
-  \fi
   \null\vfil%
   \begin{center}%
     \vspace{+0.56in}
     \copyright \thisyear, \hskip 0.5em \@author
   \end{center}%
   \vfil\vfil\null%
-  \if@twoside%
-    \clearpage%
-    \thispagestyle{plain}%
-    \mbox{}%
-  \fi
-\let\makecopyright\relax}
+}
+
 %::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 %  The following commands define the dedication page
 %::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 \newenvironment{dedication}{%
-  %\clearpage
-  %removed extra unnecessary clearpage -D. Murrell
-  \thispagestyle{plain}
-  \if@botnum
-    % \setlength{\headsep}{-42pt}
-    % \setlength{\topmargin}{-6pt}
-  \else
-%     \setlength{\headheight}{-2pt}
-%     \setlength{\topmargin}{-666pt}
-  \fi
- \null\vfil%
+ \null\vfil
   \begin{flushleft}
-     \if@botnum
-        \vspace{.82in} %change this if "Dedication" is too high/low
-     \else
-        \vspace{-.12in} %change this if "Dedication" is too high/low
-     \fi 
-     \Huge \bfseries Dedication
+     \LARGE \bfseries Dedication
   \end{flushleft}
+  \vspace{2cm}
   \itshape
-  \null\vfil%
-  \begin{flushright}}%
-{\end{flushright}\par\vfil\vfil\null% 
-   \if@twoside%
-     \clearpage%
-     \thispagestyle{plain}%
-     \mbox{}%
-   \fi%
-}
+  \begin{flushright}}
+{\end{flushright}\vfil\clearpage}
+
 %::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 %  The following commands define the 'singlespace' environment
 %::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 \def\singlespace{%
-%  \vskip\parskip%
-%  \vskip\baselineskip%
   \def\baselinestretch{1}%
   \ifx\@currsize\normalsize\@normalsize\else\@currsize\fi%
-%  \vskip-\parskip%
-%  \vskip-\baselineskip%
 }
 
 \def\endsinglespace{\null}%\par
+
 %::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 %  The following commands define the acknowledgments page
 %::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 \newenvironment{acknowledgments}{%
-  \if@botnum
-     \setlength{\headsep}{-50pt}
-  \else
-     \setlength{\topmargin}{-6pt}
-  \fi
-  \clearpage
-  \thispagestyle{plain}
+  \vspace{+0.84in}
+  \begin{center}
+  \LARGE \bfseries \acknowledgname
+  \end{center}
   \singlespace
-  \null\vfil%
-  \begin{flushleft}%
-    \vspace{+0.84in}
-    \Huge \bfseries \acknowledgname
-    \@endparpenalty\@M
-  \end{flushleft}}%
-{\endsinglespace\vfil\vfil\null  
-   \if@twoside%
-     \clearpage%
-     \thispagestyle{plain}%
-     \mbox{}%
-   \fi
-}
+  \thispagestyle{plain}
+}{\endsinglespace \vfil}
 %::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 %  The following commands define the abstract title page
 %::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 \newcommand\maketitleabstract{%
-   \clearpage
+   %\clearpage
    \thisfancypage{}{%
      \setlength{\fboxsep}{-6pt}%
      \singlebox
@@ -641,14 +586,14 @@
    \@resetpagesize
                     % \addcontentsline{toc}{chapter}{Abstract}%
    \if@twoside%
-     \thispagestyle{empty}%
+     %\thispagestyle{empty}%
      \mbox{}%
      \clearpage%
    \fi
 }
 
 \newcommand\@maketitleabstract{%
-  \thispagestyle{empty}
+  %\thispagestyle{empty}
 %
   \setlength{\textheight}{614pt}
   \setlength{\textwidth}{427.5pt}
@@ -734,7 +679,7 @@
 \renewcommand\thesubparagraph {\theparagraph.\@arabic\c@subparagraph}
 \newcommand\@chapapp{\chaptername}
 \newcommand\frontmatter{\cleardoublepage
-           \@mainmatterfalse\pagestyle{frontheadings}\pagenumbering{roman}}
+           \@mainmatterfalse\pagestyle{plain}\pagenumbering{roman}}
 \newcommand\mainmatter{\cleardoublepage
        \@mainmattertrue\pagestyle{mainheadings}\pagenumbering{arabic}}
 \newcommand\backmatter{\if@openright\cleardoublepage\else\clearpage\fi

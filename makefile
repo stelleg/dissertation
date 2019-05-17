@@ -1,4 +1,3 @@
-
 dissertation.pdf: dissertation.tex intro.tex conclusions.tex annotated.bib cem_appendix.tex coq_appendix.tex background.tex
 	xelatex dissertation.tex
 	bibtex dissertation

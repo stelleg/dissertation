@@ -19,7 +19,7 @@
 \usepackage{amsmath}
 \usepackage{rotating}
 \usepackage{caption}
-
+\usepackage{pdfpages}
 \setmonofont[Scale=0.8]{DejaVu Sans Mono}
 
 \newcommand{\concat}{\ensuremath{+\!\!\!\!+\,}}  
@@ -35,16 +35,13 @@
 
 \begin{document}
 
-\frontmatter
-
 % Uncomment the next command if you see weird paragraph spacing:
 % That is, if you see paragraphs float with lots of white space
 % in between them:
 
-% \setlength{\parskip}{0.30cm}
+\setlength{\parskip}{0.30cm}
 
 \title{Shared-Environment Call-by-Need}
-
 \author{George Widgery Stelle}
 
 \degreesubject{Ph.D., Computer Science}
@@ -56,15 +53,17 @@
 \previousdegrees{B.S., University of British Columbia, 2008 \\
                  M.S., Computer Science, University of New Mexico, 2013}
 
-\date{May, \thisyear}
+\date{July, 2019}
 
+\frontmatter
+\includepdf{approval.pdf}
 \maketitle
-
-%\makecopyright
 
 \begin{dedication}
 For Beth 
 \end{dedication}
+
+\setcounter{page}{3}
 
 \begin{acknowledgments}
   \vspace{1.1in}
@@ -103,6 +102,7 @@ For Beth
   inspiring me to be better. And to my children, Adelaide and Sullivan, thank
   you for making life so much more.
 \end{acknowledgments}
+\setlength{\footskip}{20pt}
 
 \maketitleabstract %(required even though there's no abstract title anymore)
 
@@ -126,7 +126,6 @@ demonstrating how the simplicity of the approach enables formal verification.
 
 \tableofcontents
 \listoffigures
-%\listoftables
 
 \mainmatter
 

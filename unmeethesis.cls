@@ -545,10 +545,11 @@
   \begin{flushleft}
      \LARGE \bfseries Dedication
   \end{flushleft}
-  \vspace{2cm}
+  \vspace{1cm}
+  \thispagestyle{plain}
   \itshape
   \begin{flushright}}
-{\end{flushright}\vfil\clearpage}
+{\end{flushright}\null\vfil}
 
 %::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 %  The following commands define the 'singlespace' environment
@@ -571,6 +572,7 @@
   \singlespace
   \thispagestyle{plain}
 }{\endsinglespace \vfil}
+
 %::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 %  The following commands define the abstract title page
 %::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
